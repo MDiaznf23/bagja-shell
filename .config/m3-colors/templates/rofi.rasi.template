@@ -1,0 +1,133 @@
+* {
+    active-background: {{m3secondaryContainer}};
+    active-foreground: {{m3onSecondaryContainer}};
+    normal-background: {{m3surface}};
+    normal-foreground: {{m3onSurface}};
+    urgent-background: {{m3errorContainer}};
+    urgent-foreground: {{m3onErrorContainer}};
+    alternate-active-background: {{m3surface}};
+    alternate-active-foreground: {{m3onSurface}};
+    alternate-normal-background: {{m3surface}};
+    alternate-normal-foreground: {{m3onSurface}};
+    alternate-urgent-background: {{m3surface}};
+    alternate-urgent-foreground: {{m3onSurface}};
+    selected-active-background: {{m3secondary}};
+    selected-active-foreground: {{m3onSecondary}};
+    selected-normal-background: {{m3primaryContainer}};
+    selected-normal-foreground: {{m3onPrimaryContainer}};
+    selected-urgent-background: {{m3error}};
+    selected-urgent-foreground: {{m3onError}};
+    background-color: {{m3surface}};
+    background: {{m3surface}};
+    foreground: {{m3onSurface}};
+    border-color: {{m3outline}};
+    spacing: 2;
+}
+#window {
+    background-color: {{m3surface}};
+    border: 0;
+    padding: 2.5ch;
+}
+#mainbox {
+    border: 0;
+    padding: 0;
+}
+#message {
+    border: 2px 0px 0px;
+    border-color: {{m3outline}};
+    padding: 1px;
+}
+#textbox {
+    text-color: {{m3onSurface}};
+}
+#inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+#textbox-prompt-colon {
+    expand: false;
+    str: ":";
+    margin: 0px 0.3em 0em 0em;
+    text-color: {{m3onSurface}};
+}
+#listview {
+    fixed-height: 0;
+    border: 2px 0px 0px;
+    border-color: {{m3outline}};
+    spacing: 2px;
+    scrollbar: true;
+    padding: 2px 0px 0px;
+}
+#element {
+    border: 0;
+    padding: 1px;
+}
+#element.normal.normal {
+    background-color: {{m3surface}};
+    text-color: {{m3onSurface}};
+}
+#element.normal.urgent {
+    background-color: {{m3errorContainer}};
+    text-color: {{m3onErrorContainer}};
+}
+#element.normal.active {
+    background-color: {{m3secondaryContainer}};
+    text-color: {{m3onSecondaryContainer}};
+}
+#element.selected.normal {
+    background-color: {{m3primaryContainer}};
+    text-color: {{m3onPrimaryContainer}};
+}
+#element.selected.urgent {
+    background-color: {{m3error}};
+    text-color: {{m3onError}};
+}
+#element.selected.active {
+    background-color: {{m3secondary}};
+    text-color: {{m3onSecondary}};
+}
+#element.alternate.normal {
+    background-color: {{m3surface}};
+    text-color: {{m3onSurface}};
+}
+#element.alternate.urgent {
+    background-color: {{m3errorContainer}};
+    text-color: {{m3onErrorContainer}};
+}
+#element.alternate.active {
+    background-color: {{m3secondaryContainer}};
+    text-color: {{m3onSecondaryContainer}};
+}
+#scrollbar {
+    width: 4px;
+    border: 0;
+    handle-width: 8px;
+    padding: 0;
+}
+#sidebar {
+    border: 2px 0px 0px;
+    border-color: {{m3outline}};
+}
+#button {
+    text-color: {{m3onSurface}};
+}
+#button.selected {
+    background-color: {{m3primaryContainer}};
+    text-color: {{m3onPrimaryContainer}};
+}
+#inputbar {
+    spacing: 0;
+    text-color: {{m3onSurface}};
+    padding: 1px;
+}
+#case-indicator {
+    spacing: 0;
+    text-color: {{m3onSurface}};
+}
+#entry {
+    spacing: 0;
+    text-color: {{m3onSurface}};
+}
+#prompt {
+    spacing: 0;
+    text-color: {{m3onSurface}};
+}

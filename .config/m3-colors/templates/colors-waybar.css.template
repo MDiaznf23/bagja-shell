@@ -1,0 +1,28 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  
+  "style": {
+    "background": "{{m3surface}}",
+    "color": "{{m3onSurface}}"
+  },
+  
+  "modules": {
+    "clock": {
+      "style": {
+        "color": "{{m3primary}}"
+      }
+    },
+    
+    "battery": {
+      "states": {
+        "warning": 30,
+        "critical": 15
+      },
+      "format-critical": {
+        "color": "{{m3error}}"
+      }
+    }
+  }
+}

@@ -1,0 +1,171 @@
+#![enable(implicit_some)]
+#![enable(unwrap_newtypes)]
+#![enable(unwrap_variant_newtypes)]
+(
+    default_album_art_path: None,
+    show_song_table_header: true,
+    draw_borders: true,
+    format_tag_separator: " | ",
+    browser_column_widths: [20, 38, 42],
+    background_color: Some("{{m3surface}}"),
+    text_color: Some("{{m3onSurface}}"),
+    header_background_color: Some("{{m3surfaceContainer}}"),
+    modal_background_color: Some("{{m3surfaceContainerHigh}}"),
+    modal_backdrop: false,
+    preview_label_style: (fg: "{{m3primary}}"),
+    preview_metadata_group_style: (fg: "{{m3primary}}", modifiers: "Bold"),
+    tab_bar: (
+        enabled: true,
+        active_style: (fg: "{{m3onPrimary}}", bg: "{{m3primary}}", modifiers: "Bold"),
+        inactive_style: (fg: "{{m3onSurfaceVariant}}"),
+    ),
+    highlighted_item_style: (fg: "{{m3primary}}", modifiers: "Bold"),
+    current_item_style: (fg: "{{m3onPrimary}}", bg: "{{m3primary}}", modifiers: "Bold"),
+    borders_style: (fg: "{{m3outline}}"),
+    highlight_border_style: (fg: "{{m3primary}}"),
+    symbols: (
+        song: "S",
+        dir: "D",
+        playlist: "P",
+        marker: "M",
+        ellipsis: "...",
+        song_style: None,
+        dir_style: None,
+        playlist_style: None,
+    ),
+    level_styles: (
+        info: (fg: "{{m3primary}}", bg: "{{m3surface}}"),
+        warn: (fg: "{{m3tertiary}}", bg: "{{m3surface}}"),
+        error: (fg: "{{m3error}}", bg: "{{m3surface}}"),
+        debug: (fg: "{{m3secondary}}", bg: "{{m3surface}}"),
+        trace: (fg: "{{m3tertiary}}", bg: "{{m3surface}}"),
+    ),
+    progress_bar: (
+        symbols: ["[", "-", ">", " ", "]"],
+        track_style: (fg: "{{m3surfaceContainerHighest}}"),
+        elapsed_style: (fg: "{{m3primary}}"),
+        thumb_style: (fg: "{{m3primary}}", bg: "{{m3surfaceContainerHighest}}"),
+    ),
+    scrollbar: (
+        symbols: ["│", "█", "▲", "▼"],
+        track_style: (),
+        ends_style: (),
+        thumb_style: (fg: "{{m3primary}}"),
+    ),
+    song_table_format: [
+        (
+            prop: (kind: Property(Artist),
+                default: (kind: Text("Unknown"))
+            ),
+            width: "20%",
+        ),
+        (
+            prop: (kind: Property(Title),
+                default: (kind: Text("Unknown"))
+            ),
+            width: "35%",
+        ),
+        (
+            prop: (kind: Property(Album), style: (fg: "{{m3onSurfaceVariant}}"),
+                default: (kind: Text("Unknown Album"), style: (fg: "{{m3onSurfaceVariant}}"))
+            ),
+            width: "30%",
+        ),
+        (
+            prop: (kind: Property(Duration),
+                default: (kind: Text("-"))
+            ),
+            width: "15%",
+            alignment: Right,
+        ),
+    ],
+    components: {},
+    layout: Split(
+        direction: Vertical,
+        panes: [
+            (
+                pane: Pane(Header),
+                size: "2",
+            ),
+            (
+                pane: Pane(Tabs),
+                size: "3",
+            ),
+            (
+                pane: Pane(TabContent),
+                size: "100%",
+            ),
+            (
+                pane: Pane(ProgressBar),
+                size: "1",
+            ),
+        ],
+    ),
+    header: (
+        rows: [
+            (
+                left: [
+                    (kind: Text("["), style: (fg: "{{m3tertiary}}", modifiers: "Bold")),
+                    (kind: Property(Status(StateV2(playing_label: "Playing", paused_label: "Paused", stopped_label: "Stopped"))), style: (fg: "{{m3tertiary}}", modifiers: "Bold")),
+                    (kind: Text("]"), style: (fg: "{{m3tertiary}}", modifiers: "Bold"))
+                ],
+                center: [
+                    (kind: Property(Song(Title)), style: (modifiers: "Bold"),
+                        default: (kind: Text("No Song"), style: (modifiers: "Bold"))
+                    )
+                ],
+                right: [
+                    (kind: Property(Widget(ScanStatus)), style: (fg: "{{m3primary}}")),
+                    (kind: Property(Widget(Volume)), style: (fg: "{{m3primary}}"))
+                ]
+            ),
+            (
+                left: [
+                    (kind: Property(Status(Elapsed))),
+                    (kind: Text(" / ")),
+                    (kind: Property(Status(Duration))),
+                    (kind: Text(" (")),
+                    (kind: Property(Status(Bitrate))),
+                    (kind: Text(" kbps)"))
+                ],
+                center: [
+                    (kind: Property(Song(Artist)), style: (fg: "{{m3primary}}", modifiers: "Bold"),
+                        default: (kind: Text("Unknown"), style: (fg: "{{m3primary}}", modifiers: "Bold"))
+                    ),
+                    (kind: Text(" - ")),
+                    (kind: Property(Song(Album)),
+                        default: (kind: Text("Unknown Album"))
+                    )
+                ],
+                right: [
+                    (
+                        kind: Property(Widget(States(
+                            active_style: (fg: "{{m3onSurface}}", modifiers: "Bold"),
+                            separator_style: (fg: "{{m3onSurface}}")))
+                        ),
+                        style: (fg: "{{m3onSurfaceVariant}}")
+                    ),
+                ]
+            ),
+        ],
+    ),
+    browser_song_format: [
+        (
+            kind: Group([
+                (kind: Property(Track)),
+                (kind: Text(" ")),
+            ])
+        ),
+        (
+            kind: Group([
+                (kind: Property(Artist)),
+                (kind: Text(" - ")),
+                (kind: Property(Title)),
+            ]),
+            default: (kind: Property(Filename))
+        ),
+    ],
+    lyrics: (
+        timestamp: false
+    )
+)

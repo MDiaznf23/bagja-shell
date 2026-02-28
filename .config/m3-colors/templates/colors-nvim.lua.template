@@ -1,0 +1,199 @@
+-- Auto-generated Material 3 theme for NvChad
+-- Generated from wallpaper: {{wallpaper_path}}
+-- Mode: {{mode}}
+-- Source color: {{source_color}}
+
+---@type Base46Table
+local M = {}
+
+-- UI Colors from Material 3
+M.base_30 = {
+  white = "{{m3onSurface}}",
+  black = "{{m3surface}}",
+  darker_black = "{{m3surfaceDim}}",
+  black2 = "{{m3surfaceContainerLow}}",
+  one_bg = "{{m3surfaceContainer}}",
+  one_bg2 = "{{m3surfaceContainerHigh}}",
+  one_bg3 = "{{m3surfaceContainerHighest}}",
+  grey = "{{m3surfaceVariant}}",
+  grey_fg = "{{m3onSurfaceVariant}}",
+  grey_fg2 = "{{m3outline}}",
+  light_grey = "{{m3outlineVariant}}",
+  
+  -- Accent colors
+  red = "{{m3error}}",
+  baby_pink = "{{m3errorContainer}}",
+  pink = "{{m3tertiary}}",
+  line = "{{m3outline}}",
+  green = "{{m3tertiary}}",
+  vibrant_green = "{{m3tertiaryContainer}}",
+  nord_blue = "{{m3secondary}}",
+  blue = "{{m3primary}}",
+  seablue = "{{m3primaryContainer}}",
+  yellow = "{{m3tertiaryFixedDim}}",
+  sun = "{{m3tertiaryFixed}}",
+  purple = "{{m3secondary}}",
+  dark_purple = "{{m3secondaryContainer}}",
+  teal = "{{m3primaryContainer}}",
+  orange = "{{m3tertiary}}",
+  cyan = "{{m3primaryFixedDim}}",
+  
+  -- UI elements
+  statusline_bg = "{{m3surfaceContainer}}",
+  lightbg = "{{m3surfaceContainerHigh}}",
+  pmenu_bg = "{{m3primary}}",
+  folder_bg = "{{m3primary}}"
+}
+
+-- Syntax highlighting colors (base16 format)
+M.base_16 = {
+  base00 = "{{m3surface}}",                    -- Default Background
+  base01 = "{{m3surfaceContainer}}",           -- Lighter Background
+  base02 = "{{m3surfaceContainerHigh}}",       -- Selection Background
+  base03 = "{{m3outline}}",                    -- Comments, Invisibles
+  base04 = "{{m3onSurfaceVariant}}",           -- Dark Foreground
+  base05 = "{{m3onSurface}}",                  -- Default Foreground
+  base06 = "{{m3onSurface}}",                  -- Light Foreground
+  base07 = "{{m3surfaceBright}}",              -- Light Background
+  base08 = "{{m3error}}",                      -- Variables, Tags
+  base09 = "{{m3tertiary}}",                   -- Integers, Constants
+  base0A = "{{m3primary}}",                    -- Classes, Search
+  base0B = "{{m3tertiary}}",                   -- Strings
+  base0C = "{{m3primaryContainer}}",           -- Regex, Escapes
+  base0D = "{{m3primary}}",                    -- Functions, Methods
+  base0E = "{{m3secondary}}",                  -- Keywords, Storage
+  base0F = "{{m3errorContainer}}"              -- Deprecated
+}
+
+-- Optional: Custom highlights
+M.polish_hl = {
+  defaults = {
+    Comment = {
+      fg = "{{m3outline}}",
+      italic = true,
+    },
+    LineNr = {
+      fg = "{{m3outlineVariant}}",
+    },
+    CursorLine = {
+      bg = "{{m3surfaceContainerLow}}",
+    },
+    CursorLineNr = {
+      fg = "{{m3primary}}",
+      bold = true,
+    },
+    Visual = {
+      bg = "{{m3primaryContainer}}",
+    },
+    Pmenu = {
+      bg = "{{m3surfaceContainer}}",
+    },
+    PmenuSel = {
+      bg = "{{m3primaryContainer}}",
+      fg = "{{m3onPrimaryContainer}}",
+    },
+    StatusLine = {
+      bg = "{{m3surfaceContainer}}",
+      fg = "{{m3onSurface}}",
+    },
+    TabLine = {
+      bg = "{{m3surfaceContainerLow}}",
+      fg = "{{m3onSurfaceVariant}}",
+    },
+    TabLineSel = {
+      bg = "{{m3primaryContainer}}",
+      fg = "{{m3onPrimaryContainer}}",
+    },
+    NvimTreeNormal = {
+      bg = "{{m3surfaceContainerLow}}",
+    },
+    NvimTreeFolderIcon = {
+      fg = "{{m3primary}}",
+    },
+  },
+  
+  treesitter = {
+    ["@keyword"] = { fg = "{{m3secondary}}" },
+    ["@function"] = { fg = "{{m3primary}}" },
+    ["@function.builtin"] = { fg = "{{m3primaryContainer}}" },
+    ["@variable"] = { fg = "{{m3onSurface}}" },
+    ["@variable.builtin"] = { fg = "{{m3tertiary}}" },
+    ["@string"] = { fg = "{{m3tertiary}}" },
+    ["@number"] = { fg = "{{m3tertiary}}" },
+    ["@boolean"] = { fg = "{{m3tertiary}}" },
+    ["@constant"] = { fg = "{{m3tertiary}}" },
+    ["@type"] = { fg = "{{m3secondary}}" },
+    ["@parameter"] = { fg = "{{m3onSurface}}" },
+    ["@property"] = { fg = "{{m3onSurface}}" },
+    ["@operator"] = { fg = "{{m3onSurfaceVariant}}" },
+    ["@punctuation"] = { fg = "{{m3outlineVariant}}" },
+    ["@comment"] = { 
+      fg = "{{m3outline}}", 
+      italic = true 
+    },
+    ["@tag"] = { fg = "{{m3error}}" },
+    ["@tag.attribute"] = { fg = "{{m3tertiary}}" },
+    ["@tag.delimiter"] = { fg = "{{m3outlineVariant}}" },
+  },
+
+  lsp = {
+    DiagnosticError = { fg = "{{m3error}}" },
+    DiagnosticWarn = { fg = "{{m3tertiary}}" },
+    DiagnosticInfo = { fg = "{{m3primary}}" },
+    DiagnosticHint = { fg = "{{m3secondary}}" },
+    DiagnosticUnderlineError = { 
+      undercurl = true, 
+      sp = "{{m3error}}" 
+    },
+    DiagnosticUnderlineWarn = { 
+      undercurl = true, 
+      sp = "{{m3tertiary}}" 
+    },
+    DiagnosticUnderlineInfo = { 
+      undercurl = true, 
+      sp = "{{m3primary}}" 
+    },
+    DiagnosticUnderlineHint = { 
+      undercurl = true, 
+      sp = "{{m3secondary}}" 
+    },
+  },
+
+  telescope = {
+    TelescopePromptBorder = { fg = "{{m3primary}}" },
+    TelescopeResultsBorder = { fg = "{{m3outline}}" },
+    TelescopePreviewBorder = { fg = "{{m3outline}}" },
+    TelescopeSelection = { 
+      bg = "{{m3primaryContainer}}", 
+      fg = "{{m3onPrimaryContainer}}" 
+    },
+    TelescopeMatching = { fg = "{{m3primary}}", bold = true },
+  },
+
+  cmp = {
+    CmpItemAbbrMatch = { fg = "{{m3primary}}", bold = true },
+    CmpItemAbbrMatchFuzzy = { fg = "{{m3primary}}" },
+    CmpItemKindVariable = { fg = "{{m3onSurface}}" },
+    CmpItemKindFunction = { fg = "{{m3primary}}" },
+    CmpItemKindKeyword = { fg = "{{m3secondary}}" },
+    CmpItemKindConstant = { fg = "{{m3tertiary}}" },
+    CmpItemKindModule = { fg = "{{m3secondary}}" },
+  },
+
+  git = {
+    DiffAdd = { fg = "{{m3tertiary}}" },
+    DiffChange = { fg = "{{m3primary}}" },
+    DiffDelete = { fg = "{{m3error}}" },
+    GitSignsAdd = { fg = "{{m3tertiary}}" },
+    GitSignsChange = { fg = "{{m3primary}}" },
+    GitSignsDelete = { fg = "{{m3error}}" },
+  },
+}
+
+-- Set theme type based on wallpaper analysis
+M.type = "{{mode}}"
+
+-- Override theme
+M = require("base46").override_theme(M, "material3")
+
+return M
