@@ -2,6 +2,8 @@
 
 > **Less remembering. More doing.**
 
+https://github.com/user-attachments/assets/acc31a07-0f35-486d-a20e-0792873fd1b6
+
 Bagja (meaning "happy" in Sundanese) is a custom, adaptive Linux shell environment. It merges the speed of keyboard-driven workflows with the visual convenience of docks and start menus.
 
 Built to minimize cognitive load, Bagja adapts to your energy levels—not the other way around.
@@ -24,6 +26,10 @@ No cheat sheets. No monolithic bloatware. Just an engineered, modular workflow.
 - **Visual Anchor:** A minimalist bottom dock for your daily drivers.
 - **Universal Entry Point:** A comprehensive start menu linked to the dock for total system discoverability.
 - **Modular Architecture:** Built from independent components. If one module crashes, the rest of the shell keeps running.
+
+## Known Issues
+
+> ⚠️ Some panel modules are still buggy and unstable. Expect rough edges.
 
 ## Tech Stack
 
