@@ -12,13 +12,12 @@ Rectangle {
   color: "#000000"
 
   property string lockState: "idle"
-  property var lockStatus: ({})
 
   Image {
     id: wallpaperImage
     anchors.fill: parent
     fillMode: Image.PreserveAspectCrop
-    source: "file://" + Quickshell.env("HOME") + "/.config/m3-colors/current_wallpaper"
+    source: "file://" + Quickshell.env("HOME") + "/.config/warnaza/current_wallpaper"
 
     layer.enabled: root.lockState === "login" || root.lockState === "unlocking"
     layer.effect: MultiEffect {
@@ -38,31 +37,6 @@ Rectangle {
     }
   }
 
-  // Process for reach status
-  Process {
-      id: statusProcess
-      command: ["bash", Quickshell.shellDir + "/scripts/lock-status.sh"]
-      running: true
-
-    stdout: SplitParser {
-      onRead: data => {
-        try {
-          root.lockStatus = JSON.parse(data)
-        } 
-        catch(e) {
-          console.log("JSON parse error:", e, data)
-        }
-      }
-    }
-  }
-
-  Timer {
-    running: true
-    repeat: true
-    interval: 5000
-    onTriggered: statusProcess.running = true
-  }
-
   // Status icons 
   Row {
     anchors.right: parent.right
@@ -71,25 +45,28 @@ Rectangle {
     spacing: 16
 
     Text {
-      text: root.lockStatus.wifi ?? ""
-      color: Colors.isDark ? Colors.overSurface : Colors.surface
+      text: StateGlobals.wifiIcon
+      color: Colors.lock_text
       font.pixelSize: 14
+      font.family: "JetBrainsMono Nerd Font"
       width: 14
       horizontalAlignment: Text.AlignHCenter
     }
 
     Text {
-      text: root.lockStatus.battery ?? ""
-      color: Colors.isDark ? Colors.overSurface : Colors.surface
+      text: StateGlobals.batIcon
+      color: Colors.lock_text
       font.pixelSize: 14
+      font.family: "JetBrainsMono Nerd Font"
       width: 14
       horizontalAlignment: Text.AlignHCenter
     }
 
     Text {
-      text: root.lockStatus.volume ?? ""
-      color: Colors.isDark ? Colors.overSurface : Colors.surface
+      text: StateGlobals.volIcon
+      color: Colors.lock_text
       font.pixelSize: 14
+      font.family: "JetBrainsMono Nerd Font"
       width: 14
     }
   }
@@ -102,15 +79,15 @@ Rectangle {
     spacing: 4
 
     Text {
-      text: Qt.formatDate(new Date(), "dddd") + "," 
-      color: Colors.isDark ? Colors.overSurface : Colors.surface
+      text: Qt.formatDate(StateGlobals.clockDateMin, "dddd") + "," 
+      color: Colors.lock_text
       font.pixelSize: 14
       font.bold: true
     }
 
     Text {
-      text: Qt.formatDate(new Date(), "dd MMMM yyyy")
-      color: Colors.isDark ? Colors.overSurface : Colors.surface
+      text: Qt.formatDate(StateGlobals.clockDateMin, "dd MMMM yyyy")
+      color: Colors.lock_text
       font.pixelSize: 14 
       font.bold: true
 
@@ -142,7 +119,7 @@ Rectangle {
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
-      color: Colors.isDark ? Colors.primary : Colors.primaryFixed
+      color: Colors.text_variant2
       font.family: "Iosevka Nerd Font"
       font.pixelSize: 110
       topPadding: 0
@@ -152,7 +129,7 @@ Rectangle {
 
     Text {
       anchors.horizontalCenter: parent.horizontalCenter
-      color: Colors.isDark ? Colors.overSurface : Colors.overPrimary
+      color: Colors.lock_text
       font.family: "Iosevka Nerd Font"
       font.pixelSize: 110
       topPadding: 0
@@ -168,7 +145,7 @@ Rectangle {
     anchors.bottom: parent.bottom
     anchors.bottomMargin: 20
     text: "Press any key to unlock"
-    color: Colors.isDark ? Colors.overSurface : Colors.primaryFixed
+    color: Colors.lock_text
     font.pixelSize: 14
     opacity: 0
 

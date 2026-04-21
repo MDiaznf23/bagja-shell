@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
+import Qt5Compat.GraphicalEffects
 import Quickshell.Bluetooth
 
 PanelWindow {
@@ -12,6 +12,16 @@ PanelWindow {
   implicitHeight: 320
 
   property bool isShowing: false
+  property string toastMsg: ""
+  property bool isToastError: false
+  property bool showToast: false
+
+  function displayToast(msg, isError) {
+    root.toastMsg = msg
+    root.isToastError = isError
+    root.showToast = true
+    toastTimer.restart()
+  }
 
   Timer {
     id: showTimer
@@ -55,8 +65,8 @@ PanelWindow {
       height: 12
       gradient: Gradient {
         orientation: Gradient.Horizontal 
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       anchors.top: parent.top
       anchors.left: parent.left
@@ -83,11 +93,11 @@ PanelWindow {
       anchors.bottomMargin: 12
       gradient: Gradient {
         orientation: Gradient.Horizontal 
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       radius: 10
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       border.width: 2
 
       ColumnLayout {
@@ -100,7 +110,7 @@ PanelWindow {
 
           Text {
             text: "Bluetooth"
-            color: Colors.isDark ? Colors.primary : Colors.secondary 
+            color: Colors.header_title 
             font.pixelSize: 14
             font.bold: true
             Layout.fillWidth: true
@@ -109,9 +119,7 @@ PanelWindow {
           Rectangle {
             width: 32; height: 16
             radius: 8
-            color: BluetoothService.enabled
-            ? Colors.isDark ? Colors.primaryContainer : Colors.primaryFixed 
-            : Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainer
+            color: BluetoothService.enabled ? Colors.bt_toggle_active_bg : Colors.bt_toggle_inactive_bg
 
             Behavior on color {
               ColorAnimation { duration: 150 }
@@ -120,7 +128,7 @@ PanelWindow {
             Rectangle {
               width: 12; height: 12
               radius: 8
-              color: Colors.isDark ? Colors.surfaceContainer : Colors.surface
+              color: Colors.bt_toggle_knob
               anchors.verticalCenter: parent.verticalCenter
               x: BluetoothService.enabled ? 18 : 3
 
@@ -137,14 +145,12 @@ PanelWindow {
 
           Rectangle {
             width: 20; height: 20
-            color: closeArea.containsMouse 
-            ? Colors.isDark ? Colors.errorContainer : Colors.surface 
-            : "transparent"
+            color: closeArea.containsMouse ? Colors.close_btn_hovered : "transparent"
             radius: 4
             Text {
               anchors.centerIn: parent
               text: "✕"
-              color: Colors.overSurface
+              color: Colors.close_btn_icon
               font.pixelSize: 12
             }
             MouseArea {
@@ -159,13 +165,13 @@ PanelWindow {
         Rectangle {
           Layout.fillWidth: true
           height: 1
-          color: Colors.outlineVariant
+          color: Colors.divider
         }
 
         Text {
           visible: !BluetoothService.available
           text: "No adapter Bluetooth"
-          color: Colors.overSurfaceVariant
+          color: Colors.text_variant1
           font.pixelSize: 12
           Layout.alignment: Qt.AlignHCenter
         }
@@ -173,7 +179,7 @@ PanelWindow {
         Text {
           visible: BluetoothService.available && !BluetoothService.enabled
           text: "Bluetooth is off"
-          color: Colors.overSurfaceVariant
+          color: Colors.text_variant1
           font.pixelSize: 12
           Layout.alignment: Qt.AlignHCenter
         }
@@ -190,7 +196,7 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: "No devices"
-            color: Colors.overSurfaceVariant
+            color: Colors.text_variant1
             font.pixelSize: 12
             visible: deviceList.count === 0
           }
@@ -198,14 +204,16 @@ PanelWindow {
           delegate: Rectangle {
             id: deviceItem
             required property var modelData
+            property bool isProcessing: false
+            onIsConnectedChanged: isProcessing = false
 
             property bool isConnected: modelData.connected
 
             width: deviceList.width
             height: 55
-            color: deviceArea.containsMouse
-              ? Colors.isDark ? Colors.surfaceContainerHigh : Colors.primaryFixedDim
-              : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+            color: deviceArea.containsMouse 
+            ? Colors.isDark ? Colors.bt_device_item_hovered : Qt.alpha(Colors.bt_device_item_hovered, 0.3) 
+            : Colors.bt_device_item_bg
             radius: 6
 
             Behavior on color { ColorAnimation { duration: 100 } }
@@ -217,21 +225,19 @@ PanelWindow {
               spacing: 8
 
               Text {
-                Layout.alignment: Qt.AlignTop
+                Layout.alignment: Qt.AlignVCenter
                 topPadding: -2
                 text: {
-                  var ic = deviceItem.modelData.type
-                  if (ic === "headphone") return "󰋋"
-                  if (ic === "phone")     return "󰄜"
-                  if (ic === "keyboard")  return "󰌌"
-                  if (ic === "mouse")     return "󰍽"
-                  if (ic === "computer")  return "󰇄"
+                  var ic = deviceItem.modelData.icon
+                  if (ic.includes("headset") || ic.includes("headphone") || ic.includes("audio")) return "󰋋"
+                  if (ic.includes("phone"))    return "󰄜"
+                  if (ic.includes("keyboard")) return "󰌌"
+                  if (ic.includes("mouse"))    return "󰍽"
+                  if (ic.includes("computer")) return "󰇄"
                   return "󰂯"
                 }
-                color: deviceItem.isConnected
-                  ? Colors.isDark ? Colors.primary : Colors.tertiary
-                  : Colors.overSurfaceVariant
-                font.pixelSize: 40
+                color: deviceItem.isConnected ? Colors.bt_device_icon_connected : Colors.bt_device_icon_disconnected
+                font.pixelSize: 32
               }
 
               ColumnLayout {
@@ -240,86 +246,117 @@ PanelWindow {
 
                 Text {
                   text: deviceItem.modelData.name
-                  color: Colors.overSurface
+                  color: Colors.bt_device_name
                   font.pixelSize: 12
                   elide: Text.ElideRight
                   Layout.fillWidth: true
                 }
 
+                // ── Teks Status Gabungan (Pintar) ──
                 Text {
-                  visible: deviceItem.isConnected
-                  text: "Connected"
-                  color: Colors.isDark ? Colors.primary : Colors.tertiary
-                  font.pixelSize: 10
-                }
-
-                Text {
-                  visible: !deviceItem.isConnected && deviceItem.modelData.paired
-                  text: "Paired"
-                  color: Colors.overSurface
+                  visible: deviceItem.isProcessing || deviceItem.isConnected || deviceItem.modelData.paired
+                  text: {
+                    if (deviceItem.isProcessing) return deviceItem.isConnected ? "Disconnecting..." : "Connecting..."
+                    if (deviceItem.isConnected) return "Connected"
+                    if (deviceItem.modelData.paired) return "Paired"
+                    return ""
+                  }
+                  color: deviceItem.isProcessing
+                    ? Colors.bt_device_status_processing
+                    : deviceItem.isConnected
+                      ? Colors.bt_device_status_connected
+                      : Colors.bt_device_status_paired
                   font.pixelSize: 10
                 }
               }
 
+              // ── Tombol On/Off ──
               Rectangle {
                 width: 40; height: 22
                 radius: 11
-                color: deviceItem.isConnected
-                  ? Colors.isDark ? Colors.secondaryContainer : Colors.primaryContainer
-                  : Colors.isDark ? Colors.overSecondary : Colors.outline
-
+                color: deviceItem.isProcessing
+                  ? Colors.bt_device_toggle_loading_bg
+                  : deviceItem.isConnected
+                    ? Colors.bt_device_toggle_active_bg
+                    : Colors.bt_device_toggle_inactive_bg
                 Behavior on color { ColorAnimation { duration: 150 } }
-
                 Text {
                   anchors.centerIn: parent
-                  text: deviceItem.isConnected ? "On" : "Off"
-                  color: deviceItem.isConnected
-                    ? Colors.isDark ? Colors.primary : Colors.overSecondary
-                    : Colors.isDark ? Colors.overSurface : Colors.overPrimary
+                  text: deviceItem.isProcessing ? "..." : (deviceItem.isConnected ? "On" : "Off")
+                  color: deviceItem.isProcessing
+                    ? Colors.bt_device_toggle_loading_text
+                    : deviceItem.isConnected
+                      ? Colors.bt_device_toggle_active_text
+                      : Colors.bt_device_toggle_inactive_text
                   font.pixelSize: 10
                   font.bold: true
                 }
-
-                MouseArea {
-                  anchors.fill: parent
-                  onClicked: {
-                    connectProcess.command = [
-                      "bash",
-                      Quickshell.shellDir + "/scripts/connect_bluetooth.sh",
-                      deviceItem.modelData.mac,
-                      "toggle"
-                    ]
-                    connectProcess.running = true
-                  }
-                }
-              }
+              } 
             }
 
             MouseArea {
               id: deviceArea
               anchors.fill: parent
               hoverEnabled: true
-              onClicked: {}
+              onClicked: {
+                deviceItem.isProcessing = true
+                if (deviceItem.isConnected) {
+                  deviceItem.modelData.disconnect()
+                  root.displayToast("Disconnecting from " + deviceItem.modelData.name + "...", false)
+                } else {
+                  deviceItem.modelData.connect()
+                  root.displayToast("Connecting to " + deviceItem.modelData.name + "...", false)
+                }
+              }
             }
           }
         }
 
-        Process {
-          id: connectProcess
-          onRunningChanged: {
-            if (!running) BluetoothService.refresh()
-          }
+        Item {
+          Layout.fillHeight: true
+          visible: !BluetoothService.enabled
+        } 
+      }
+
+      Rectangle {
+        id: toastContainer
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 24
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(toastLabel.implicitWidth + 32, parent.width - 48)
+        height: 32
+        radius: 16
+        
+        color: Colors.toast_bg
+        border.color: root.isToastError ? "#FF5252" : Colors.toast_border
+        border.width: 1
+        
+        opacity: root.showToast ? 1 : 0
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+
+        Text {
+          id: toastLabel
+          anchors.centerIn: parent
+          width: Math.min(implicitWidth, parent.width - 32)
+          elide: Text.ElideRight
+          text: root.toastMsg
+          color: Colors.toast_text
+          font.pixelSize: 11
+          font.bold: true
+        }
+
+        Timer {
+          id: toastTimer
+          interval: 3500
+          onTriggered: root.showToast = false
         }
       }
       Rectangle {
         id: rightPatch
         width: 12
         height: parent.height
-        gradient: Gradient {
-          orientation: Gradient.Horizontal 
-          GradientStop { position: 0.1; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.8; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-        }
+        color: Colors.rightbar_gradient1 
         anchors.right: parent.right
         anchors.rightMargin: -2
         z: 5
@@ -336,7 +373,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim 
+          ctx.fillStyle = Colors.rightbar_gradient1 
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -360,7 +397,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -384,7 +421,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface 
+        ctx.fillStyle = Colors.topbar_gradient5 
         ctx.beginPath()
         ctx.moveTo(0, 0)
         ctx.lineTo(0, 2)
@@ -407,7 +444,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.beginPath()
         ctx.moveTo(0, 0)
         ctx.lineTo(0, 2)

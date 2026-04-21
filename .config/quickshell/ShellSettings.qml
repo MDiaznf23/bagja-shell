@@ -9,7 +9,7 @@ PanelWindow {
   id: root
 
   implicitWidth: 600
-  implicitHeight: 450
+  implicitHeight: 500
 
   property bool isShowing: false
   property string activeTab: "Appearance"
@@ -51,11 +51,11 @@ PanelWindow {
     anchors.centerIn: parent
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+      GradientStop { position: 0.1; color: Colors.background }
+      GradientStop { position: 0.99; color: Colors.background_variant1 }
     }
     radius: 16
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
     border.width: 2
     opacity: root.isShowing ? 1 : 0
     Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
@@ -72,10 +72,10 @@ PanelWindow {
       Rectangle {
         Layout.preferredWidth: 160
         Layout.fillHeight: true
-        color: Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+        color: Colors.settings_sidebar_bg
         radius: 16
         border.width: 2 
-        border.color: Colors.outlineVariant
+        border.color: Colors.outline_variant
 
         Rectangle {
           anchors.top: parent.top
@@ -90,7 +90,7 @@ PanelWindow {
           anchors.right: parent.right
           height: 2
           width: 16
-          color: Colors.outlineVariant
+          color: Colors.outline_variant
         }
 
         Rectangle {
@@ -98,7 +98,7 @@ PanelWindow {
           anchors.right: parent.right
           height: 2
           width: 16
-          color: Colors.outlineVariant
+          color: Colors.outline_variant
         }
 
         ColumnLayout {
@@ -115,7 +115,7 @@ PanelWindow {
               anchors.leftMargin: 16
               anchors.verticalCenter: parent.verticalCenter
               text: "Settings"
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 13
               font.bold: true
             }
@@ -127,7 +127,7 @@ PanelWindow {
             Layout.leftMargin: 10
             Layout.rightMargin: 10
             height: 1
-            color: Colors.outlineVariant
+            color: Colors.outline_variant
           }
 
           // Tab buttons
@@ -151,9 +151,9 @@ PanelWindow {
                 height: 36
                 radius: 8
                 color: root.activeTab === modelData.label
-                  ? Colors.isDark ? Colors.overPrimary : Colors.primaryFixedDim
+                  ? Colors.settings_tab_active_bg
                   : tabHover.containsMouse
-                    ? Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.8) : Qt.alpha(Colors.primaryFixedDim, 0.5)
+                    ? Qt.alpha(Colors.settings_tab_hovered_bg, 0.5)
                     : "transparent"
                 Behavior on color { ColorAnimation { duration: 120 } }
 
@@ -168,8 +168,7 @@ PanelWindow {
                     font.pixelSize: 14
                     font.family: "JetBrainsMono Nerd Font"
                     color: root.activeTab === modelData.label
-                      ? Colors.isDark ? Colors.primary : Colors.primary
-                      : Colors.overSurfaceVariant
+                      ? Colors.settings_tab_active_text : Colors.settings_tab_inactive_text
                     Layout.alignment: Qt.AlignVCenter
                   }
 
@@ -178,8 +177,7 @@ PanelWindow {
                     font.pixelSize: 12
                     font.bold: root.activeTab === modelData.label
                     color: root.activeTab === modelData.label
-                      ? Colors.isDark ? Colors.primary : Colors.primary
-                      : Colors.overSurfaceVariant
+                      ? Colors.settings_tab_active_text : Colors.settings_tab_inactive_text
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
                   }
@@ -219,7 +217,7 @@ PanelWindow {
 
             Text {
               text: root.activeTab
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 13
               font.bold: true
               Layout.fillWidth: true
@@ -229,7 +227,7 @@ PanelWindow {
             Rectangle {
               width: 20; height: 20
               color: closeHover.containsMouse
-                ? Colors.isDark ? Colors.overSecondary : Colors.secondary
+                ? Colors.close_btn_hovered
                 : "transparent"
               radius: 4
               Layout.alignment: Qt.AlignVCenter
@@ -237,7 +235,7 @@ PanelWindow {
               Text {
                 anchors.centerIn: parent
                 text: "✕"
-                color: Colors.overSurface
+                color: Colors.close_btn_icon
                 font.pixelSize: 12
               }
 
@@ -258,7 +256,7 @@ PanelWindow {
           Layout.leftMargin: 20
           Layout.rightMargin: 16
           height: 1
-          color: Colors.outlineVariant
+          color: Colors.divider
         }
 
         // Appearance
@@ -267,7 +265,7 @@ PanelWindow {
           Layout.fillWidth: true
           Layout.fillHeight: true
           Layout.topMargin: 10
-          Layout.rightMargin: 20
+          Layout.rightMargin: 16
           Layout.leftMargin: 20
           spacing: 10
 
@@ -276,6 +274,118 @@ PanelWindow {
 
             ColumnLayout {
               spacing: 2
+              Layout.fillWidth: true
+              Text { text: "Color Engine"; color: Colors.text; font.pixelSize: 12; font.bold: true }
+              Text { text: "Wallpaper color extraction engine"; color: Colors.text_variant1; font.pixelSize: 10 }
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Rectangle {
+              id: engineDropdown
+              width: 100; height: 24
+              radius: 6
+              color: dropdownHover.containsMouse ? Colors.variant_inactive_bg : Colors.variant_inactive_bg
+              border.color: Colors.outline_variant
+              border.width: 1
+
+              RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 8
+                anchors.rightMargin: 6
+                spacing: 4
+
+                Text {
+                  text: StateGlobals.colorEngine
+                  color: Colors.text
+                  font.pixelSize: 10
+                  Layout.fillWidth: true
+                  Layout.alignment: Qt.AlignVCenter
+                }
+
+                Text {
+                  text: enginePopup.visible ? "⌃" : "⌄"
+                  color: Colors.text_variant1
+                  font.pixelSize: 10
+                  Layout.alignment: Qt.AlignVCenter
+                }
+              }
+
+              MouseArea {
+                id: dropdownHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: enginePopup.visible ? enginePopup.close() : enginePopup.open()
+              }
+
+              Popup {
+                id: enginePopup
+                y: parent.height + 4
+                width: parent.width
+                padding: 4
+                background: Rectangle {
+                  radius: 6
+                  color: Colors.settings_sidebar_bg
+                  border.color: Colors.outline_variant
+                  border.width: 1
+                }
+
+                ColumnLayout {
+                  width: parent.width
+                  spacing: 2
+
+                  Repeater {
+                    model: ["warnaza", "m3wal"]
+                    delegate: Rectangle {
+                      required property string modelData
+                      Layout.fillWidth: true
+                      height: 24
+                      radius: 4
+                      color: itemHover.containsMouse
+                        ? Colors.variant_inactive_bg
+                        : StateGlobals.colorEngine === modelData
+                          ? Colors.variant_active_bg : "transparent"
+                      Behavior on color { ColorAnimation { duration: 100 } }
+
+                      Text {
+                        anchors.centerIn: parent
+                        text: modelData
+                        font.pixelSize: 10
+                        font.bold: StateGlobals.colorEngine === modelData
+                        color: StateGlobals.colorEngine === modelData
+                          ? Colors.variant_active_text : Colors.text
+                      }
+
+                      MouseArea {
+                        id: itemHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                          StateGlobals.colorEngine = modelData
+                          applyEngineProcess.running = false
+                          applyEngineProcess.command = ["bash", Quickshell.shellDir + "/scripts/set_engine.sh", modelData]
+                          applyEngineProcess.running = true
+                          enginePopup.close()
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant }
+
+          RowLayout {
+            Layout.fillWidth: true
+            visible: StateGlobals.colorEngine === "m3wal"
+            Layout.preferredHeight: StateGlobals.colorEngine === "m3wal" ? implicitHeight : 0
+
+            ColumnLayout {
+              spacing: 2 
               Layout.fillWidth: true
 
               // read variants
@@ -294,13 +404,13 @@ PanelWindow {
 
               Text {
                 text: "Color Variant"
-                color: Colors.overSurface
+                color: Colors.text
                 font.pixelSize: 12
                 font.bold: true
               }
               Text {
                 text: "Material You color scheme variant"
-                color: Colors.overSurfaceVariant
+                color: Colors.text_variant1
                 font.pixelSize: 10
               }
             }
@@ -309,6 +419,8 @@ PanelWindow {
           // Grid variant
           GridLayout {
             id: variantGrid
+            visible: StateGlobals.colorEngine === "m3wal"
+            Layout.preferredHeight: StateGlobals.colorEngine === "m3wal" ? implicitHeight : 0
             Layout.fillWidth: true
             columns: 4
             columnSpacing: 6
@@ -324,26 +436,24 @@ PanelWindow {
                 Layout.fillWidth: true
                 height: 28
                 radius: 6
-                color: parent.currentVariant === modelData
-                  ? Colors.isDark ? Colors.primaryContainer : Colors.primaryFixedDim
-                  : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+                color: variantGrid.currentVariant === modelData
+                  ? Colors.variant_active_bg : Colors.variant_inactive_bg
                 Behavior on color { ColorAnimation { duration: 120 } }
 
                 Text {
                   anchors.centerIn: parent
                   text: modelData
                   font.pixelSize: 9
-                  font.bold: parent.currentVariant === modelData
-                  color: parent.currentVariant === modelData
-                    ? Colors.isDark ? Colors.primary : Colors.primary
-                    : Colors.overSurfaceVariant
+                  font.bold: variantGrid.currentVariant === modelData
+                  color: variantGrid.currentVariant === modelData
+                    ? Colors.variant_active_text : Colors.variant_inactive_text
                 }
 
                 MouseArea {
                   anchors.fill: parent
                   cursorShape: Qt.PointingHandCursor
                   onClicked: {
-                    parent.parent.currentVariant = modelData
+                    variantGrid.currentVariant = modelData
                     variantProcess.command = ["bash", Quickshell.shellDir + "/scripts/set_variant.sh", modelData]
                     variantProcess.running = true
                   }
@@ -354,7 +464,7 @@ PanelWindow {
 
           Process { id: variantProcess; running: false }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outlineVariant }
+          Process { id: applyEngineProcess; running: false } 
 
           Item { Layout.fillHeight: true }
         }
@@ -364,75 +474,261 @@ PanelWindow {
           visible: root.activeTab === "Behavior"
           Layout.fillWidth: true
           Layout.fillHeight: true
-          Layout.margins: 20
-          spacing: 16
+          spacing: 0
 
-          // Mode
-          RowLayout {
-            Layout.fillWidth: true
+          Process { id: modeProcess; running: false }
+          Process { id: brightnessProcess; running: false }
+          Process { id: binSizeProcess; running: false }
+          Process { id: deltaMinProcess; running: false }
 
-            ColumnLayout {
-              spacing: 2
-              Layout.fillWidth: true
-              Text {
-                text: "Mode"
-                color: Colors.overSurface
-                font.pixelSize: 12
-                font.bold: true
-              }
-              Text {
-                text: "Color scheme mode"
-                color: Colors.overSurfaceVariant
-                font.pixelSize: 10
-              }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            RowLayout {
-              spacing: 4
-              property string currentMode: "auto"
-
-              Repeater {
-                model: ["light", "dark", "auto"]
-                delegate: Rectangle {
-                  required property string modelData
-                  width: 40; height: 24
-                  radius: 6
-                  color: parent.currentMode === modelData
-                    ? Colors.isDark ? Colors.primaryContainer : Colors.primaryFixedDim
-                    : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
-                  Behavior on color { ColorAnimation { duration: 120 } }
-
-                  Text {
-                    anchors.centerIn: parent
-                    text: modelData
-                    font.pixelSize: 9
-                    font.bold: parent.currentMode === modelData
-                    color: parent.currentMode === modelData
-                      ? Colors.isDark ? Colors.primary : Colors.primary
-                      : Colors.overSurfaceVariant
-                  }
-
-                  MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                      parent.parent.currentMode = modelData
-                      modeProcess.command = ["bash", "-c",
-                        "sed -i 's/^mode = .*/mode = " + modelData + "/' " +
-                        Quickshell.env("HOME") + "/.config/m3-colors/m3-colors.conf"]
-                      modeProcess.running = true
-                    }
-                  }
-                }
+          Process {
+            id: readBehaviorProcess
+            running: false
+            stdout: SplitParser {
+              onRead: data => {
+                var parts = data.trim().split("=")
+                if (parts.length < 2) return
+                var key = parts[0].trim()
+                var val = parts[1].trim()
+                if (key === "mode") modeRow.currentMode = val
+                if (key === "brightness_threshold") brightnessSlider.value = parseInt(val)
+                if (key === "bin_size") binSizeSlider.value = parseInt(val)
+                if (key === "delta_min") deltaMinSlider.value = parseFloat(val)
               }
             }
           }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outlineVariant }
+          Component.onCompleted: {
+            readBehaviorProcess.command = ["bash", "-c",
+              "grep -E '^(mode|brightness_threshold|bin_size|delta_min) = ' " + StateGlobals.configPath]
+            readBehaviorProcess.running = true
+          }
 
-          Item { Layout.fillHeight: true }
+          Connections {
+            target: StateGlobals
+            function onConfigPathChanged() {
+              readBehaviorProcess.running = false
+              readBehaviorProcess.command = ["bash", "-c",
+                "grep -E '^(mode|brightness_threshold|bin_size|delta_min) = ' " + StateGlobals.configPath]
+              readBehaviorProcess.running = true
+            }
+          }
+
+          ScrollView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            contentWidth: availableWidth
+            clip: true
+
+            ScrollBar.vertical: ScrollBar {
+              anchors.right: parent.right  // paksa ke kanan
+              anchors.rightMargin: 16
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              policy: ScrollBar.AsNeeded
+              width: 3
+              contentItem: Rectangle {
+                implicitWidth: 2
+                implicitHeight: 2
+                radius: 2
+                color: Colors.scrollbar_thumb
+                opacity: parent.pressed ? 1.0 : parent.hovered ? 0.8 : 0.5
+              }
+              background: Rectangle {
+                implicitWidth: 2
+                radius: 2
+                color: Colors.scrollbar_track
+                opacity: 0.5
+              }
+            }
+
+            ColumnLayout {
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.leftMargin: 20
+              anchors.rightMargin: 16
+              spacing: 16
+
+              Item { height: 4 }
+
+              // Mode
+              RowLayout {
+                id: modeRow
+                Layout.fillWidth: true
+                property string currentMode: "auto"
+
+                ColumnLayout {
+                  spacing: 2
+                  Layout.fillWidth: true
+                  Text { text: "Mode"; color: Colors.text; font.pixelSize: 12; font.bold: true }
+                  Text { text: "Color scheme mode"; color: Colors.text_variant1; font.pixelSize: 10 }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                RowLayout {
+                  spacing: 4
+                  Repeater {
+                    model: ["light", "dark", "auto"]
+                    delegate: Rectangle {
+                      required property string modelData
+                      width: 40; height: 24
+                      radius: 6
+                      color: modeRow.currentMode === modelData
+                        ? Colors.mode_selector_active_bg : Colors.mode_selector_inactive_bg
+                      Behavior on color { ColorAnimation { duration: 120 } }
+
+                      Text {
+                        anchors.centerIn: parent
+                        text: modelData
+                        font.pixelSize: 9
+                        font.bold: modeRow.currentMode === modelData
+                        color: modeRow.currentMode === modelData
+                          ? Colors.mode_selector_active_text : Colors.mode_selector_inactive_text
+                      }
+
+                      MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                          modeRow.currentMode = modelData
+                          modeProcess.command = ["bash", "-c",
+                            "sed -i 's/^mode = .*/mode = " + modelData + "/' " + StateGlobals.configPath]
+                          modeProcess.running = true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant }
+
+              // Brightness Threshold
+              RowLayout {
+                Layout.fillWidth: true
+
+                ColumnLayout {
+                  spacing: 2
+                  Layout.fillWidth: true
+                  Text { text: "Brightness Threshold"; color: Colors.text; font.pixelSize: 12; font.bold: true }
+                  Text { text: "Threshold for light/dark detection"; color: Colors.text_variant1; font.pixelSize: 10 }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                Text {
+                  text: brightnessSlider.value.toString()
+                  color: Colors.text
+                  font.pixelSize: 11
+                  Layout.alignment: Qt.AlignVCenter
+                }
+              }
+
+              Slider {
+                id: brightnessSlider
+                Layout.fillWidth: true
+                from: 0; to: 255; stepSize: 1
+                value: 120
+                onPressedChanged: {
+                  if (!pressed) {
+                    brightnessProcess.command = ["bash", "-c",
+                      "sed -i 's/^brightness_threshold = .*/brightness_threshold = " + Math.round(value) + "/' " + StateGlobals.configPath]
+                    brightnessProcess.running = true
+                  }
+                }
+              }
+
+              Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant }
+
+              // Warnaza only — Bin Size
+              RowLayout {
+                Layout.fillWidth: true
+                visible: StateGlobals.colorEngine === "warnaza"
+                Layout.preferredHeight: StateGlobals.colorEngine === "warnaza" ? implicitHeight : 0
+
+                ColumnLayout {
+                  spacing: 2
+                  Layout.fillWidth: true
+                  Text { text: "Bin Size"; color: Colors.text; font.pixelSize: 12; font.bold: true }
+                  Text { text: "Color quantization bin size"; color: Colors.text_variant1; font.pixelSize: 10 }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                Text {
+                  text: binSizeSlider.value.toString()
+                  color: Colors.text
+                  font.pixelSize: 11
+                  Layout.alignment: Qt.AlignVCenter
+                }
+              }
+
+              Slider {
+                id: binSizeSlider
+                Layout.fillWidth: true
+                visible: StateGlobals.colorEngine === "warnaza"
+                Layout.preferredHeight: StateGlobals.colorEngine === "warnaza" ? implicitHeight : 0
+                from: 1; to: 16; stepSize: 1
+                value: 4
+                onPressedChanged: {
+                  if (!pressed) {
+                    binSizeProcess.command = ["bash", "-c",
+                      "sed -i 's/^bin_size = .*/bin_size = " + Math.round(value) + "/' " + StateGlobals.configPath]
+                    binSizeProcess.running = true
+                  }
+                }
+              }
+
+              Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant; visible: StateGlobals.colorEngine === "warnaza" }
+
+              // Warnaza only — Delta Min
+              RowLayout {
+                Layout.fillWidth: true
+                visible: StateGlobals.colorEngine === "warnaza"
+                Layout.preferredHeight: StateGlobals.colorEngine === "warnaza" ? implicitHeight : 0
+
+                ColumnLayout {
+                  spacing: 2
+                  Layout.fillWidth: true
+                  Text { text: "Delta Min"; color: Colors.text; font.pixelSize: 12; font.bold: true }
+                  Text { text: "Minimum color distance"; color: Colors.text_variant1; font.pixelSize: 10 }
+                }
+
+                Item { Layout.fillWidth: true }
+
+                Text {
+                  text: deltaMinSlider.value.toFixed(1)
+                  color: Colors.text
+                  font.pixelSize: 11
+                  Layout.alignment: Qt.AlignVCenter
+                }
+              }
+
+              Slider {
+                id: deltaMinSlider
+                Layout.fillWidth: true
+                visible: StateGlobals.colorEngine === "warnaza"
+                Layout.preferredHeight: StateGlobals.colorEngine === "warnaza" ? implicitHeight : 0
+                from: 0; to: 20; stepSize: 0.5
+                value: 5.0
+                onPressedChanged: {
+                  if (!pressed) {
+                    deltaMinProcess.command = ["bash", "-c",
+                      "sed -i 's/^delta_min = .*/delta_min = " + value.toFixed(1) + "/' " + StateGlobals.configPath]
+                    deltaMinProcess.running = true
+                  }
+                }
+              }
+
+              Rectangle {
+                Layout.fillWidth: true; height: 1; color: Colors.outline_variant
+                visible: StateGlobals.colorEngine === "warnaza"
+              }
+
+              Item { height: 4 }
+            }
+          }
         }
 
         // About 
@@ -441,7 +737,7 @@ PanelWindow {
           Layout.fillWidth: true
           Layout.fillHeight: true
           Layout.topMargin: 10
-          Layout.rightMargin: 20
+          Layout.rightMargin: 16
           Layout.leftMargin: 20
           spacing: 10
 
@@ -452,7 +748,7 @@ PanelWindow {
 
             Text {
               text: "Bagja Shell"
-              color: Colors.overSurface
+              color: Colors.text
               font.pixelSize: 16
               font.bold: true
               Layout.alignment: Qt.AlignHCenter
@@ -460,13 +756,13 @@ PanelWindow {
 
             Text {
               text: "One shell, every workflow"
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 11
               Layout.alignment: Qt.AlignHCenter
             }
           }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outlineVariant }
+          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant }
 
           ColumnLayout {
             Layout.fillWidth: true
@@ -474,7 +770,7 @@ PanelWindow {
 
             Text {
               text: "Description"
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 11
               font.bold: true
               Layout.fillWidth: true
@@ -482,7 +778,7 @@ PanelWindow {
 
             Text {
               text: `The philosophy behind this is simple. "Bagja" means happy in my language so the user can be happy about their desktop.`
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 11
               Layout.fillWidth: true
               wrapMode: Text.WordWrap  
@@ -490,7 +786,7 @@ PanelWindow {
 
             Text {
               text: `I built Bagja because my ADHD makes sticking to a strict, single workflow frustrating. I needed a shell that adapts to my fluctuating energy and memory, so I merged the best parts of different desktop paradigms into one:`
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 11
               Layout.fillWidth: true
               wrapMode: Text.WordWrap  
@@ -511,14 +807,14 @@ PanelWindow {
 
                 Text {
                   text: "•"
-                  color: Colors.overSurfaceVariant
+                  color: Colors.text_variant1
                   font.pixelSize: 11
                   Layout.alignment: Qt.AlignTop
                 }
 
                 Text {
                   text: modelData
-                  color: Colors.overSurfaceVariant
+                  color: Colors.text_variant1
                   font.pixelSize: 11
                   Layout.fillWidth: true
                   wrapMode: Text.WordWrap
@@ -527,18 +823,18 @@ PanelWindow {
             }
           }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outlineVariant }
+          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant }
 
           RowLayout {
             Layout.fillWidth: true
-            Text { text: "Version"; color: Colors.overSurfaceVariant; font.pixelSize: 11; Layout.fillWidth: true }
-            Text { text: "1.0.0"; color: Colors.overSurface; font.pixelSize: 11 }
+            Text { text: "Version"; color: Colors.text_variant1; font.pixelSize: 11; Layout.fillWidth: true }
+            Text { text: "1.0.0"; color: Colors.text; font.pixelSize: 11 }
           }
 
           RowLayout {
             Layout.fillWidth: true
-            Text { text: "Built with"; color: Colors.overSurfaceVariant; font.pixelSize: 11; Layout.fillWidth: true }
-            Text { text: "Quickshell + QML"; color: Colors.overSurface; font.pixelSize: 11 }
+            Text { text: "Built with"; color: Colors.text_variant1; font.pixelSize: 11; Layout.fillWidth: true }
+            Text { text: "Quickshell + QML"; color: Colors.text; font.pixelSize: 11 }
           }
 
           Item { Layout.fillHeight: true }

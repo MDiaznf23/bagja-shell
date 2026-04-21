@@ -1,6 +1,7 @@
 # Backup files
 *.bak
 *.tmp
+dependency-bagja-shell
 
 # OS
 .DS_Store

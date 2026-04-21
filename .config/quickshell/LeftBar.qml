@@ -35,16 +35,16 @@ PanelWindow {
     
     gradient: Gradient {
       orientation: Gradient.Vertical
-      GradientStop { position: 0.0; color: Colors.isDark ? Colors.surfaceDim : Colors.surface }
-      GradientStop { position: 0.2; color: Colors.isDark ? Colors.surface : Colors.surface   }
-      GradientStop { position: 0.3; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.4; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.46; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.6; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim  }
-      GradientStop { position: 0.7; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim  }
-      GradientStop { position: 0.8; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.9; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed  }
-      GradientStop { position: 1.0; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed  }
+      GradientStop { position: 0.0;  color: Colors.leftbar_gradient1  }
+      GradientStop { position: 0.2;  color: Colors.leftbar_gradient2  }
+      GradientStop { position: 0.3;  color: Colors.leftbar_gradient3  }
+      GradientStop { position: 0.4;  color: Colors.leftbar_gradient4  }
+      GradientStop { position: 0.46; color: Colors.leftbar_gradient5  }
+      GradientStop { position: 0.6;  color: Colors.leftbar_gradient6  }
+      GradientStop { position: 0.7;  color: Colors.leftbar_gradient7  }
+      GradientStop { position: 0.8;  color: Colors.leftbar_gradient8  }
+      GradientStop { position: 0.9;  color: Colors.leftbar_gradient9  }
+      GradientStop { position: 1.0;  color: Colors.leftbar_gradient10 }
     }
 
     Rectangle {
@@ -53,7 +53,7 @@ PanelWindow {
       anchors.bottom: parent.bottom
       width: 2
       border.width: 2 
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       anchors.topMargin: 13
       anchors.bottomMargin: 13
     }
@@ -118,16 +118,16 @@ PanelWindow {
 
     function leftbarColorAt(p) {
       var stops = [
-        {pos: 0.0, color: Colors.isDark ? Colors.surfaceDim        : Colors.surface},
-        {pos: 0.2, color: Colors.isDark ? Colors.surface            : Colors.surface},
-        {pos: 0.3, color: Colors.isDark ? Colors.surface            : Colors.surface},
-        {pos: 0.4, color: Colors.isDark ? Colors.surface           : Colors.surface},
-        {pos: 0.46, color: Colors.isDark ? Colors.surface           : Colors.surface},
-        {pos: 0.6, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim},
-        {pos: 0.7, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim},
-        {pos: 0.8, color: Colors.isDark ? Colors.surface            : Colors.surface},
-        {pos: 0.9, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed},
-        {pos: 1.0, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed},
+        {pos: 0.0,  color: Colors.leftbar_gradient1},
+        {pos: 0.2,  color: Colors.leftbar_gradient2},
+        {pos: 0.3,  color: Colors.leftbar_gradient3},
+        {pos: 0.4,  color: Colors.leftbar_gradient4},
+        {pos: 0.46, color: Colors.leftbar_gradient5},
+        {pos: 0.6,  color: Colors.leftbar_gradient6},
+        {pos: 0.7,  color: Colors.leftbar_gradient7},
+        {pos: 0.8,  color: Colors.leftbar_gradient8},
+        {pos: 0.9,  color: Colors.leftbar_gradient9},
+        {pos: 1.0,  color: Colors.leftbar_gradient10},
       ]
       if (p <= 0) return stops[0].color
       if (p >= 1) return stops[stops.length-1].color
@@ -209,7 +209,7 @@ PanelWindow {
             GradientStop { position: 1.0;   color: mediaPopup.leftbarColorAt(mediaPopup.wEnd) }
           }
           radius: 12
-          border.color: Colors.outlineVariant
+          border.color: Colors.outline_variant
           border.width: 2
           clip: true
 
@@ -261,7 +261,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixedDim
+            ctx.fillStyle = Colors.leftbar_gradient6
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)
@@ -293,7 +293,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.outlineVariant
+            ctx.fillStyle = Colors.outline_variant
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)
@@ -326,7 +326,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+            ctx.fillStyle = Colors.leftbar_gradient5
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)
@@ -359,7 +359,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.outlineVariant
+            ctx.fillStyle = Colors.outline_variant
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)

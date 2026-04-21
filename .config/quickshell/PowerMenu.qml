@@ -83,11 +83,11 @@ PanelWindow {
     height: actionRow.height + 40
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: Colors.isDark ? Colors.surfaceDim : Colors.surface }
-      GradientStop { position: 0.9; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixedDim }
+      GradientStop { position: 0.0; color: Colors.background }
+      GradientStop { position: 0.9; color: Colors.background_variant1 }
     }
     radius: 16
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
     border.width: 2
 
     opacity: isShowing ? 1 : 0
@@ -114,8 +114,7 @@ PanelWindow {
             height: 64
             radius: 12
             color: (!keyboardFocusItem.keyboardActive && iconHover.containsMouse || parent.isSelected) 
-            ? Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryContainer 
-            : Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainerHigh
+            ? Colors.power_item_active_bg : Colors.power_item_inactive_bg
             Behavior on color { ColorAnimation { duration: 150 } }
 
             Text {
@@ -124,8 +123,7 @@ PanelWindow {
               font.pixelSize: 28
               font.family: "JetBrainsMono Nerd Font"
               color: (!keyboardFocusItem.keyboardActive && iconHover.containsMouse || parent.parent.isSelected) 
-              ? Colors.overSurfaceVariant 
-              : Colors.overSurface
+              ? Colors.power_item_active_icon : Colors.power_item_inactive_icon
               Behavior on color { ColorAnimation { duration: 150 } }
             }
 
@@ -146,8 +144,8 @@ PanelWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             text: modelData.label
             color: parent.isSelected 
-            ? Colors.isDark ? Colors.tertiaryFixedDim : Colors.primary 
-            : Colors.overSurface
+            ? Colors.power_item_active_label
+            : Colors.power_item_inactive_label
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
             Behavior on color { ColorAnimation { duration: 150 } }

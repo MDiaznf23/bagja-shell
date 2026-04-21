@@ -41,12 +41,12 @@ PopupWindow {
 
       function topbarColorAt(p) {
         var stops = [
-          {pos: 0.0, color: Colors.isDark ? Colors.surfaceDim        : Colors.surface},
-          {pos: 0.2, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed},
-          {pos: 0.4, color: Colors.isDark ? Colors.surfaceContainerLow    : Colors.surface},
-          {pos: 0.6, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed},
-          {pos: 0.8, color: Colors.isDark ? Colors.surface            : Colors.surface},
-          {pos: 1.0, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim},
+          {pos: 0.0, color: Colors.topbar_gradient1},
+          {pos: 0.2, color: Colors.topbar_gradient2},
+          {pos: 0.4, color: Colors.topbar_gradient3},
+          {pos: 0.6, color: Colors.topbar_gradient4},
+          {pos: 0.8, color: Colors.topbar_gradient5},
+          {pos: 1.0, color: Colors.topbar_gradient6},
         ]
         if (p <= 0) return stops[0].color
         if (p >= 1) return stops[stops.length-1].color
@@ -86,7 +86,7 @@ PopupWindow {
       }
 
       radius: 12
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       border.width: 2
 
       Behavior on width  { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
@@ -123,9 +123,7 @@ PopupWindow {
 
                 Text {
                   text: "󰒓"
-                  color: Colors.isDark 
-                    ? (currentTab === 0 ? Colors.tertiaryFixedDim : Colors.overSurfaceVariant)
-                    : (currentTab === 0 ? Colors.primary : Colors.outline)
+                  color: (currentTab === 0 ? Colors.text_variant2 : Colors.text_variant1) 
                   font.family: "Iosevka Nerd Font"
                   font.pixelSize: 14
                   anchors.horizontalCenter: parent.horizontalCenter
@@ -134,9 +132,7 @@ PopupWindow {
                 Text {
                   id: tab0Text
                   text: "System"
-                  color: Colors.isDark 
-                    ? (currentTab === 0 ? Colors.tertiaryFixedDim : Colors.overSurfaceVariant)
-                    : (currentTab === 0 ? Colors.primary : Colors.outline)
+                  color: (currentTab === 0 ? Colors.text_variant2 : Colors.text_variant1)  
                   font.bold: currentTab === 0
                   font.pixelSize: 13
                 }
@@ -148,7 +144,7 @@ PopupWindow {
                 width: currentTab === 0 ? parent.width + 4 : 0
                 height: 2
                 radius: 2
-                color: Colors.overSurfaceVariant
+                color: Colors.text_variant1
 
                 Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
               }
@@ -172,9 +168,7 @@ PopupWindow {
 
                 Text {
                   text: "󰕮"
-                  color: Colors.isDark 
-                    ? (currentTab === 1 ? Colors.tertiary : Colors.overSurfaceVariant)
-                    : (currentTab === 1 ? Colors.primary : Colors.outline)
+                  color: (currentTab === 1 ? Colors.text_variant2 : Colors.text_variant1) 
                   font.family: "Iosevka Nerd Font"
                   font.pixelSize: 14
                   anchors.horizontalCenter: parent.horizontalCenter
@@ -183,9 +177,7 @@ PopupWindow {
                 Text {
                   id: tab1Text
                   text: "Dashboard"
-                  color: Colors.isDark 
-                    ? (currentTab === 1 ? Colors.tertiary : Colors.overSurfaceVariant)
-                    : (currentTab === 1 ? Colors.primary : Colors.outline)
+                  color: (currentTab === 1 ? Colors.text_variant2 : Colors.text_variant1) 
                   font.bold: currentTab === 1
                   font.pixelSize: 13
                 }
@@ -197,7 +189,7 @@ PopupWindow {
                 width: currentTab === 1 ? parent.width + 4 : 0
                 height: 2
                 radius: 2
-                color: Colors.overSurfaceVariant
+                color: Colors.text_variant1
 
                 Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
               }
@@ -221,9 +213,7 @@ PopupWindow {
 
                 Text {
                   text: "󰀉"
-                  color: Colors.isDark 
-                    ? (currentTab === 2 ? Colors.tertiary : Colors.overSurfaceVariant)
-                    : (currentTab === 2 ? Colors.primary : Colors.outline)
+                  color: (currentTab === 2 ? Colors.text_variant2 : Colors.text_variant1)
                   font.family: "Iosevka Nerd Font"
                   font.pixelSize: 14
                   anchors.horizontalCenter: parent.horizontalCenter
@@ -232,9 +222,7 @@ PopupWindow {
                 Text {
                   id: tab2Text
                   text: "Profile"
-                  color: Colors.isDark 
-                    ? (currentTab === 2 ? Colors.tertiary : Colors.overSurfaceVariant)
-                    : (currentTab === 2 ? Colors.primary : Colors.outline)
+                  color: (currentTab === 2 ? Colors.text_variant2 : Colors.text_variant1) 
                   font.bold: currentTab === 2
                   font.pixelSize: 13
                 }
@@ -246,7 +234,7 @@ PopupWindow {
                 width: currentTab === 2 ? parent.width + 4 : 0
                 height: 2
                 radius: 2
-                color: Colors.overSurfaceVariant
+                color: Colors.text_variant1
 
                 Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
               }
@@ -263,7 +251,7 @@ PopupWindow {
         Rectangle {
           Layout.fillWidth: true
           height: 1
-          color: Colors.outlineVariant
+          color: Colors.outline_variant
         }
 
         StackLayout {
@@ -282,7 +270,7 @@ PopupWindow {
 
             Process {
               id: sysinfoProc
-              command: [Quickshell.shellDir + "/scripts/sys_info.sh"]
+              command: ["python3", "-u", Quickshell.shellDir + "/scripts/sys_info.py"]
 
               property var data: ({
                 "cpu_usage": "0", "cpu_temp": "0",
@@ -311,7 +299,7 @@ PopupWindow {
               property int value: 0          
               property string valueText: ""  
               property string subText: ""    
-              property string arcColor: Colors.isDark ? Colors.overPrimaryFixed : Colors.inversePrimary
+              property string arcColor: Colors.arcColor
 
               width: size
               height: size
@@ -319,7 +307,7 @@ PopupWindow {
               Rectangle {
                 anchors.fill: parent
                 radius: width / 2
-                color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                color: Colors.isDark ? Qt.alpha(Colors.circle_arc, 0.7) : Qt.alpha(Colors.circle_arc, 0.5)
               }
 
               Canvas {
@@ -342,7 +330,7 @@ PopupWindow {
                   // Track (background arc)
                   ctx.beginPath()
                   ctx.arc(cx, cy, r, 0, Math.PI * 2)
-                  ctx.strokeStyle = Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerLow
+                  ctx.strokeStyle = Colors.background_arc
                   ctx.lineWidth = lineW
                   ctx.stroke()
 
@@ -366,7 +354,7 @@ PopupWindow {
                 Text {
                   anchors.horizontalCenter: parent.horizontalCenter
                   text: label
-                  color: Colors.overSurface
+                  color: Colors.text
                   font.pixelSize: size > 110 ? 13 : 11
                   font.bold: true
                 }
@@ -380,7 +368,7 @@ PopupWindow {
                 Text {
                   anchors.horizontalCenter: parent.horizontalCenter
                   text: subText
-                  color: Colors.overSurfaceVariant
+                  color: Colors.text_variant1
                   font.pixelSize: 9
                   visible: subText !== ""
                 }
@@ -406,10 +394,10 @@ PopupWindow {
                   arcColor: {
                     var v = parseInt(sysinfoProc.data.cpu_usage)
                     return v > 80 
-                    ? Qt.alpha(Colors.error, 0.6)
+                    ? Qt.alpha(Colors.gauge_critical, 0.6)
                     : v > 50 
-                        ? (Colors.isDark ? Colors.primary : Colors.secondary)
-                        : (Colors.isDark ? Colors.overSurface : Qt.alpha(Colors.overBackground, 0.6))
+                        ? (Colors.gauge_warning)
+                        : (Colors.isDark ? Colors.gauge_normal : Qt.alpha(Colors.gauge_normal, 0.6))
                   }
                 }
 
@@ -423,10 +411,10 @@ PopupWindow {
                   arcColor: {
                     var v = parseInt(sysinfoProc.data.mem_perc)
                     return v > 80 
-                    ? Qt.alpha(Colors.error, 0.6)
+                    ? Qt.alpha(Colors.gauge_critical, 0.6)
                     : v > 50 
-                        ? (Colors.isDark ? Colors.primary : Colors.secondary)
-                        : (Colors.isDark ? Colors.overSurface : Qt.alpha(Colors.overBackground, 0.6))
+                        ? (Colors.gauge_warning)
+                        : (Colors.isDark ? Colors.gauge_normal : Qt.alpha(Colors.gauge_normal, 0.6))
 
                   }
                 }
@@ -441,10 +429,10 @@ PopupWindow {
                   arcColor: {
                     var v = parseInt(sysinfoProc.data.disk_perc)
                     return v > 80 
-                    ? Qt.alpha(Colors.error, 0.6)
+                    ? Qt.alpha(Colors.gauge_critical, 0.6)
                     : v > 50 
-                        ? (Colors.isDark ? Colors.primary : Colors.secondary)
-                        : (Colors.isDark ? Colors.overSurface : Qt.alpha(Colors.overBackground, 0.6))
+                        ? (Colors.gauge_warning)
+                        : (Colors.isDark ? Colors.gauge_normal : Qt.alpha(Colors.gauge_normal, 0.6))
                   }
                 }
               }
@@ -476,7 +464,7 @@ PopupWindow {
                     Rectangle {
                       Layout.preferredHeight: 100
                       Layout.preferredWidth: 220
-                      color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                      color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                       radius: 6
 
                       Process {
@@ -535,14 +523,15 @@ PopupWindow {
                             spacing: 7
 
                             Text { 
-                              text: ""; 
-                              color: Colors.isDark ? Colors.overSurface : Colors.overPrimaryFixedVariant
+                              text: "";
+                              font.family: "JetBrainsMono Nerd Font"
+                              color: Colors.text_variant2
                               font.pixelSize: 12
                             }
 
                             Text { 
                               text: profileProc.data.username || ""; 
-                              color: Colors.isDark ? Colors.overSurface : Colors.overSurface
+                              color: Colors.text
                               font.family: "JetBrainsMono Nerd Font"
                               font.pixelSize: 12
                               Layout.fillWidth: true
@@ -552,13 +541,14 @@ PopupWindow {
                           RowLayout {
                             spacing: 7
                             Text { 
-                              text:""; 
-                              color: Colors.isDark ? Colors.overSurface : Colors.overPrimaryFixedVariant
+                              text:"";
+                              font.family: "JetBrainsMono Nerd Font"
+                              color: Colors.text_variant2
                               font.pixelSize: 12
                             }
                             Text { 
                               text: profileProc.data.wm || ""; 
-                              color: Colors.isDark ? Colors.overSurface : Colors.overSurface
+                              color: Colors.text
                               font.family: "JetBrainsMono Nerd Font"
                               font.pixelSize: 12
                               Layout.fillWidth: true
@@ -568,13 +558,14 @@ PopupWindow {
                           RowLayout {
                             spacing: 7
                             Text { 
-                              text: "" ; 
-                              color: Colors.isDark ? Colors.overSurface : Colors.overPrimaryFixedVariant
+                              text: "" ;
+                              font.family: "JetBrainsMono Nerd Font"
+                              color: Colors.text_variant2
                               font.pixelSize: 12
                             }
                             Text { 
                               text: profileProc.data.uptime || ""; 
-                              color: Colors.isDark ? Colors.overSurface : Colors.overSurface
+                              color: Colors.text
                               font.family: "JetBrainsMono Nerd Font"
                               font.pixelSize: 12
                               Layout.fillWidth: true
@@ -587,38 +578,8 @@ PopupWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       Layout.preferredHeight: 100
-                      color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                      color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                       radius: 6
-                      
-                      Process {
-                        id: weatherCity
-                        running: true
-                        command: [Quickshell.shellDir + "/scripts/weather-wrapper.sh", "city"]
-                        property string data: ""
-                        stdout: SplitParser {
-                          onRead: data => { weatherCity.data = data.trim() }
-                        }
-                      }
-                      
-                      Process {
-                        id: weatherDesc
-                        running: true
-                        command: [Quickshell.shellDir + "/scripts/weather-wrapper.sh", "desc"]
-                        property string data: ""
-                        stdout: SplitParser {
-                          onRead: data => { weatherDesc.data = data.trim() }
-                        }
-                      }
-                      
-                      Process {
-                        id: weatherIcon
-                        running: true
-                        command: [Quickshell.shellDir + "/scripts/weather-wrapper.sh", "icon"]
-                        property string data: ""
-                        stdout: SplitParser {
-                          onRead: data => { weatherIcon.data = data.trim() }
-                        }
-                      }
                       
                       RowLayout {
                         anchors.fill: parent
@@ -635,10 +596,10 @@ PopupWindow {
                           radius: 4
                           Text { 
                             anchors.centerIn: parent
-                            anchors.verticalCenterOffset: -5
-                            text: weatherIcon.data || ""
-                            color: Colors.isDark ? Colors.overSurface : Colors.overTertiaryFixedVariant
-                            font.pixelSize: 90
+                            text: StateGlobals.weatherIcon
+                            color: Colors.text_variant2
+                            font.pixelSize: 63
+                            font.family: "JetBrainsMono Nerd Font"
                           }
                         }
                           
@@ -653,9 +614,14 @@ PopupWindow {
                             spacing: 5
                             
                             Text { 
-                              text: weatherCity.data || ""
-                              color: Colors.isDark ? Colors.overSurface : Colors.primary 
+                              text: {
+                                let d = StateGlobals.weatherCity
+                                return d.length > 12 ? d.substring(0, 12) + "…" : d
+                              }
+                              color: Colors.text_variant1
                               font.pixelSize: 20
+                              Layout.fillWidth: true  
+                              elide: Text.ElideRight
                               font.family: "JetBrainsMono Nerd Font"
                               font.bold: true
                               horizontalAlignment: Text.AlignHCenter
@@ -663,8 +629,11 @@ PopupWindow {
                             }
 
                             Text { 
-                              text: weatherDesc.data || ""
-                              color: Colors.overSurface
+                              text: {
+                                let d = StateGlobals.weatherText
+                                return d.length > 14 ? d.substring(0, 14) + "…" : d
+                              }
+                              color: Colors.text
                               font.pixelSize: 12
                               font.family: "JetBrainsMono Nerd Font"
                               horizontalAlignment: Text.AlignHCenter
@@ -683,73 +652,56 @@ PopupWindow {
 
                     Rectangle {
                       id: clockRect
-                      property string currentHour: Qt.formatTime(new Date(), "HH")
-                      property string currentMinute: Qt.formatTime(new Date(), "mm")
-                      property string currentDate: Qt.formatDate(new Date(), "ddd, dd MMM")
                       Layout.preferredWidth: 80
                       Layout.fillHeight: true
-                      color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                      color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                       radius: 6
 
-                      Timer {
-                        interval: 1000
-                        running: true
-                        repeat: true
-                        onTriggered: {
-                          clockRect.currentHour = Qt.formatTime(new Date(), "HH")
-                          clockRect.currentMinute = Qt.formatTime(new Date(), "mm")
-                          clockRect.currentDate = Qt.formatDate(new Date(), "ddd, dd MMM")
-                        }
-                      }
-                      
                       ColumnLayout {
                         anchors.centerIn: parent
                         spacing: 4
-                        
+
                         ColumnLayout {
                           Layout.alignment: Qt.AlignHCenter
                           spacing: 0
-                          
-                          Text { 
-                            text: clockRect.currentHour
-                            color: Colors.isDark ? Colors.overSurface : Colors.secondary
+
+                          Text {
+                            text: Qt.formatTime(StateGlobals.clockDate, "HH")
+                            color: Colors.text_hour
                             font.pixelSize: 36
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter
                             Layout.alignment: Qt.AlignHCenter
                           }
-                          
+
                           Rectangle {
                             Layout.alignment: Qt.AlignHCenter
-                            Layout.topMargin: 0
-                            Layout.bottomMargin: 0
                             width: 40
                             height: 20
                             color: "transparent"
-                            
-                            Text { 
+                            Text {
                               anchors.centerIn: parent
                               text: "•••"
-                              color: Colors.isDark ? Colors.tertiary : Colors.tertiaryContainer
+                              color: Colors.text_dots
                               font.pixelSize: 36
                               horizontalAlignment: Text.AlignHCenter
                               verticalAlignment: Text.AlignVCenter
                             }
                           }
-                          
-                          Text { 
-                            text: clockRect.currentMinute
-                            color: Colors.isDark ? Colors.overSurface : Colors.secondary
+
+                          Text {
+                            text: Qt.formatTime(StateGlobals.clockDate, "mm")
+                            color: Colors.text_minute
                             font.pixelSize: 36
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter
                             Layout.alignment: Qt.AlignHCenter
                           }
                         }
-                          
-                        Text { 
-                          text: clockRect.currentDate
-                          color: Colors.isDark ? Colors.overSurface : Colors.overSurfaceVariant
+
+                        Text {
+                          text: Qt.formatDate(StateGlobals.clockDateMin, "ddd, dd MMM")
+                          color: Colors.text_date
                           font.pixelSize: 11
                           font.bold: true
                           Layout.alignment: Qt.AlignHCenter
@@ -760,13 +712,12 @@ PopupWindow {
                     Rectangle {
                       Layout.preferredWidth: 200
                       Layout.fillHeight: true
-                      color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                      color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                       radius: 6
 
-                      property var today: new Date()
-                      property int todayDate: today.getDate()
-                      property int currentMonth: today.getMonth()
-                      property int currentYear: today.getFullYear()
+                      property int todayDate: StateGlobals.clockDateMin.getDate()
+                      property int currentMonth: StateGlobals.clockDateMin.getMonth()
+                      property int currentYear: StateGlobals.clockDateMin.getFullYear()
                       property int firstDay: {
                         var d = new Date(currentYear, currentMonth, 1).getDay()
                         return (d === 0) ? 6 : d - 1
@@ -781,8 +732,8 @@ PopupWindow {
                         spacing: 0
 
                         Text {
-                          text: Qt.formatDate(new Date(), "MMMM yyyy")
-                          color: Colors.isDark ? Colors.overSurface : Colors.overSurfaceVariant
+                          text: Qt.formatDate(StateGlobals.clockDateMin, "MMMM yyyy")
+                          color: Colors.text
                           font.pixelSize: 12
                           font.bold: true
                           Layout.fillWidth: true
@@ -799,15 +750,15 @@ PopupWindow {
 
                           // Header day
                           Repeater {
-                            model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-                            Text {
-                              text: modelData
-                              color: Colors.overSurfaceVariant
-                              font.pixelSize: 9
-                              Layout.fillWidth: true
-                              horizontalAlignment: Text.AlignHCenter
-                              Layout.bottomMargin: 3
-                            }
+                              model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+                              Text {
+                                  text: modelData
+                                  color: Colors.text_variant1
+                                  font.pixelSize: 9
+                                  Layout.fillWidth: true
+                                  horizontalAlignment: Text.AlignHCenter
+                                  Layout.bottomMargin: 3
+                              }
                           }
 
                           // Date
@@ -828,22 +779,20 @@ PopupWindow {
                                     return index - parent.parent.parent.firstDay - parent.parent.parent.daysInMonth + 1
                                 else
                                     return index - parent.parent.parent.firstDay + 1
-                                  }
+                              }
 
                               property bool isToday: !isPrev && !isNext && dayNum === parent.parent.parent.todayDate
 
-                              color: isToday 
-                                ? (Colors.isDark ? Colors.tertiary : Colors.primary) 
-                                : "transparent"
+                              color: isToday ? Colors.calendar_today_bg : "transparent"
 
                               Text {
                                 anchors.centerIn: parent
                                 text: dayNum
-                                color: isToday 
-                                  ? (Colors.isDark ? Colors.overTertiary : Colors.overPrimary)
-                                  : (isPrev || isNext) 
-                                      ? (Colors.isDark ? Colors.outlineVariant : Colors.outline)
-                                      : (Colors.isDark ? Colors.overSurface : Colors.overBackground)
+                                color: isToday
+                                ? Colors.calendar_today_text
+                                : (isPrev || isNext)
+                                  ? Colors.calendar_muted_text
+                                  : Colors.calendar_normal_text
                                 font.pixelSize: 9
                                 font.bold: isToday
                               }
@@ -857,7 +806,7 @@ PopupWindow {
                       id: pomodoroRoot
                       Layout.fillWidth: true
                       Layout.fillHeight: true
-                      color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                      color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                       radius: 6
                       
                       property int totalSeconds: 15 * 60
@@ -1055,9 +1004,7 @@ PopupWindow {
                             var s = pomodoroRoot.remaining % 60
                             return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s
                           }
-                          color: pomodoroRoot.finished 
-                            ? (Colors.isDark ? Colors.tertiary : Colors.primary)
-                            : (Colors.isDark ? Colors.overSurface : Colors.overSurfaceVariant)
+                          color: pomodoroRoot.finished ? Colors.text_variant4 : Colors.text
                           font.pixelSize: 24
                           font.bold: true
                         }
@@ -1070,7 +1017,7 @@ PopupWindow {
                           
                           Text {
                             text: pomodoroRoot.running ? "󰏤" : "󰐊"
-                            color: Colors.isDark ? Colors.overPrimaryFixedVariant : Colors.overSecondaryFixedVariant
+                            color: Colors.text_variant5
                             font.pixelSize: 22
                             visible: !pomodoroRoot.finished
                             MouseArea {
@@ -1088,7 +1035,7 @@ PopupWindow {
                           // RESET BUTTON PODOMORO
                           Text {
                             text: "󰑖"
-                            color: Colors.isDark ? Colors.overSurfaceVariant : Colors.overPrimaryFixedVariant 
+                            color: Colors.text_variant4
                             font.pixelSize: 22
                             MouseArea {
                               anchors.fill: parent
@@ -1105,7 +1052,7 @@ PopupWindow {
                           // BUTTON MIN FOR DECREASE PODOMORO
                           Text {
                             text: "−"
-                            color: Colors.isDark ? Colors.overSurface : Colors.overTertiaryFixed
+                            color: Colors.text_variant2
                             font.pixelSize: 22
                             visible: !pomodoroRoot.running && !pomodoroRoot.finished
                             MouseArea {
@@ -1124,7 +1071,7 @@ PopupWindow {
                           // BUTTON PLUS FOR INCREASE PODOMORO
                           Text {
                             text: "+"
-                            color: Colors.isDark ? Colors.overSurface : Colors.overTertiaryFixed 
+                            color: Colors.text_variant5 
                             font.pixelSize: 22
                             visible: !pomodoroRoot.running && !pomodoroRoot.finished
                             MouseArea {
@@ -1153,7 +1100,7 @@ PopupWindow {
                   Rectangle {
                     Layout.preferredWidth: 130
                     Layout.preferredHeight: 200
-                    color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                    color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                     radius: 6
 
                     Column {
@@ -1166,7 +1113,7 @@ PopupWindow {
                         width: 90
                         height: 90
                         radius: 6
-                        color: Colors.isDark ? Colors.surface : Colors.surfaceContainer 
+                        color: Colors.background 
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         ClippingWrapperRectangle {
@@ -1198,7 +1145,7 @@ PopupWindow {
 
                         Text {
                           text: MediaState.mediaData.player || ""
-                          color: Colors.overSurface
+                          color: Colors.text
                           font.pixelSize: 9
                           width: parent.width
                           elide: Text.ElideRight
@@ -1207,7 +1154,7 @@ PopupWindow {
 
                         Text {
                           text: MediaState.mediaData.title || "No Song Playing"
-                          color: Colors.overSurfaceVariant
+                          color: Colors.text_variant1
                           font.pixelSize: 11
                           width: parent.width
                           elide: Text.ElideRight
@@ -1215,7 +1162,7 @@ PopupWindow {
                         }
                         Text {
                           text: MediaState.mediaData.artist || "Unknown Artist"
-                          color: Colors.overSurface
+                          color: Colors.text
                           font.pixelSize: 9
                           width: parent.width
                           elide: Text.ElideRight
@@ -1235,7 +1182,7 @@ PopupWindow {
                           Text { 
                             id: dashPrev; 
                             text: "󰒮"; 
-                            color: Colors.isDark ? Colors.inversePrimary : Colors.primary 
+                            color: Colors.text_variant2 
                             font.pixelSize: 18 
                           }
                         }
@@ -1246,7 +1193,7 @@ PopupWindow {
                           Text { 
                             id: dashPlay; 
                             text: MediaState.mediaData.status === "Playing" ? "󰏤" : "󰐊"; 
-                            color: Colors.isDark ? Colors.inversePrimary : Colors.primary     
+                            color: Colors.text_variant2      
                             font.pixelSize: 18 
                           }
                         }
@@ -1257,7 +1204,7 @@ PopupWindow {
                           Text { 
                             id: dashNext; 
                             text: "󰒭"; 
-                            color: Colors.isDark ? Colors.inversePrimary : Colors.primary 
+                            color: Colors.text_variant2  
                             font.pixelSize: 18 
                           }
                         }
@@ -1269,7 +1216,7 @@ PopupWindow {
                   Rectangle {
                     Layout.preferredWidth: 130
                     Layout.fillHeight: true
-                    color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+                    color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
                     radius: 6
                     clip: true
 
@@ -1311,8 +1258,8 @@ PopupWindow {
                         for (var i = 0; i < n; i++) {
                           var barH = Math.max(2, (bars[i] / 100.0) * height)
                           var grad = ctx.createLinearGradient(0, height, 0, height - barH)
-                          grad.addColorStop(0, Colors.isDark ? Colors.inversePrimary : Colors.overSurfaceVariant )
-                          grad.addColorStop(1, Colors.isDark ? Colors.primary : Colors.overSurface )
+                          grad.addColorStop(0, Colors.text_variant5 )
+                          grad.addColorStop(1, Colors.text_variant2 )
                           ctx.fillStyle = grad
 
                           var x = i * (barW + gap)
@@ -1362,7 +1309,7 @@ PopupWindow {
 
             Rectangle {
               anchors.fill: parent
-              color: Colors.isDark ? Qt.alpha(Colors.overSecondary, 0.7) : Qt.alpha(Colors.inversePrimary, 0.5)
+              color: Colors.isDark ? Qt.alpha(Colors.container_level_1_variant1, 0.7) : Qt.alpha(Colors.container_level_1_variant1, 0.5)
               radius: 8
 
               ColumnLayout {
@@ -1391,12 +1338,12 @@ PopupWindow {
                     Layout.preferredWidth: 44
                     Layout.preferredHeight: 44
                     radius: 6
-                    color: Colors.isDark ? Colors.surfaceContainer : Colors.overSecondary
+                    color: Colors.text_variant4
                     visible: brandLogo.status !== Image.Ready
                     Text {
                       anchors.centerIn: parent
                       text: ""
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: 20
                     }
                   }
@@ -1408,7 +1355,7 @@ PopupWindow {
 
                     Text {
                       text: (laptopInfoProc.data.brand || "Unknown").toUpperCase()
-                      color: Colors.isDark ? Colors.inversePrimary : Colors.primary
+                      color: Colors.text_variant6
                       font.pixelSize: 16
                       font.bold: true
                       elide: Text.ElideRight
@@ -1416,7 +1363,7 @@ PopupWindow {
                     }
                     Text {
                       text: laptopInfoProc.data.model || "Loading..."
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: 14
                       elide: Text.ElideRight
                       Layout.fillWidth: true
@@ -1426,7 +1373,7 @@ PopupWindow {
                   Rectangle {
                     width: 1
                     Layout.preferredHeight: 60
-                    color: Colors.outlineVariant
+                    color: Colors.outline_variant
                   }
 
                   ColumnLayout {
@@ -1436,10 +1383,10 @@ PopupWindow {
                     RowLayout {
                       Layout.fillWidth: true
                       spacing: 6
-                      Text { text: "OS"; font.bold: true; color: Colors.overSurface; font.pixelSize: 12 }
+                      Text { text: "OS"; font.bold: true; color: Colors.text; font.pixelSize: 12 }
                       Text {
                         text: laptopInfoProc.data.distro || "-"
-                        color: Colors.overSurfaceVariant
+                        color: Colors.text_variant1
                         font.pixelSize: 12
                         elide: Text.ElideRight
                         Layout.fillWidth: true
@@ -1448,10 +1395,10 @@ PopupWindow {
 
                     RowLayout {
                       spacing: 6
-                      Text { text: "Kernel"; font.bold: true; color: Colors.overSurface; font.pixelSize: 12 }
+                      Text { text: "Kernel"; font.bold: true; color: Colors.text; font.pixelSize: 12 }
                       Text {
                         text: laptopInfoProc.data.kernel || "-"
-                        color: Colors.overSurfaceVariant
+                        color: Colors.text_variant1
                         font.pixelSize: 12
                         elide: Text.ElideRight
                         Layout.fillWidth: true
@@ -1464,7 +1411,7 @@ PopupWindow {
                 Rectangle {
                   Layout.fillWidth: true
                   height: 1
-                  color: Colors.outlineVariant
+                  color: Colors.outline_variant
                 }
 
                 // ROW BOTTOM: GPU + another info
@@ -1473,27 +1420,20 @@ PopupWindow {
                   columns: 2
                   rowSpacing: 6
                   columnSpacing: 8
-
-                  Text { text: "CPU"; font.bold: true; color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.cpu     || "-"; color: Colors.overSurface; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
-
-                  Text { text: "GPU"; font.bold: true; color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.gpu     || "-"; color: Colors.overSurface; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
-
-                  Text { text: "RAM"; font.bold: true; color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.ram     || "-"; color: Colors.overSurface; font.pixelSize: 12 }
-
-                  Text { text: "Swap"; font.bold: true;  color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.swap    || "-"; color: Colors.overSurface; font.pixelSize: 12 }
-
-                  Text { text: "Disk"; font.bold: true; color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.disk    || "-"; color: Colors.overSurface; font.pixelSize: 12 }
-
-                  Text { text: "Display"; font.bold: true; color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.display || "-"; color: Colors.overSurface; font.pixelSize: 12 }
-
-                  Text { text: "Battery"; font.bold: true; color: Colors.overSurfaceVariant; font.pixelSize: 12; Layout.preferredWidth: 50 }
-                  Text { text: laptopInfoProc.data.battery || "-"; color: Colors.overSurface; font.pixelSize: 12 }
+                  Text { text: "CPU"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.cpu     || "-"; color: Colors.text; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
+                  Text { text: "GPU"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.gpu     || "-"; color: Colors.text; font.pixelSize: 12; elide: Text.ElideRight; Layout.fillWidth: true }
+                  Text { text: "RAM"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.ram     || "-"; color: Colors.text; font.pixelSize: 12 }
+                  Text { text: "Swap"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.swap    || "-"; color: Colors.text; font.pixelSize: 12 }
+                  Text { text: "Disk"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.disk    || "-"; color: Colors.text; font.pixelSize: 12 }
+                  Text { text: "Display"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.display || "-"; color: Colors.text; font.pixelSize: 12 }
+                  Text { text: "Battery"; font.bold: true; color: Colors.text_variant1; font.pixelSize: 12; Layout.preferredWidth: 50 }
+                  Text { text: laptopInfoProc.data.battery || "-"; color: Colors.text; font.pixelSize: 12 }
                 }
               }
             }
@@ -1547,7 +1487,7 @@ PopupWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant 
+          ctx.fillStyle = Colors.outline_variant 
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -1608,7 +1548,7 @@ PopupWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
           ctx.moveTo(14, 0)
           ctx.lineTo(14, 2)

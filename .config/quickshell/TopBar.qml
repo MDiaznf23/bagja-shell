@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell.Io
 import QtQuick.Layouts 
 import Quickshell
+import Qt5Compat.GraphicalEffects
 import Quickshell.Wayland
 import Quickshell.Services.SystemTray
 
@@ -55,12 +56,12 @@ PanelWindow {
     
     gradient: Gradient {
       orientation: Gradient.Horizontal 
-      GradientStop { position: 0.0; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.2; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed   }
-      GradientStop { position: 0.4; color: Colors.isDark ? Colors.surfaceContainerLow : Colors.surface  }
-      GradientStop { position: 0.6; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed  }
-      GradientStop { position: 0.8; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 1.0; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim  }
+      GradientStop { position: 0.0; color: Colors.topbar_gradient1 }
+      GradientStop { position: 0.2; color: Colors.topbar_gradient2 }
+      GradientStop { position: 0.4; color: Colors.topbar_gradient3 }
+      GradientStop { position: 0.6; color: Colors.topbar_gradient4 }
+      GradientStop { position: 0.8; color: Colors.topbar_gradient5 }
+      GradientStop { position: 1.0; color: Colors.topbar_gradient6 }
     }
         
     Rectangle {
@@ -69,7 +70,7 @@ PanelWindow {
       anchors.right: parent.right
       height: topBar.borderHeight            
       border.width: 2 
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
 
       anchors.leftMargin: 28 
       anchors.rightMargin: 28
@@ -82,12 +83,23 @@ PanelWindow {
       spacing: 11
       transform: Translate { y: -1 }
 
-      Text {
-        id: leftWidget
-        text: " "
-        font.pixelSize: 14
-        color: Colors.isDark ? Colors.primary : Colors.overPrimaryFixedVariant
-        font.bold: true
+      Item {
+        width: 20; height: 20
+
+        Image {
+          id: iconImg
+          anchors.fill: parent
+          source: Qt.resolvedUrl(Quickshell.shellDir + "/assets/CachyOS.svg")
+          sourceSize.width: 20
+          sourceSize.height: 20
+          visible: false
+        }
+
+        ColorOverlay {
+          anchors.fill: iconImg
+          source: iconImg
+          color: Colors.text_variant2
+        }
 
         MouseArea {
           anchors.fill: parent
@@ -104,7 +116,7 @@ PanelWindow {
           Layout.alignment: Qt.AlignVCenter
           Layout.preferredWidth: workspaceLayout.width + 10 
           height: 20
-          color: Colors.isDark ? Colors.surfaceContainerHigh : Qt.alpha(Colors.tertiaryFixedDim, 0.5)
+          color: Colors.isDark ? Colors.container_level_1 : Qt.alpha(Colors.container_level_1, 0.5)
           radius: 14
           
           property var workspaceList: []
@@ -184,8 +196,8 @@ PanelWindow {
                   visible: parent.hasApp
 
                   color: workspaceItem.isFocused 
-                    ? Colors.isDark ? Qt.alpha(Colors.primaryContainer, 0.8) : Qt.alpha(Colors.primary, 0.4)
-                    : Qt.alpha(Colors.isDark ? Colors.secondaryContainer : Colors.surfaceContainerHigh, 0.8)
+                  ? Colors.isDark ? Qt.alpha(Colors.container_level_2, 0.8) : Qt.alpha(Colors.container_level_2, 0.9)
+                  : Qt.alpha(Colors.container_level_2_variant1, 0.5)
                   Behavior on color { ColorAnimation { duration: 200 } }
                 }
 
@@ -244,8 +256,8 @@ PanelWindow {
                   visible: !parent.hasApp 
 
                   color: modelData.focused 
-                    ? Qt.alpha(Colors.isDark ? Colors.primaryContainer : Colors.primary, 0.8) 
-                    : Qt.alpha(Colors.isDark ? Colors.primary : Colors.overPrimaryFixedVariant, 0.7)
+                    ? Qt.alpha(Colors.container_level_2, 0.8) 
+                    : Qt.alpha(Colors.container_level_2_variant1, 0.7)
               
                   Behavior on width { NumberAnimation { duration: 200 } }
                   Behavior on color { ColorAnimation { duration: 200 } }
@@ -268,14 +280,15 @@ PanelWindow {
           width: dateLayout.implicitWidth + 15
           Layout.alignment: Qt.AlignVCenter
           height: 20
-          color: Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.9) : Qt.alpha(Colors.tertiaryFixedDim, 0.7)
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
           radius: 15
+
 
           Text {
             id: dateLayout
             anchors.centerIn: parent
-            text: Qt.formatDate(new Date(), "ddd, dd MMM")
-            color: Colors.overSurfaceVariant
+            text: Qt.formatDate(StateGlobals.clockDate, "ddd, dd MMM")
+            color: Colors.text_variant1
             font.pixelSize: 11
             font.family: "JetBrainsMono Nerd Font"
           }
@@ -286,48 +299,19 @@ PanelWindow {
         id: weatherRow
         spacing: 4
         Layout.alignment: Qt.AlignVCenter
-        property string wIcon: ""
-        property string wText: "Loading..."
-        property string wColor: Colors.overSurfaceVariant
-
-        Timer {
-          interval: 600000
-          running: true
-          repeat: true
-          triggeredOnStart: true
-          onTriggered: weatherProc.running = true
-        }
-
-        Process {
-          id: weatherProc
-          command: ["bash", Quickshell.shellDir + "/scripts/weather-wrapper.sh", "json"]
-          stdout: SplitParser {
-            onRead: (data) => {
-              try {
-                var res = JSON.parse(data)
-                weatherRow.wIcon = res.icon
-                weatherRow.wColor = res.color
-                weatherRow.wText = res.text
-              } 
-              catch (e) {
-                console.log("Weather JSON Error: " + e)
-              }
-            }
-          }
-        }
 
         Text {
           id: iconText
-          text: weatherRow.wIcon
-          color: Colors.isDark ? Colors.overSurfaceVariant : Colors.overPrimaryFixedVariant
+          text: StateGlobals.weatherIcon
+          color: Colors.icon_on_container
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 14
         }
 
         Text {
           id: labelText
-          text: weatherRow.wText
-          color: Colors.isDark ? Colors.overSurfaceVariant : Colors.overPrimaryFixedVariant
+          text: StateGlobals.weatherText
+          color: Colors.text_on_container
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 10
           font.bold: true
@@ -382,7 +366,7 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: "‹"
-            color: trayRow.expanded ? Colors.primary : Colors.overSurface
+            color: trayRow.expanded ? Colors.text_variant2 : Colors.text
             font.pixelSize: 16
           }
 
@@ -411,15 +395,35 @@ PanelWindow {
             height: 14
             clip: true
 
+            property var trayItem: modelData
+
             Image {
+              id: trayIcon
               anchors.centerIn: parent
               width: 12
               height: 12
-              source: modelData.icon
+              source: parent.trayItem ? parent.trayItem.icon : ""
               fillMode: Image.PreserveAspectFit
               smooth: true
               sourceSize: Qt.size(12, 12)
+              cache: false
+              asynchronous: true
+              onStatusChanged: {
+                if (status === Image.Error && parent.trayItem) {
+                  var fallback = Quickshell.iconPath(parent.trayItem.id ?? "", true)
+                  if (fallback) source = fallback
+                }
+              }
+              Timer {
+                id: retryTimer
+                interval: 300
+                onTriggered: {
+                  trayIcon.source = ""
+                  trayIcon.source = parent.parent.trayItem ? parent.parent.trayItem.icon : ""
+                }
+              }
             }
+
 
             MouseArea {
               anchors.fill: parent
@@ -441,7 +445,7 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: "›"
-            color: Colors.overSurface
+            color: Colors.text
             font.pixelSize: 16
           }
 
@@ -463,41 +467,21 @@ PanelWindow {
           id: wifiRect
           width: wifiLayout.width + 20
           height: 20
-          color: Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.9) : Qt.alpha(Colors.tertiaryFixedDim, 0.7)
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
           radius: 15
-
-          property string wifiData: "..."
-
-          Timer {
-            interval: 2000
-            running: true
-            repeat: true
-            triggeredOnStart: true
-            onTriggered: wifiProc.running = true
-          }
-
-          Process {
-            id: wifiProc
-            command: ["bash", Quickshell.shellDir + "/scripts/wifi-status.sh"]
-            stdout: SplitParser {
-              onRead: (data) => {
-                try {
-                  var result = JSON.parse(data)
-                  wifiRect.wifiData = result.wifi
-                } 
-                catch (e) {
-                  console.log("JSON Error: " + e)
-                }
-              }
-            }
-          }
 
           RowLayout {
             id: wifiLayout
             anchors.centerIn: parent
             Text {
-              text: wifiRect.wifiData
-              color: Colors.overSurfaceVariant
+              text: StateGlobals.wifiIcon
+              color: Colors.text_variant1
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 11
+            }
+            Text {
+              text: StateGlobals.wifiDesc
+              color: Colors.text_variant1
               font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 9
             }
@@ -530,42 +514,23 @@ PanelWindow {
           id: batteryRect
           width: batLayout.width + 20
           height: 20
-          color: Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.9) : Qt.alpha(Colors.tertiaryFixedDim, 0.7)
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
           radius: 15
-
-          property string batData: "..."
-
-          Timer {
-            interval: 2000
-            running: true
-            repeat: true
-            triggeredOnStart: true
-            onTriggered: batProc.running = true
-          }
-
-          Process {
-            id: batProc
-            command: ["bash", Quickshell.shellDir + "/scripts/wifi-status.sh"]
-            stdout: SplitParser {
-              onRead: (data) => {
-                try {
-                  var result = JSON.parse(data)
-                  batteryRect.batData = result.battery
-                } catch (e) {
-                  console.log("JSON Error: " + e)
-                }
-              }
-            }
-          }
 
           RowLayout {
             id: batLayout
             anchors.centerIn: parent
-            spacing: 8
 
             Text {
-              text: batteryRect.batData
-              color: Colors.overSurfaceVariant
+              text: StateGlobals.batIcon
+              color: Colors.text_variant1
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 11
+            }
+
+            Text {
+              text: StateGlobals.batDesc
+              color: Colors.text_variant1
               font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 9
               HoverHandler {
@@ -595,7 +560,7 @@ PanelWindow {
           id: btRect
           width: btLayout.implicitWidth + 19
           height: 20
-          color: Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.9) : Qt.alpha(Colors.tertiaryFixedDim, 0.7)
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
           radius: 15
 
           RowLayout {
@@ -605,7 +570,7 @@ PanelWindow {
 
             Text {
               text: BluetoothService.icon
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 12
               font.family: "JetBrainsMono Nerd Font"
               Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
@@ -634,14 +599,14 @@ PanelWindow {
         Rectangle {
           width: 28
           height: 20
-          color: Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.9) : Qt.alpha(Colors.tertiaryFixedDim, 0.7)
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
           radius: 15
           Layout.alignment: Qt.AlignVCenter
 
           Text {
             anchors.centerIn: parent
             text: "󰅍"
-            color: Colors.overSurfaceVariant
+            color: Colors.text_variant1
             font.pixelSize: 12
             font.family: "JetBrainsMono Nerd Font"
           }
@@ -659,35 +624,8 @@ PanelWindow {
           id: sysStatusRect
           width: sysLayout.width + 15
           height: 20
-          color: Colors.isDark ? Qt.alpha(Colors.surfaceContainerHigh, 0.9) : Qt.alpha(Colors.tertiaryFixedDim, 0.7)
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
           radius: 15
-
-          property string brightIcon: "..."
-          property string volIcon: "..."
-
-          Timer {
-            interval: 2000
-            running: true
-            repeat: true
-            triggeredOnStart: true
-            onTriggered: sysProc.running = true
-          }
-
-          Process {
-            id: sysProc
-            command: ["bash", Quickshell.shellDir + "/scripts/wifi-status.sh"]
-            stdout: SplitParser {
-              onRead: (data) => {
-                try {
-                  var result = JSON.parse(data)
-                  sysStatusRect.brightIcon = result.brightness
-                  sysStatusRect.volIcon = result.volume
-                } catch (e) {
-                  console.log("JSON Error: " + e)
-                }
-              }
-            }
-          }
 
           RowLayout {
             id: sysLayout
@@ -697,14 +635,14 @@ PanelWindow {
             Row {
               spacing: 6
               Text {
-                text: sysStatusRect.brightIcon
-                color: Colors.overSurfaceVariant
+                text: StateGlobals.brightIcon
+                color: Colors.text_variant1
                 font.pixelSize: 10
                 font.family: "JetBrainsMono Nerd Font"
               }
               Text {
-                text: sysStatusRect.volIcon
-                color: Colors.overSurfaceVariant
+                text: StateGlobals.volIcon
+                color: Colors.text_variant1
                 font.pixelSize: 10
                 font.family: "JetBrainsMono Nerd Font"
               }
@@ -719,7 +657,7 @@ PanelWindow {
 
         Text {
           text: "󰃭"           
-          color: Colors.overSurface 
+          color: Colors.text 
           font.family: "JetBrainsMono Nerd Font" 
           font.pixelSize: 13
           anchors.verticalCenter: parent.verticalCenter
@@ -727,23 +665,18 @@ PanelWindow {
 
         Text {
           id: clock
-          color: Colors.overSurfaceVariant
+          color: Colors.text_variant1
           font.family: "Iosevka Nerd Font"
           font.pixelSize: 12
           font.bold: true
-          text: Qt.formatDateTime(new Date(), "hh:mm")
+          text: Qt.formatTime(StateGlobals.clockDate, "hh:mm")
           anchors.verticalCenter: parent.verticalCenter
-
-          Timer {
-            interval: 1000; running: true; repeat: true
-            onTriggered: parent.text = Qt.formatDateTime(new Date(), "hh:mm")
-          }
         }
       }
 
       Text {
         text: ""
-        color: Colors.overSurfaceVariant
+        color: Colors.text_variant1
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 14
         MouseArea {
@@ -771,7 +704,7 @@ PanelWindow {
           anchors.verticalCenter: parent.verticalCenter
           font.family: "Iosevka Nerd Font"
           text: " "
-          color: Colors.isDark ? Colors.primaryFixed : Colors.overPrimaryFixed
+          color: Colors.text_variant3
           font.pixelSize: 12
         }
 
@@ -780,7 +713,7 @@ PanelWindow {
           id: windowTitle
           font.family: "Iosevka Nerd Font"
           text: "Desktop"
-          color: Colors.isDark ? Colors.primaryFixed : Colors.overPrimaryFixed
+          color: Colors.text_variant3
           font.pixelSize: 12
           font.bold: true
 

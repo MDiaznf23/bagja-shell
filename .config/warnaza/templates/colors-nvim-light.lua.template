@@ -1,0 +1,198 @@
+-- Auto-generated Warnaza theme for NvChad (Light)
+-- Generated from wallpaper: {{wallpaper_path}}
+-- Mode: {{warnaza_mode}}
+
+---@type Base46Table
+local M = {}
+
+-- UI Colors from Warnaza
+M.base_30 = {
+  white = "{{dark2}}",
+  black = "{{light9}}",
+  darker_black = "{{light8}}",
+  black2 = "{{light7}}",
+  one_bg = "{{light6}}",
+  one_bg2 = "{{light5}}",
+  one_bg3 = "{{light4}}",
+  grey = "{{light2}}",
+  grey_fg = "{{mid3}}",
+  grey_fg2 = "{{mid5}}",
+  light_grey = "{{light3}}",
+
+  -- Accent colors
+  red = "{{mid6}}",
+  baby_pink = "{{mid5}}",
+  pink = "{{mid9}}",
+  line = "{{light3}}",
+  green = "{{mid3}}",
+  vibrant_green = "{{mid4}}",
+  nord_blue = "{{mid1}}",
+  blue = "{{mid7}}",
+  seablue = "{{mid6}}",
+  yellow = "{{mid8}}",
+  sun = "{{mid9}}",
+  purple = "{{mid2}}",
+  dark_purple = "{{mid1}}",
+  teal = "{{mid5}}",
+  orange = "{{mid10}}",
+  cyan = "{{mid0}}",
+
+  -- UI elements
+  statusline_bg = "{{light6}}",
+  lightbg = "{{light5}}",
+  pmenu_bg = "{{mid5}}",
+  folder_bg = "{{mid5}}"
+}
+
+-- Syntax highlighting colors (base16 format)
+M.base_16 = {
+  base00 = "{{light9}}",          -- Default Background
+  base01 = "{{light7}}",          -- Lighter Background
+  base02 = "{{light5}}",          -- Selection Background
+  base03 = "{{mid3}}",            -- Comments, Invisibles
+  base04 = "{{mid2}}",            -- Dark Foreground
+  base05 = "{{dark2}}",           -- Default Foreground
+  base06 = "{{dark1}}",           -- Light Foreground
+  base07 = "{{light4}}",          -- Light Background
+  base08 = "{{mid6}}",            -- Variables, Tags
+  base09 = "{{mid9}}",            -- Integers, Constants
+  base0A = "{{mid7}}",            -- Classes, Search
+  base0B = "{{mid3}}",            -- Strings
+  base0C = "{{mid5}}",            -- Regex, Escapes
+  base0D = "{{mid8}}",            -- Functions, Methods
+  base0E = "{{mid2}}",            -- Keywords, Storage
+  base0F = "{{mid5}}"             -- Deprecated
+}
+
+-- Optional: Custom highlights
+M.polish_hl = {
+  defaults = {
+    Comment = {
+      fg = "{{mid4}}",
+      italic = true,
+    },
+    LineNr = {
+      fg = "{{light3}}",
+    },
+    CursorLine = {
+      bg = "{{light7}}",
+    },
+    CursorLineNr = {
+      fg = "{{mid5}}",
+      bold = true,
+    },
+    Visual = {
+      bg = "{{light5}}",
+    },
+    Pmenu = {
+      bg = "{{light6}}",
+    },
+    PmenuSel = {
+      bg = "{{mid5}}",
+      fg = "{{light9}}",
+    },
+    StatusLine = {
+      bg = "{{light6}}",
+      fg = "{{dark2}}",
+    },
+    TabLine = {
+      bg = "{{light7}}",
+      fg = "{{mid3}}",
+    },
+    TabLineSel = {
+      bg = "{{mid5}}",
+      fg = "{{light9}}",
+    },
+    NvimTreeNormal = {
+      bg = "{{light7}}",
+    },
+    NvimTreeFolderIcon = {
+      fg = "{{mid5}}",
+    },
+  },
+
+  treesitter = {
+    ["@keyword"] = { fg = "{{mid2}}" },
+    ["@function"] = { fg = "{{mid7}}" },
+    ["@function.builtin"] = { fg = "{{mid5}}" },
+    ["@variable"] = { fg = "{{dark2}}" },
+    ["@variable.builtin"] = { fg = "{{mid9}}" },
+    ["@string"] = { fg = "{{mid3}}" },
+    ["@number"] = { fg = "{{mid9}}" },
+    ["@boolean"] = { fg = "{{mid9}}" },
+    ["@constant"] = { fg = "{{mid9}}" },
+    ["@type"] = { fg = "{{mid2}}" },
+    ["@parameter"] = { fg = "{{dark2}}" },
+    ["@property"] = { fg = "{{dark2}}" },
+    ["@operator"] = { fg = "{{mid7}}" },
+    ["@punctuation"] = { fg = "{{light3}}" },
+    ["@comment"] = {
+      fg = "{{mid4}}",
+      italic = true
+    },
+    ["@tag"] = { fg = "{{mid6}}" },
+    ["@tag.attribute"] = { fg = "{{mid9}}" },
+    ["@tag.delimiter"] = { fg = "{{light3}}" },
+  },
+
+  lsp = {
+    DiagnosticError = { fg = "{{mid6}}" },
+    DiagnosticWarn = { fg = "{{mid8}}" },
+    DiagnosticInfo = { fg = "{{mid7}}" },
+    DiagnosticHint = { fg = "{{mid2}}" },
+    DiagnosticUnderlineError = {
+      undercurl = true,
+      sp = "{{mid6}}"
+    },
+    DiagnosticUnderlineWarn = {
+      undercurl = true,
+      sp = "{{mid8}}"
+    },
+    DiagnosticUnderlineInfo = {
+      undercurl = true,
+      sp = "{{mid7}}"
+    },
+    DiagnosticUnderlineHint = {
+      undercurl = true,
+      sp = "{{mid2}}"
+    },
+  },
+
+  telescope = {
+    TelescopePromptBorder = { fg = "{{mid5}}" },
+    TelescopeResultsBorder = { fg = "{{mid3}}" },
+    TelescopePreviewBorder = { fg = "{{mid3}}" },
+    TelescopeSelection = {
+      bg = "{{mid5}}",
+      fg = "{{light9}}"
+    },
+    TelescopeMatching = { fg = "{{mid5}}", bold = true },
+  },
+
+  cmp = {
+    CmpItemAbbrMatch = { fg = "{{mid5}}", bold = true },
+    CmpItemAbbrMatchFuzzy = { fg = "{{mid5}}" },
+    CmpItemKindVariable = { fg = "{{dark2}}" },
+    CmpItemKindFunction = { fg = "{{mid7}}" },
+    CmpItemKindKeyword = { fg = "{{mid2}}" },
+    CmpItemKindConstant = { fg = "{{mid9}}" },
+    CmpItemKindModule = { fg = "{{mid2}}" },
+  },
+
+  git = {
+    DiffAdd = { fg = "{{mid3}}" },
+    DiffChange = { fg = "{{mid7}}" },
+    DiffDelete = { fg = "{{mid6}}" },
+    GitSignsAdd = { fg = "{{mid3}}" },
+    GitSignsChange = { fg = "{{mid7}}" },
+    GitSignsDelete = { fg = "{{mid6}}" },
+  },
+}
+
+-- Set theme type based on wallpaper analysis
+M.type = "{{warnaza_mode}}"
+
+-- Override theme
+M = require("base46").override_theme(M, "warnaza")
+
+return M

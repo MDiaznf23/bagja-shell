@@ -1,0 +1,4 @@
+[ColorScheme]
+active_colors={{light1}}, {{dark3}}, {{dark4}}, {{dark5}}, {{dark2}}, {{dark0}}, {{light1}}, {{dark0}}, {{light1}}, {{dark1}}, {{dark3}}, {{dark0}}, {{mid7}}, {{dark0}}, {{mid9}}, {{mid3}}, {{dark0}}, {{mid2}}, {{dark0}}, {{mid8}}, {{mid7}}
+disabled_colors={{mid7}}, {{dark3}}, {{dark4}}, {{dark5}}, {{dark2}}, {{dark0}}, {{mid7}}, {{dark0}}, {{mid7}}, {{dark1}}, {{dark3}}, {{dark0}}, {{mid4}}, {{mid7}}, {{dark7}}, {{dark7}}, {{dark0}}, {{mid2}}, {{dark0}}, {{dark7}}, {{dark7}}
+inactive_colors={{light1}}, {{dark2}}, {{dark4}}, {{dark5}}, {{dark2}}, {{dark0}}, {{light1}}, {{dark0}}, {{light1}}, {{dark0}}, {{dark2}}, {{dark0}}, {{mid5}}, {{dark0}}, {{mid9}}, {{mid3}}, {{dark0}}, {{mid2}}, {{dark0}}, {{mid8}}, {{mid5}}

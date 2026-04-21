@@ -224,7 +224,7 @@ function setIcons {
     if [ $WID -ge 95 ]; then
         # Thunderstorm
         ICON_COLOR=$COLOR_THUNDER
-        ICON="󰙴 " # md-weather-lightning-rain
+        ICON="󰖓 " # md-weather-lightning-rain
     elif [ $WID -ge 85 ]; then
         # Snow showers
         ICON_COLOR=$COLOR_SNOW
@@ -337,7 +337,7 @@ function setIcons {
 function setIconSimple {
     WID=$1
     case $WID in
-        95|96|99) ICON="󰙴 "; ICON_COLOR=$COLOR_THUNDER ;;
+        95|96|99) ICON="󰖓 "; ICON_COLOR=$COLOR_THUNDER ;;
         85|86|71|73|75|77) ICON="󰖘 "; ICON_COLOR=$COLOR_SNOW ;;
         80|81|82|61|63|65) ICON="󰖗 "; ICON_COLOR=$COLOR_HEAVY_RAIN ;;
         51|53|55|56|57) ICON="󰖗 "; ICON_COLOR=$COLOR_LIGHT_RAIN ;;

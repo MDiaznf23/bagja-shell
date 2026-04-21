@@ -119,8 +119,8 @@ PanelWindow {
         height: 12
         gradient: Gradient {
           orientation: Gradient.Horizontal 
-          GradientStop { position: 0.01; color: Colors.isDark ? Colors.surface : Colors.surface }
-          GradientStop { position: 0.90; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+          GradientStop { position: 0.01; color: Colors.topbar_gradient5 }
+          GradientStop { position: 0.90; color: Colors.topbar_gradient6 }
         }
         anchors.top: parent.top
         anchors.left: parent.left
@@ -141,11 +141,11 @@ PanelWindow {
             anchors.fill: parent
             gradient: Gradient {
               orientation: Gradient.Horizontal 
-              GradientStop { position: 0.01; color: Colors.isDark ? Colors.surface : Colors.surface }
-              GradientStop { position: 0.78; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+              GradientStop { position: 0.01; color: Colors.topbar_gradient5 }
+              GradientStop { position: 0.78; color: Colors.topbar_gradient6 }
             }
             radius: 12
-            border.color: Colors.outlineVariant
+            border.color: Colors.outline_variant
             border.width: 2
 
             ColumnLayout {
@@ -173,15 +173,13 @@ PanelWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       height: buttonHeight
-                      color: root.wifiEnabled 
-                        ? (Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim)
-                        : (Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceDim)
-                      radius: 6
+                      color: root.wifiEnabled ? Colors.wifi_btn_active : Colors.wifi_btn_inactive
+                      radius: 8
 
                       Text {
                         anchors.centerIn: parent
                         text: ""
-                        color: Colors.isDark ? Colors.primary : Colors.secondary
+                        color: Colors.text_variant3
                         font.pixelSize: iconsizeButton
                       }
 
@@ -194,7 +192,7 @@ PanelWindow {
                     Text {
                       Layout.alignment: Qt.AlignHCenter
                       text: "Wifi"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: fontsizeButton
                     }
                   }
@@ -208,15 +206,15 @@ PanelWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       height: buttonHeight
-                      color: (Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled) 
-                        ? (Colors.isDark ? Colors.overTertiary : Colors.secondaryFixedDim)
-                        : (Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceDim)
-                      radius: 6
+                      color: (Bluetooth.defaultAdapter && Bluetooth.defaultAdapter.enabled)
+                      ? Colors.bt_btn_active
+                      : Colors.bt_btn_inactive
+                      radius: 8
 
                       Text {
                         anchors.centerIn: parent
                         text: "󰂯"
-                        color: Colors.isDark ? Colors.tertiary : Colors.primary
+                        color: Colors.text_variant2
                         font.pixelSize: iconsizeButton
                       }
 
@@ -231,7 +229,7 @@ PanelWindow {
                     Text {
                       Layout.alignment: Qt.AlignHCenter
                       text: "Bluetooth"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: fontsizeButton
                     }
                   }
@@ -245,17 +243,15 @@ PanelWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       height: buttonHeight 
-                      color: nightModeOn 
-                        ? (Colors.isDark ? Colors.tertiaryContainer : Colors.tertiaryFixedDim)
-                        : (Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceDim)
-                      radius: 6
+                      color: nightModeOn ? Colors.nightmode_btn_active : Colors.nightmode_btn_inactive
+                      radius: 8
 
                       property bool nightModeOn: false
 
                       Text {
                         anchors.centerIn: parent
                         text: ""
-                        color: Colors.overSecondaryContainer
+                        color: Colors.text_variant4
                         font.pixelSize: iconsizeButton
                       }
 
@@ -270,7 +266,7 @@ PanelWindow {
                     Text {
                       Layout.alignment: Qt.AlignHCenter
                       text: "Night Mode"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: fontsizeButton
                     }
                   }
@@ -288,15 +284,13 @@ PanelWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       height: buttonHeight
-                      color: dndActive 
-                        ? (Colors.isDark ? Colors.tertiaryContainer : Colors.primaryFixed)
-                        : (Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceDim)
-                      radius: 6
+                      color: dndActive ? Colors.dnd_btn_active : Colors.dnd_btn_inactive
+                      radius: 8
 
                       Text {
                         anchors.centerIn: parent
                         text: "󰂛"
-                        color: Colors.overSecondaryContainer
+                        color: Colors.text_variant7
                         font.pixelSize: iconsizeButton
                       }
 
@@ -309,7 +303,7 @@ PanelWindow {
                     Text {
                       Layout.alignment: Qt.AlignHCenter
                       text: "DND"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: fontsizeButton
                     }
                   }
@@ -322,13 +316,13 @@ PanelWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       height: buttonHeight
-                      color: Colors.isDark ? Colors.overSecondaryFixedVariant : Colors.inversePrimary
-                      radius: 6
+                      color: Colors.colorpicker_btn_bg
+                      radius: 8
 
                       Text {
                         anchors.centerIn: parent
                         text: ""
-                        color: Colors.isDark ? Colors.primary : Colors.secondary
+                        color: Colors.colorpicker_btn_icon
                         font.pixelSize: iconsizeButton
                       }
 
@@ -343,7 +337,7 @@ PanelWindow {
                     Text {
                       Layout.alignment: Qt.AlignHCenter
                       text: "Color Picker"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: fontsizeButton
                     }
                   }
@@ -357,15 +351,15 @@ PanelWindow {
                     Rectangle {
                       Layout.fillWidth: true
                       height: buttonHeight
-                      color: Colors.isDark ? Colors.overTertiary : Colors.primaryFixed
-                      radius: 6
+                      color: Colors.audio_btn_bg
+                      radius: 8
 
                       property bool bluetoothModeOn: false
 
                       Text {
                         anchors.centerIn: parent
                         text: "󰓃"
-                        color: Colors.isDark ? Colors.tertiary : Colors.secondary                        
+                        color: Colors.audio_btn_icon                       
                         font.pixelSize: iconsizeButton + 8
                       }
 
@@ -377,7 +371,7 @@ PanelWindow {
                     Text {
                       Layout.alignment: Qt.AlignHCenter
                       text: "Audio Devices"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: fontsizeButton
                     }
                   }
@@ -387,7 +381,7 @@ PanelWindow {
               Rectangle {
                 Layout.fillWidth: true 
                 height: 2 
-                color: Colors.isDark ? Colors.outlineVariant : Colors.primary
+                color: Colors.divider
               }
 
               Rectangle {
@@ -434,16 +428,18 @@ PanelWindow {
                     spacing: 16 
 
                     Rectangle {
-                      Layout.alignment: Qt.AlignHCenter
-                      width: 22
+                      Layout.alignment: Qt.AlignVCenter
+                      Layout.leftMargin: 5
+                      width: 18
                       height: 22
                       color: "transparent"
 
                       Text {
                         anchors.centerIn: parent
-                        text: "󰃠"
-                        font.pixelSize: 20
-                        color: Colors.overSurface
+                        text: ""
+                        font.family: "JetBrainsMono Nerd Font" 
+                        font.pixelSize: 15
+                        color: Colors.text
                       }
                     }
                     Slider {
@@ -461,11 +457,11 @@ PanelWindow {
                         width: panelBrightnessSlider.availableWidth
                         height: implicitHeight
                         radius: 2
-                        color: Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainerHighest
+                        color: Colors.brightness_slider_track_bg
                         Rectangle {
                           width: panelBrightnessSlider.position * parent.width
                           height: parent.height
-                          color: Colors.isDark ? Colors.primaryContainer : Colors.inversePrimary
+                          color: Colors.brightness_slider_track_fill
                           radius: 2
                         }
                       }
@@ -478,8 +474,8 @@ PanelWindow {
                         height: implicitHeight
                         radius: 10
                         color: panelBrightnessSlider.pressed
-                          ? Colors.isDark ? Colors.overPrimary : Colors.primaryFixedDim
-                          : Colors.isDark ? Colors.primaryContainer : Colors.secondaryFixedDim
+                        ? Colors.brightness_slider_handle_pressed
+                        : Colors.brightness_slider_handle
                         border.color: "transparent"
                         border.width: 2
                         Text {
@@ -489,8 +485,8 @@ PanelWindow {
                           font.pixelSize: 10
                           font.bold: true
                           color: panelBrightnessSlider.pressed 
-                          ? Colors.overSurface 
-                          : Colors.isDark ? Colors.primary : Colors.secondary 
+                          ? Colors.text 
+                          : Colors.text_variant3 
                         }
                       }
                     }
@@ -503,15 +499,18 @@ PanelWindow {
 
                     Rectangle {
                       Layout.alignment: Qt.AlignHCenter
-                      width: 22
+                      Layout.leftMargin: 5
+                      width: 18
                       height: 22
                       color: "transparent"
 
                       Text {
                         anchors.centerIn: parent
-                        text: "󰕾"
-                        font.pixelSize: 20
-                        color: Colors.overSurface
+                        Layout.alignment: Qt.AlignHCenter
+                        text: " "
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 14
+                        color: Colors.text
                       }
                     }
                     Slider {
@@ -530,12 +529,12 @@ PanelWindow {
                         implicitHeight: 4
                         width: panelVolumeSlider.availableWidth
                         height: implicitHeight
-                        color: Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainerHighest
+                        color: Colors.volume_slider_track_bg
                         radius: 2
                         Rectangle {
                           width: panelVolumeSlider.position * parent.width
                           height: parent.height
-                          color: Colors.isDark ? Colors.tertiaryContainer : Colors.tertiaryFixedDim
+                          color: Colors.volume_slider_track_fill
                           radius: 2
                         }
                       }
@@ -548,9 +547,9 @@ PanelWindow {
                         width: implicitWidth
                         height: implicitHeight
                         radius: 10
-                        color: panelVolumeSlider.pressed 
-                          ? Colors.isDark ? Colors.overTertiary : Colors.tertiaryFixedDim 
-                          : Colors.isDark ? Colors.tertiaryContainer : Colors.primaryFixedDim
+                        color: panelVolumeSlider.pressed
+                        ? Colors.volume_slider_handle_pressed
+                        : Colors.volume_slider_handle                        
                         border.color: "transparent"
                         border.width: 2
                         Text {
@@ -559,9 +558,9 @@ PanelWindow {
                           text: Math.round(panelVolumeSlider.value) + ""
                           font.pixelSize: 10
                           font.bold: true
-                          color: panelVolumeSlider.pressed 
-                          ? Colors.overSurface 
-                          : Colors.isDark ? Colors.primary : Colors.secondary 
+                          color: panelVolumeSlider.pressed
+                          ? Colors.text
+                          : Colors.text_variant1
                         }
                       }
                     }
@@ -572,7 +571,7 @@ PanelWindow {
               Rectangle {
                 Layout.fillWidth: true 
                 height: 2 
-                color: Colors.isDark ? Colors.outlineVariant : Colors.primary
+                color: Colors.divider
               }
 
               Rectangle {
@@ -591,22 +590,20 @@ PanelWindow {
                     Layout.fillWidth: true
                     Text {
                       text: "Notifications"
-                      color: Colors.primary 
+                      color: Colors.text_variant4 
                       font.pixelSize: 13
                       font.bold: true
                     }
                     Item { Layout.fillWidth: true }
                     Rectangle {
                       width: 18; height: 18
-                      color: notifHeaderBtn.containsMouse
-                        ? Colors.isDark ? Colors.primaryContainer : Colors.secondaryFixed
-                        : "transparent"
+                      color: notifHeaderBtn.containsMouse ? Colors.notif_btn_hovered : "transparent"
                       radius: 4
 
                       Text {
                         anchors.centerIn: parent
                         text: ""
-                        color: Colors.overSurface
+                        color: Colors.notif_btn_icon
                         font.pixelSize: 14
                       }
 
@@ -630,7 +627,7 @@ PanelWindow {
                     Text {
                       anchors.centerIn: parent
                       text: "No new notifications"
-                      color: Colors.overSurface
+                      color: Colors.text
                       font.pixelSize: 12
                       visible: notifHistory.length === 0
                     }
@@ -638,7 +635,7 @@ PanelWindow {
                     delegate: Rectangle {
                       width: ListView.view.width
                       height: notifItemHeight
-                      color: Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainerHighest
+                      color: Colors.notif_item_bg
                       radius: 6
 
                       Column {
@@ -652,19 +649,19 @@ PanelWindow {
                           width: parent.width
                           Text { 
                             text: modelData.appName
-                            color: Colors.tertiary
+                            color: Colors.notif_app_name
                             font.pixelSize: 10
                           }
                           Item { Layout.fillWidth: true }
                           Text { 
                             text: modelData.time
-                            color: Colors.overSurfaceVariant
+                            color: Colors.notif_time
                             font.pixelSize: 10
                           }
                         }
                         Text {
                           text: modelData.summary
-                          color: Colors.secondary
+                          color: Colors.notif_summary
                           font.pixelSize: 11
                           elide: Text.ElideRight
                           width: parent.width
@@ -681,12 +678,7 @@ PanelWindow {
             id: rightPatch
             width: 14
             height: parent.height
-            gradient: Gradient {
-              orientation: Gradient.Vertical 
-              GradientStop { position: 0.01; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-              GradientStop { position: 0.2; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim  }
-              GradientStop { position: 0.90; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-            }
+            color: Colors.rightbar_gradient1
             anchors.right: parent.right
             anchors.rightMargin: -2
             z: 5
@@ -703,7 +695,7 @@ PanelWindow {
             onPaint: {
               var ctx = getContext("2d")
               ctx.reset()
-              ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim
+              ctx.fillStyle = Colors.rightbar_gradient2
               ctx.beginPath()
               ctx.moveTo(0, 0)
               ctx.lineTo(0, 2)
@@ -727,7 +719,7 @@ PanelWindow {
             onPaint: {
               var ctx = getContext("2d")
               ctx.reset()
-              ctx.fillStyle = Colors.outlineVariant
+              ctx.fillStyle = Colors.outline_variant
               ctx.beginPath()
               ctx.moveTo(0, 0)
               ctx.lineTo(0, 2)
@@ -751,7 +743,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+          ctx.fillStyle = Colors.topbar_gradient5
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -774,7 +766,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)

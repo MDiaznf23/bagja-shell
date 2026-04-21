@@ -22,14 +22,14 @@ Item {
 
   function topbarColorAt(p) {
     var stops = [
-      {pos: 0.0, color: Colors.isDark ? Colors.surfaceDim        : Colors.surface},
-      {pos: 0.2, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed},
-      {pos: 0.4, color: Colors.isDark ? Colors.surface            : Colors.surface},
-      {pos: 0.6, color: Colors.isDark ? Colors.overPrimaryFixed   : Colors.primaryFixed},
-      {pos: 0.8, color: Colors.isDark ? Colors.surface            : Colors.surface},
-      {pos: 1.0, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim},
+      {pos: 0.0, color: Colors.topbar_gradient1},
+      {pos: 0.2, color: Colors.topbar_gradient2},
+      {pos: 0.4, color: Colors.topbar_gradient3},
+      {pos: 0.6, color: Colors.topbar_gradient4},
+      {pos: 0.8, color: Colors.topbar_gradient5},
+      {pos: 1.0, color: Colors.topbar_gradient6},
     ]
-    if (!Colors.surface) return "#000000"
+    if (!Colors.background) return "#000000"
     if (p <= 0) return stops[0].color
     if (p >= 1) return stops[stops.length-1].color
     for (var i = 0; i < stops.length - 1; i++) {
@@ -51,16 +51,16 @@ Item {
     layer.enabled: true
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.surface }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.surface }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.surface }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.surface }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.surface }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.surface }
+      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
     }
     radius: 12
     border.width: 2
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
 
     Column {
       id: contentCol
@@ -75,7 +75,7 @@ Item {
 
         Text {
           text: "󰂱"
-          color: Colors.isDark ? Colors.primary : Colors.secondary
+          color: Colors.text_variant4
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 11
           anchors.verticalCenter: parent.verticalCenter
@@ -85,7 +85,7 @@ Item {
           text: BluetoothService.connectedDevices.length > 0 
             ? BluetoothService.connectedDevices[0].mac 
             : "No device"
-          color: Colors.overSurface
+          color: Colors.text
           font.family: "JetBrainsMono Nerd Font"
           font.pixelSize: 11
           anchors.verticalCenter: parent.verticalCenter
@@ -111,7 +111,7 @@ Item {
                 default:          return "󰂱"
               }
             }
-            color: Colors.isDark ? Colors.primary : Colors.secondary
+            color: Colors.text_variant4
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
             anchors.verticalCenter: parent.verticalCenter
@@ -119,7 +119,7 @@ Item {
 
           Text {
             text: modelData.name
-            color: Colors.overSurface
+            color: Colors.text
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
             font.bold: true
@@ -132,7 +132,7 @@ Item {
       Text {
         visible: !BluetoothService.hasConnected
         text: "No devices connected"
-        color: Colors.overSurfaceVariant
+        color: Colors.text_variant1
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 11
         width: parent.width
@@ -148,12 +148,12 @@ Item {
     layer.enabled: true
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.surface }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.surface }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.surface }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.surface }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.surface }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.surface }
+      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
     }
     anchors.top: parent.top
     anchors.left: parent.left
@@ -188,7 +188,7 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.beginPath()
       ctx.moveTo(0, 0); ctx.lineTo(0, 2)
       ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
@@ -226,7 +226,7 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.beginPath()
       ctx.moveTo(14, 0); ctx.lineTo(14, 2)
       ctx.arc(14, 14, 12, Math.PI / 2, Math.PI, true)

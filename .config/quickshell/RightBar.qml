@@ -14,11 +14,11 @@ PanelWindow {
     
     gradient: Gradient {
       orientation: Gradient.Vertical 
-      GradientStop { position: 0.0; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim  }
-      GradientStop { position: 0.48; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-      GradientStop { position: 0.6; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.87; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.9; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim }
+      GradientStop { position: 0.0; color: Colors.rightbar_gradient1 }
+      GradientStop { position: 0.48; color: Colors.rightbar_gradient2 }
+      GradientStop { position: 0.6; color: Colors.rightbar_gradient3 }
+      GradientStop { position: 0.87; color: Colors.rightbar_gradient4 }
+      GradientStop { position: 0.9; color: Colors.rightbar_gradient5 }
     }
 
     Rectangle {
@@ -27,7 +27,7 @@ PanelWindow {
       anchors.bottom: parent.bottom
       width: 2               
       border.width: 2 
-      border.color: Colors.outlineVariant  
+      border.color: Colors.outline_variant  
       
       anchors.topMargin: 13 
       anchors.bottomMargin: 28

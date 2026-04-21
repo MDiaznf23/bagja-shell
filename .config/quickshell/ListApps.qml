@@ -19,7 +19,7 @@ Item {
     height: 30
     z: 999
     y: 9
-    color: Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+    color: Colors.remove_menu_bg
     radius: 6
     property string targetApp: ""
 
@@ -29,12 +29,10 @@ Item {
       onExited: removeMenu.visible = false
       Rectangle {
         anchors.fill: parent
-        color: parent.containsMouse 
-        ? Colors.isDark ? Colors.errorContainer : Colors.errorContainer
-        : "transparent"
+        color: parent.containsMouse ? Colors.remove_menu_hovered : "transparent"
         radius: 6
       }
-      Text { anchors.centerIn: parent; text: "X"; color: Colors.overSurface; font.pixelSize: 12 }
+      Text { anchors.centerIn: parent; text: "X"; color: Colors.remove_menu_icon ; font.pixelSize: 12 }
       onClicked: {
         removeProcess.command = ["python3", Quickshell.shellDir + "/scripts/app_manager.py", "remove", removeMenu.targetApp]
         removeProcess.running = true

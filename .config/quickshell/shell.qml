@@ -20,6 +20,8 @@ ShellRoot {
   property bool isPowerMenuVisible: false
   property bool isClipboardPanelVisible: false
   property bool isShellSettingsVisible: false
+  property bool isWorkspaceOverviewVisible: false
+  property bool isSnapshotSessionVisible: false
   property bool isLocked: false
   property bool dndEnabled: false
   
@@ -30,7 +32,7 @@ ShellRoot {
     property var notificationsMonitor: notificationServer.notifications
     onNotificationsMonitorChanged: {
       if (notificationServer.notifications.length > 0) {
-        if (!isNotificationPopupVisible && !isPanelVisible && !isBluetoothPanelVisible && !isWifiPanelVisible && !isNotificationPanelVisible && !isAudioPanelVisible && !dndEnabled) {
+        if (!isNotificationPopupVisible && !isPanelVisible && !isNotificationPanelVisible && !dndEnabled) {
           isNotificationPopupVisible = true
         }
       } 
@@ -39,6 +41,34 @@ ShellRoot {
           notificationPopup.shouldAnimate = false
           notifCloseTimer.start()
         }
+      }
+    }
+  }
+
+  IpcHandler {
+    target: "snapshotsession"
+    function toggle() {
+        if (isSnapshotSessionVisible) {
+            snapshotSession.isShowing = false
+            snapshotSessionCloseTimer.start()
+        } else {
+            closeAllPanels()
+            closeSecondaryPanels()
+            isSnapshotSessionVisible = true
+        }
+    }
+  }
+
+  IpcHandler {
+    target: "workspaceoverview"
+    function toggle() {
+      if (isWorkspaceOverviewVisible) {
+        workspaceOverview.isShowing = false
+        workspaceOverviewCloseTimer.start()
+      } else {
+        closeAllPanels()
+        closeSecondaryPanels()
+        isWorkspaceOverviewVisible = true
       }
     }
   }
@@ -91,7 +121,6 @@ ShellRoot {
         appLauncher.isShowing = false
         closeDelayTimer.start()
       } else {
-        closeAllPanels()
         isAppLauncherVisible = true
       }
     }
@@ -210,10 +239,42 @@ ShellRoot {
 
     if (isDashboardVisible) {
       dashboard.isShowing = false
-      closeDelayTimer.start()
+      dashboardCloseTimer.start()
     } else {
       isDashboardVisible = false
     }
+  }
+
+  Timer {
+    id: workspaceOverviewCloseTimer
+    interval: 300
+    onTriggered: isWorkspaceOverviewVisible = false
+  }
+
+  WorkspaceOverview {
+    id: workspaceOverview
+    visible: isWorkspaceOverviewVisible
+    onRequestClose: {
+      workspaceOverview.isShowing = false
+      workspaceOverviewCloseTimer.start()
+    }
+  }
+
+  // Timer
+  Timer {
+      id: snapshotSessionCloseTimer
+      interval: 300
+      onTriggered: isSnapshotSessionVisible = false
+  }
+
+  // Instance
+  SnapshotSession {
+      id: snapshotSession
+      visible: isSnapshotSessionVisible
+      onRequestClose: {
+          snapshotSession.isShowing = false
+          snapshotSessionCloseTimer.start()
+      }
   }
 
   Timer {
@@ -441,7 +502,8 @@ ShellRoot {
   NotificationPopup {
     id: notificationPopup
     notificationServer: notificationServer
-    panelVisible: isPanelVisible || isBluetoothPanelVisible || isWifiPanelVisible || isAudioPanelVisible || isNotificationPanelVisible || isClipboardPanelVisible || isWallpaperPickerVisible
+    blockingPanelOpen: isPanelVisible || isNotificationPanelVisible 
+    shiftDownPanelOpen: isBluetoothPanelVisible || isWifiPanelVisible || isAudioPanelVisible || isClipboardPanelVisible || isWallpaperPickerVisible
     dndActive: dndEnabled
   }
 

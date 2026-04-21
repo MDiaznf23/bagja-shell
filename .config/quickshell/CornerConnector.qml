@@ -16,7 +16,7 @@ QtObject {
       anchors.fill: parent
       layer.enabled: true; layer.samples: 4
       ShapePath {
-        strokeWidth: 0; strokeColor: "transparent"; fillColor: Colors.isDark ? Colors.surfaceDim : Colors.surface            
+        strokeWidth: 0; strokeColor: "transparent"; fillColor: Colors.topbar_gradient1           
         startX: 0; startY: 15
         PathLine { x: 0; y: 0 }
         PathLine { x: 15; y: 0 }
@@ -25,8 +25,8 @@ QtObject {
               
       ShapePath {
         strokeWidth: 2         
-        strokeColor: Colors.outlineVariant  
-        fillColor: Colors.outlineVariant
+        strokeColor: Colors.outline_variant  
+        fillColor: Colors.outline_variant
         capStyle: ShapePath.RoundCap 
         
         startX: 15; startY: 0 
@@ -57,7 +57,7 @@ QtObject {
       transform: Scale { origin.x: 7.5; xScale: -1 } 
 
       ShapePath {
-        strokeWidth: 0; strokeColor: "transparent"; fillColor: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim                
+        strokeWidth: 0; strokeColor: "transparent"; fillColor: Colors.rightbar_gradient1       
         startX: 0; startY: 15
         PathLine { x: 0; y: 0 }
         PathLine { x: 15; y: 0 }
@@ -65,8 +65,8 @@ QtObject {
       }
       ShapePath {
         strokeWidth: 2         
-        strokeColor: Colors.outlineVariant 
-        fillColor: Colors.outlineVariant 
+        strokeColor: Colors.outline_variant 
+        fillColor: Colors.outline_variant 
         capStyle: ShapePath.RoundCap 
         
         startX: 15; startY: 0 
@@ -94,7 +94,7 @@ QtObject {
       anchors.fill: parent
       layer.enabled: true; layer.samples: 4
       ShapePath {
-        strokeWidth: 0; strokeColor: "transparent"; fillColor: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed
+        strokeWidth: 0; strokeColor: "transparent"; fillColor: Colors.bottombar_gradient1
         
         startX: 0; startY: 0
         PathLine { x: 0; y: 15 }
@@ -104,8 +104,8 @@ QtObject {
         
       ShapePath {
         strokeWidth: 2         
-        strokeColor: Colors.outlineVariant 
-        fillColor: Colors.outlineVariant
+        strokeColor: Colors.outline_variant 
+        fillColor: Colors.outline_variant
         capStyle: ShapePath.RoundCap 
         
         startX: 0; startY: 0 
@@ -131,7 +131,7 @@ QtObject {
       ShapePath {
         strokeWidth: 0; 
         strokeColor: "transparent"; 
-        fillColor: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim 
+        fillColor: Colors.bottombar_gradient6 
         
         startX: 0; startY: 0
         PathLine { x: 0; y: 15 }
@@ -141,8 +141,8 @@ QtObject {
 
       ShapePath {
         strokeWidth: 2         
-        strokeColor: Colors.outlineVariant 
-        fillColor: Colors.outlineVariant
+        strokeColor: Colors.outline_variant 
+        fillColor: Colors.outline_variant
         capStyle: ShapePath.RoundCap 
         
         startX: 0; startY: 0 

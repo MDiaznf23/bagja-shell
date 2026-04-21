@@ -1,0 +1,15 @@
+[ColorScheme]
+# Format urutan 21 warna:
+# 0=WindowText, 1=Button, 2=Light, 3=Midlight, 4=Dark, 5=Mid,
+# 6=Text, 7=BrightText, 8=ButtonText, 9=Base, 10=Window, 11=Shadow,
+# 12=Highlight, 13=HighlightedText, 14=Link, 15=LinkVisited,
+# 16=AlternateBase, 17=ToolTipBase, 18=ToolTipText, 19=PlaceholderText, 20=Accent
+
+# ACTIVE (aplikasi dalam fokus)
+active_colors={{light1}}, {{dark3}}, {{dark4}}, {{dark5}}, {{dark2}}, {{dark0}}, {{light1}}, {{dark0}}, {{light1}}, {{dark1}}, {{dark3}}, {{dark0}}, {{mid7}}, {{dark0}}, {{mid9}}, {{mid3}}, {{dark0}}, {{mid2}}, {{dark0}}, {{mid8}}, {{mid7}}
+
+# DISABLED (elemen yang di-disable)
+disabled_colors={{mid7}}, {{dark3}}, {{dark4}}, {{dark5}}, {{dark2}}, {{dark0}}, {{mid7}}, {{dark0}}, {{mid7}}, {{dark1}}, {{dark3}}, {{dark0}}, {{mid4}}, {{mid7}}, {{dark7}}, {{dark7}}, {{dark0}}, {{mid2}}, {{dark0}}, {{dark7}}, {{dark7}}
+
+# INACTIVE (aplikasi tidak dalam fokus)
+inactive_colors={{light1}}, {{dark2}}, {{dark4}}, {{dark5}}, {{dark2}}, {{dark0}}, {{light1}}, {{dark0}}, {{light1}}, {{dark0}}, {{dark2}}, {{dark0}}, {{mid5}}, {{dark0}}, {{mid9}}, {{mid3}}, {{dark0}}, {{mid2}}, {{dark0}}, {{mid8}}, {{mid5}}

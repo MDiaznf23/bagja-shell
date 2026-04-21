@@ -82,11 +82,11 @@ PanelWindow {
     height: 260
     gradient: Gradient {
       orientation: Gradient.Vertical
-      GradientStop { position: 0.67; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.78; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim}
+      GradientStop { position: 0.67; color: Colors.rightbar_gradient4 }
+      GradientStop { position: 0.78; color: Colors.rightbar_gradient5 }
     } 
     radius: 12
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
     border.width: 2
 
     transform: Translate {
@@ -119,8 +119,9 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: ""
+            font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 18
-            color: Colors.isDark ? Colors.primary : Colors.overPrimaryFixed
+            color: Colors.osd_icon 
           }
         }
           
@@ -148,13 +149,13 @@ PanelWindow {
             width: 4
             height: volumeSlider.availableHeight
             radius: 2
-            color: Colors.isDark ? Colors.surfaceContainer : Colors.inversePrimary
+            color: Colors.osd_slider_track_bg
             
             Rectangle {
               y: parent.height * (1 - volumeSlider.position)
               width: parent.width
               height: parent.height * volumeSlider.position
-              color: Colors.isDark ? Colors.primaryContainer : Qt.alpha(Colors.primary, 0.6)
+              color: Colors.osd_slider_track_fill
               radius: 2
             }
           }
@@ -165,7 +166,7 @@ PanelWindow {
             width: 16
             height: 16
             radius: 8
-            color: Colors.isDark ? Colors.primaryContainer : Qt.alpha(Colors.primary, 0.9)
+            color: Colors.osd_slider_handle
             border.color: "transparent"
             border.width: 2
           }
@@ -175,7 +176,7 @@ PanelWindow {
           text: Math.round(volumeSlider.value) + "%"
           font.pixelSize: 12
           font.bold: true
-          color: Colors.isDark ? Colors.primary : Colors.overPrimaryFixed
+          color: Colors.osd_value_text
           Layout.alignment: Qt.AlignHCenter
         }
       }
@@ -195,8 +196,9 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: ""
+            font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 18
-            color: Colors.isDark ? Colors.secondary : Colors.overSecondaryFixed
+            color: Colors.osd_brightness_icon
           }
         }
               
@@ -223,13 +225,13 @@ PanelWindow {
             width: 4
             height: brightnessSlider.availableHeight
             radius: 2
-            color: Colors.isDark ? Colors.surfaceContainer : Colors.inversePrimary
+            color: Colors.osd_brightness_slider_track_bg
             
             Rectangle {
               y: parent.height * (1 - brightnessSlider.position)
               width: parent.width
               height: parent.height * brightnessSlider.position
-              color: Colors.isDark ? Colors.secondaryContainer : Qt.alpha(Colors.secondary, 0.6)
+              color: Colors.osd_brightness_slider_track_fill
               radius: 2
             }
           }
@@ -240,7 +242,7 @@ PanelWindow {
             width: 16
             height: 16
             radius: 8
-            color: Colors.isDark ? Colors.secondaryContainer : Qt.alpha(Colors.secondary, 0.9)
+            color: Colors.osd_brightness_slider_handle
             border.color: "transparent"
             border.width: 2
           }
@@ -250,7 +252,7 @@ PanelWindow {
           text: Math.round(brightnessSlider.value) + "%"
           font.pixelSize: 12
           font.bold: true
-          color: Colors.isDark ? Colors.secondary : Colors.overSecondaryFixed
+          color: Colors.osd_brightness_value_text 
           Layout.alignment: Qt.AlignHCenter
         }
       }
@@ -266,8 +268,8 @@ PanelWindow {
       height: parent.height; 
       gradient: Gradient {
         orientation: Gradient.Vertical
-        GradientStop { position: 0.67; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.78; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim  }
+        GradientStop { position: 0.67; color: Colors.rightbar_gradient4 }
+        GradientStop { position: 0.78; color: Colors.rightbar_gradient5 }
       } 
     }
 
@@ -279,7 +281,7 @@ PanelWindow {
       z: 1
       width: parent.width; 
       height: 12; 
-      color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim
+      color: Colors.bottombar_gradient6
     }
 
     Canvas {
@@ -303,7 +305,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+        ctx.fillStyle = Colors.rightbar_gradient4
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)
@@ -338,7 +340,7 @@ PanelWindow {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.moveTo(14, 0)
@@ -374,7 +376,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixedDim
+        ctx.fillStyle = Colors.bottombar_gradient5
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)
@@ -410,7 +412,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)

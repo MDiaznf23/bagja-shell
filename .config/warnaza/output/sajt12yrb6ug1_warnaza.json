@@ -1,0 +1,328 @@
+{
+  "wallpaper": "/home/diaz/Pictures/Wallpapers/sajt12yrb6ug1.jpeg",
+  "mode": "dark",
+  "bin_size": 4,
+  "total": 32,
+  "colors": {
+    "dark0": {
+      "hex": "#000004",
+      "rgb": "0,0,4",
+      "hypr": "rgba(000004ff)",
+      "r": 0,
+      "g": 0,
+      "b": 4,
+      "luminance": 0.08,
+      "zone": "dark"
+    },
+    "dark1": {
+      "hex": "#04040c",
+      "rgb": "4,4,12",
+      "hypr": "rgba(04040cff)",
+      "r": 4,
+      "g": 4,
+      "b": 12,
+      "luminance": 1.26,
+      "zone": "dark"
+    },
+    "dark2": {
+      "hex": "#040410",
+      "rgb": "4,4,16",
+      "hypr": "rgba(040410ff)",
+      "r": 4,
+      "g": 4,
+      "b": 16,
+      "luminance": 1.36,
+      "zone": "dark"
+    },
+    "dark3": {
+      "hex": "#101018",
+      "rgb": "16,16,24",
+      "hypr": "rgba(101018ff)",
+      "r": 16,
+      "g": 16,
+      "b": 24,
+      "luminance": 4.94,
+      "zone": "dark"
+    },
+    "dark4": {
+      "hex": "#0c141c",
+      "rgb": "12,20,28",
+      "hypr": "rgba(0c141cff)",
+      "r": 12,
+      "g": 20,
+      "b": 28,
+      "luminance": 5.98,
+      "zone": "dark"
+    },
+    "dark5": {
+      "hex": "#181824",
+      "rgb": "24,24,36",
+      "hypr": "rgba(181824ff)",
+      "r": 24,
+      "g": 24,
+      "b": 36,
+      "luminance": 8.78,
+      "zone": "dark"
+    },
+    "dark6": {
+      "hex": "#181c28",
+      "rgb": "24,28,40",
+      "hypr": "rgba(181c28ff)",
+      "r": 24,
+      "g": 28,
+      "b": 40,
+      "luminance": 10.39,
+      "zone": "dark"
+    },
+    "dark7": {
+      "hex": "#202834",
+      "rgb": "32,40,52",
+      "hypr": "rgba(202834ff)",
+      "r": 32,
+      "g": 40,
+      "b": 52,
+      "luminance": 15.86,
+      "zone": "dark"
+    },
+    "dark8": {
+      "hex": "#283040",
+      "rgb": "40,48,64",
+      "hypr": "rgba(283040ff)",
+      "r": 40,
+      "g": 48,
+      "b": 64,
+      "luminance": 19.78,
+      "zone": "dark"
+    },
+    "dark9": {
+      "hex": "#303848",
+      "rgb": "48,56,72",
+      "hypr": "rgba(303848ff)",
+      "r": 48,
+      "g": 56,
+      "b": 72,
+      "luminance": 23.42,
+      "zone": "dark"
+    },
+    "dark10": {
+      "hex": "#344050",
+      "rgb": "52,64,80",
+      "hypr": "rgba(344050ff)",
+      "r": 52,
+      "g": 64,
+      "b": 80,
+      "luminance": 26.67,
+      "zone": "dark"
+    },
+    "mid0": {
+      "hex": "#485868",
+      "rgb": "72,88,104",
+      "hypr": "rgba(485868ff)",
+      "r": 72,
+      "g": 88,
+      "b": 104,
+      "luminance": 36.66,
+      "zone": "mid"
+    },
+    "mid1": {
+      "hex": "#48586c",
+      "rgb": "72,88,108",
+      "hypr": "rgba(48586cff)",
+      "r": 72,
+      "g": 88,
+      "b": 108,
+      "luminance": 36.82,
+      "zone": "mid"
+    },
+    "mid2": {
+      "hex": "#546070",
+      "rgb": "84,96,112",
+      "hypr": "rgba(546070ff)",
+      "r": 84,
+      "g": 96,
+      "b": 112,
+      "luminance": 40.28,
+      "zone": "mid"
+    },
+    "mid3": {
+      "hex": "#506078",
+      "rgb": "80,96,120",
+      "hypr": "rgba(506078ff)",
+      "r": 80,
+      "g": 96,
+      "b": 120,
+      "luminance": 40.29,
+      "zone": "mid"
+    },
+    "mid4": {
+      "hex": "#606878",
+      "rgb": "96,104,120",
+      "hypr": "rgba(606878ff)",
+      "r": 96,
+      "g": 104,
+      "b": 120,
+      "luminance": 43.86,
+      "zone": "mid"
+    },
+    "mid5": {
+      "hex": "#687080",
+      "rgb": "104,112,128",
+      "hypr": "rgba(687080ff)",
+      "r": 104,
+      "g": 112,
+      "b": 128,
+      "luminance": 47.09,
+      "zone": "mid"
+    },
+    "mid6": {
+      "hex": "#647890",
+      "rgb": "100,120,144",
+      "hypr": "rgba(647890ff)",
+      "r": 100,
+      "g": 120,
+      "b": 144,
+      "luminance": 49.68,
+      "zone": "mid"
+    },
+    "mid7": {
+      "hex": "#687c94",
+      "rgb": "104,124,148",
+      "hypr": "rgba(687c94ff)",
+      "r": 104,
+      "g": 124,
+      "b": 148,
+      "luminance": 51.26,
+      "zone": "mid"
+    },
+    "mid8": {
+      "hex": "#708498",
+      "rgb": "112,132,152",
+      "hypr": "rgba(708498ff)",
+      "r": 112,
+      "g": 132,
+      "b": 152,
+      "luminance": 54.25,
+      "zone": "mid"
+    },
+    "mid9": {
+      "hex": "#808898",
+      "rgb": "128,136,152",
+      "hypr": "rgba(808898ff)",
+      "r": 128,
+      "g": 136,
+      "b": 152,
+      "luminance": 56.55,
+      "zone": "mid"
+    },
+    "mid10": {
+      "hex": "#9098a8",
+      "rgb": "144,152,168",
+      "hypr": "rgba(9098a8ff)",
+      "r": 144,
+      "g": 152,
+      "b": 168,
+      "luminance": 62.69,
+      "zone": "mid"
+    },
+    "light0": {
+      "hex": "#ec9474",
+      "rgb": "236,148,116",
+      "hypr": "rgba(ec9474ff)",
+      "r": 236,
+      "g": 148,
+      "b": 116,
+      "luminance": 69.67,
+      "zone": "light"
+    },
+    "light1": {
+      "hex": "#a0b8c8",
+      "rgb": "160,184,200",
+      "hypr": "rgba(a0b8c8ff)",
+      "r": 160,
+      "g": 184,
+      "b": 200,
+      "luminance": 73.5,
+      "zone": "light"
+    },
+    "light2": {
+      "hex": "#f0a490",
+      "rgb": "240,164,144",
+      "hypr": "rgba(f0a490ff)",
+      "r": 240,
+      "g": 164,
+      "b": 144,
+      "luminance": 74.25,
+      "zone": "light"
+    },
+    "light3": {
+      "hex": "#e8ac90",
+      "rgb": "232,172,144",
+      "hypr": "rgba(e8ac90ff)",
+      "r": 232,
+      "g": 172,
+      "b": 144,
+      "luminance": 75.25,
+      "zone": "light"
+    },
+    "light4": {
+      "hex": "#f4bc94",
+      "rgb": "244,188,148",
+      "hypr": "rgba(f4bc94ff)",
+      "r": 244,
+      "g": 188,
+      "b": 148,
+      "luminance": 80.37,
+      "zone": "light"
+    },
+    "light5": {
+      "hex": "#f4d0c8",
+      "rgb": "244,208,200",
+      "hypr": "rgba(f4d0c8ff)",
+      "r": 244,
+      "g": 208,
+      "b": 200,
+      "luminance": 86.26,
+      "zone": "light"
+    },
+    "light6": {
+      "hex": "#e8e0e0",
+      "rgb": "232,224,224",
+      "hypr": "rgba(e8e0e0ff)",
+      "r": 232,
+      "g": 224,
+      "b": 224,
+      "luminance": 89.79,
+      "zone": "light"
+    },
+    "light7": {
+      "hex": "#e8e4e0",
+      "rgb": "232,228,224",
+      "hypr": "rgba(e8e4e0ff)",
+      "r": 232,
+      "g": 228,
+      "b": 224,
+      "luminance": 90.79,
+      "zone": "light"
+    },
+    "light8": {
+      "hex": "#fce4c4",
+      "rgb": "252,228,196",
+      "hypr": "rgba(fce4c4ff)",
+      "r": 252,
+      "g": 228,
+      "b": 196,
+      "luminance": 91.76,
+      "zone": "light"
+    },
+    "light9": {
+      "hex": "#e8e8e4",
+      "rgb": "232,232,228",
+      "hypr": "rgba(e8e8e4ff)",
+      "r": 232,
+      "g": 232,
+      "b": 228,
+      "luminance": 91.9,
+      "zone": "light"
+    }
+  }
+}

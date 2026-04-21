@@ -50,39 +50,58 @@ PanelWindow {
 
   Process {
     id: watcherProcess
-    command: ["bash", "-c", 
-      "inotifywait -m -e create,delete,moved_to,moved_from '" + 
+    command: ["bash", "-c",
+      "inotifywait -m -e create,moved_to,delete,moved_from '" +
       Quickshell.env("HOME") + "/Pictures/Wallpapers' --format '%e %f' 2>/dev/null"]
     running: true
     stdout: SplitParser {
       onRead: data => {
-        thumbAndAppendProcess.running = true
+        var parts = data.trim().split(" ")
+        if (parts.length < 2) return
+        var event = parts[0]
+        var filename = parts.slice(1).join(" ")  
+        var fullpath = Quickshell.env("HOME") + "/Pictures/Wallpapers/" + filename
+
+        if (event === "DELETE" || event === "MOVED_FROM") {
+          // Langsung remove dari model
+          for (var i = 0; i < wallpaperModel.count; i++) {
+            if (wallpaperModel.get(i).wallpath === fullpath) {
+              wallpaperModel.remove(i)
+              break
+            }
+          }
+        } else if (event === "CREATE" || event === "MOVED_TO") {
+          watcherDebounce.restart()
+        }
       }
     }
   }
 
-  Process {
-    id: thumbAndAppendProcess
-    command: ["bash", Quickshell.shellDir + "/scripts/generate-thumbs.sh"]
-    running: false
-    onRunningChanged: {
-      if (!running) appendNewProcess.running = true
+  Timer {
+    id: watcherDebounce
+    interval: 1500
+    onTriggered: {
+      watcherThumbProcess.running = false
+      watcherThumbProcess.running = true
     }
   }
 
   Process {
-    id: appendNewProcess
-    command: ["bash", "-c",
-      "find " + Quickshell.env("HOME") + "/Pictures/Wallpapers -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) | sort | while read f; do thumb=\"/tmp/wallpaper-thumbs/$(basename \"$f\").jpg\"; echo \"$thumb|$f\"; done"]
+    id: watcherThumbProcess
+    command: ["bash", Quickshell.shellDir + "/scripts/generate-thumbs.sh"]
     running: false
     stdout: SplitParser {
       onRead: data => {
         var parts = data.trim().split("|")
         if (parts.length !== 2 || parts[0] === "" || parts[1] === "") return
+
         for (var i = 0; i < wallpaperModel.count; i++) {
-          if (wallpaperModel.get(i).wallpath === parts[1]) return
+          if (wallpaperModel.get(i).wallpath === parts[1]) {
+            wallpaperModel.setProperty(i, "isLoading", false)
+            return
+          }
         }
-        // sort alphabet
+
         var insertAt = wallpaperModel.count
         for (var j = 0; j < wallpaperModel.count; j++) {
           if (parts[1] < wallpaperModel.get(j).wallpath) {
@@ -90,15 +109,34 @@ PanelWindow {
             break
           }
         }
-        wallpaperModel.insert(insertAt, { thumbpath: parts[0], wallpath: parts[1] })
+        wallpaperModel.insert(insertAt, { 
+          thumbpath: parts[0] + "?t=" + Date.now(),
+          wallpath: parts[1], 
+          isLoading: false 
+        })
       }
     }
-  }
+  } 
 
   Process {
     id: thumbGenProcess
     command: ["bash", Quickshell.shellDir + "/scripts/generate-thumbs.sh"]
-    running: true
+    running: false
+    stdout: SplitParser {
+      onRead: data => {
+        // Sama persis dengan watcherThumbProcess
+        var parts = data.trim().split("|")
+        if (parts.length !== 2 || parts[0] === "" || parts[1] === "") return
+        var insertAt = wallpaperModel.count
+        for (var j = 0; j < wallpaperModel.count; j++) {
+          if (parts[1] < wallpaperModel.get(j).wallpath) {
+            insertAt = j
+            break
+          }
+        }
+        wallpaperModel.insert(insertAt, { thumbpath: parts[0], wallpath: parts[1], isLoading: false })
+      }
+    }
     onRunningChanged: {
       if (!running) scanProcess.running = true
     }
@@ -107,14 +145,24 @@ PanelWindow {
   Process {
     id: scanProcess
     command: ["bash", "-c",
-    "find " + Quickshell.env("HOME") + "/Pictures/Wallpapers -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) | sort | while read f; do thumb=\"/tmp/wallpaper-thumbs/$(basename \"$f\").jpg\"; echo \"$thumb|$f\"; done"]
+    "find " + Quickshell.env("HOME") + "/Pictures/Wallpapers -maxdepth 1 -type f " +
+    "\\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) | sort | " +
+    "while read f; do " +
+    "  base=$(basename \"$f\" | sed 's/\\.[^.]*$//'); " +
+    "  thumb=\"/tmp/wallpaper-thumbs/$base.jpg\"; " +
+    "  [ -f \"$thumb\" ] && echo \"$thumb|$f\"; " + 
+    "done"]
     running: false
     stdout: SplitParser {
       onRead: data => {
         var parts = data.trim().split("|")
-        if (parts.length === 2 && parts[0] !== "" && parts[1] !== "") {
-          wallpaperModel.append({ thumbpath: parts[0], wallpath: parts[1] })
+        if (parts.length !== 2 || parts[0] === "" || parts[1] === "") return
+
+        for (var i = 0; i < wallpaperModel.count; i++) {
+          if (wallpaperModel.get(i).wallpath === parts[1]) return
         }
+
+        wallpaperModel.append({ thumbpath: parts[0], wallpath: parts[1], isLoading: false })
       }
     }
   }
@@ -147,13 +195,13 @@ PanelWindow {
         
         gradient: Gradient {
           orientation: Gradient.Vertical 
-          GradientStop { position: 0.08; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.52; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.67; color: Colors.isDark ? Colors.surface : Colors.surface  }
-          GradientStop { position: 0.99; color: Colors.isDark ? Colors.surface : Colors.surface  }
+          GradientStop { position: 0.08; color: Colors.rightbar_gradient1 }
+          GradientStop { position: 0.52; color: Colors.rightbar_gradient2 }
+          GradientStop { position: 0.67; color: Colors.rightbar_gradient3  }
+          GradientStop { position: 0.99; color: Colors.rightbar_gradient4  }
         }
         radius: 12
-        border.color: Colors.outlineVariant
+        border.color: Colors.outline_variant
         border.width: 2 
 
         Column {
@@ -201,9 +249,13 @@ PanelWindow {
                 Behavior on anchors.margins {
                     NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                 }
-                color: wallpaperList.currentIndex === index ? Colors.surfaceContainer : Colors.surface
+                color: wallpaperList.currentIndex === index 
+                ? Colors.wallpaper_item_active_bg
+                : Colors.wallpaper_item_inactive_bg
                 radius: 8
-                border.color: wallpaperList.currentIndex === index ? Colors.outline : Colors.outlineVariant
+                border.color: wallpaperList.currentIndex === index 
+                ? Colors.wallpaper_item_active_border
+                : Colors.wallpaper_item_inactive_border
                 border.width: wallpaperList.currentIndex === index ? 3 : 2
  
                 transform: Translate {
@@ -220,8 +272,14 @@ PanelWindow {
                   smooth: true
                   asynchronous: true
                   visible: false
-
                   opacity: status === Image.Ready ? 1 : 0
+
+                  onStatusChanged: {
+                    if (status === Image.Error) {
+                      var base = model.thumbpath.split("?")[0]
+                      wallpaperModel.setProperty(index, "thumbpath", base + "?t=" + Date.now())
+                    }
+                  }
                 }
 
                 Item {
@@ -247,6 +305,40 @@ PanelWindow {
                     NumberAnimation { duration: 100 }
                   }
                 }
+                // Loading placeholder (tampil saat isLoading atau image belum ready)
+                Rectangle {
+                  id: loadingPlaceholder
+                  anchors.fill: parent
+                  anchors.margins: 2
+                  radius: 7
+                  color: Colors.wallpaper_placeholder_bg
+                  visible: thumbImage.status !== Image.Ready
+                  property real shimmerPos: 0.0
+
+                  SequentialAnimation on shimmerPos {
+                    loops: Animation.Infinite
+                    running: thumbImage.status !== Image.Ready
+                    NumberAnimation { from: -0.5; to: 1.5; duration: 1200 }
+                  }
+
+                  Rectangle {
+                    anchors.fill: parent
+                    radius: 7
+                    gradient: Gradient {
+                      orientation: Gradient.Horizontal
+                      GradientStop { position: 0.0; color: "transparent" }
+                      GradientStop { position: Math.max(0, Math.min(1, loadingPlaceholder.shimmerPos)); color: Qt.rgba(1,1,1,0.08) }
+                      GradientStop { position: 1.0; color: "transparent" }
+                    }
+                  }
+
+                  Text {
+                    anchors.centerIn: parent
+                    text: "🖼"
+                    font.pixelSize: 18
+                    opacity: 0.3
+                  }
+                }
               }
             }  
 
@@ -259,7 +351,7 @@ PanelWindow {
                   pressResetTimer.delegate = delegate
                   pressResetTimer.start()
                 }
-                var cmd = "m3wal '" + item.wallpath + "'"
+                var cmd = StateGlobals.colorEngine + " '" + item.wallpath + "'"
                 setWallpaperProcess.command = ["bash", "-c", cmd]
                 setWallpaperProcess.running = true
               }
@@ -294,10 +386,10 @@ PanelWindow {
           width: 10
           gradient: Gradient {
             orientation: Gradient.Vertical 
-            GradientStop { position: 0.08; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim}
-            GradientStop { position: 0.52; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim}
-            GradientStop { position: 0.67; color: Colors.isDark ? Colors.surface : Colors.surface  }
-            GradientStop { position: 0.99; color: Colors.isDark ? Colors.surface : Colors.surface  }
+            GradientStop { position: 0.08; color: Colors.rightbar_gradient1 }
+            GradientStop { position: 0.52; color: Colors.rightbar_gradient2 }
+            GradientStop { position: 0.67; color: Colors.rightbar_gradient3 }
+            GradientStop { position: 0.99; color: Colors.rightbar_gradient4 }
           }
           anchors.top: parent.top
           anchors.right: parent.right
@@ -316,7 +408,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface 
+            ctx.fillStyle = Colors.rightbar_gradient3 
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)
@@ -343,7 +435,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.outlineVariant
+            ctx.fillStyle = Colors.outline_variant
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)
@@ -375,7 +467,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim 
+            ctx.fillStyle = Colors.rightbar_gradient2 
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)
@@ -407,7 +499,7 @@ PanelWindow {
           onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            ctx.fillStyle = Colors.outlineVariant
+            ctx.fillStyle = Colors.outline_variant
             ctx.lineWidth = 2
             ctx.beginPath()
             ctx.moveTo(0, 0)

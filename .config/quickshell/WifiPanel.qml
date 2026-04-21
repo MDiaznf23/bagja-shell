@@ -12,6 +12,53 @@ PanelWindow {
 
   property bool isShowing: false
   property var networks: []
+  property bool showPasswordForm: false
+  property string pendingSSID: ""
+  property bool isKnownNetwork: false
+  property bool isScanning: false
+
+  property string toastMsg: ""
+  property bool isToastError: false
+  property bool showToast: false
+
+  function displayToast(msg, isError) {
+    root.toastMsg = msg
+    root.isToastError = isError
+    root.showToast = true
+    toastTimer.restart()
+  }
+
+  function doConnect() {
+    connectProcess.ssid = root.pendingSSID 
+    connectProcess.isDisconnecting = false
+    connectProcess.command = [
+      Quickshell.shellDir + "/scripts/connect_wifi.sh",
+      root.pendingSSID,
+      passwordField.text
+    ]
+    connectProcess.running = true
+    root.showPasswordForm = false
+    passwordField.text = ""
+  }
+
+  Process {
+    id: checkKnownProcess
+    property string ssid: ""
+    command: ["bash", "-c", "nmcli -t -f NAME connection show 2>/dev/null | grep -cx '^" + ssid + "$'"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        var isKnown = parseInt(text.trim()) > 0
+        root.isKnownNetwork = isKnown
+        if (isKnown) {
+          root.pendingSSID = checkKnownProcess.ssid
+          doConnect()
+        } else {
+          root.pendingSSID = checkKnownProcess.ssid
+          root.showPasswordForm = true
+        }
+      }
+    }
+  }
 
   Timer {
     id: showTimer
@@ -19,35 +66,27 @@ PanelWindow {
     onTriggered: root.isShowing = true
   }
 
-  // Auto scan 
   onVisibleChanged: {
     if (visible) {
       isShowing = false
       showTimer.start()
-      scanProcess.running = true
     } else {
       isShowing = false
     }
   }
 
-  // Scan every 5 sec
-  Timer {
-    id: autoScanTimer
-    interval: 5000
-    repeat: true
-    running: root.visible
-    onTriggered: scanProcess.running = true
-  }
-
   Process {
     id: scanProcess
-    command: [Quickshell.shellDir + "/scripts/scan_wifi.sh"]
-    stdout: StdioCollector {
-      onStreamFinished: {
+    command: ["python3", "-u", Quickshell.shellDir + "/scripts/scan_wifi.py"]
+    running: true
+    stdout: SplitParser {
+      onRead: (data) => {
         try {
-          root.networks = JSON.parse(text)
-        } catch(e) {
-          root.networks = []
+          var parsed = JSON.parse(data)
+          root.networks = parsed
+        } 
+        catch(e) {
+          console.log("parse error:", e, data)
         }
       }
     }
@@ -66,7 +105,7 @@ PanelWindow {
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
   WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+  WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
   signal requestClose()
 
@@ -82,8 +121,8 @@ PanelWindow {
       layer.enabled: true
       gradient: Gradient {
         orientation: Gradient.Horizontal 
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       anchors.top: parent.top
       anchors.left: parent.left
@@ -110,11 +149,11 @@ PanelWindow {
       anchors.bottomMargin: 12
       gradient: Gradient {
         orientation: Gradient.Horizontal 
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       radius: 12
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       border.width: 2
 
       ColumnLayout {
@@ -128,7 +167,7 @@ PanelWindow {
 
           Text {
             text: "Wifi"
-            color: Colors.overSurfaceVariant
+            color: Colors.text_variant1
             font.pixelSize: 14
             font.bold: true
             Layout.fillWidth: true
@@ -137,22 +176,18 @@ PanelWindow {
           // Scan button
           Rectangle {
             width: 20; height: 20
-            color: scanArea.containsMouse 
-              ? Colors.isDark ? Colors.primaryContainer : Colors.secondaryFixed 
-              : "transparent"
+            color: scanArea.containsMouse ? Colors.action_btn_hovered : "transparent"
             radius: 4
 
             Text {
               id: scanIcon
               anchors.centerIn: parent
               text: "󰑐"
-              color: scanProcess.running 
-                ? Colors.isDark ? Colors.primary : Colors.secondary 
-                : Colors.overSurface
+              color: root.isScanning ? Colors.action_btn_running : Colors.action_btn_icon
               font.pixelSize: 14
 
               RotationAnimation on rotation {
-                running: scanProcess.running
+                running: root.isScanning
                 from: 0; to: 360
                 duration: 1000
                 loops: Animation.Infinite
@@ -163,21 +198,29 @@ PanelWindow {
               id: scanArea
               anchors.fill: parent
               hoverEnabled: true
-              onClicked: scanProcess.running = true
+              onClicked: {
+                root.isScanning = true
+                scanTimer.restart()
+                Quickshell.execDetached(["nmcli", "dev", "wifi", "rescan"])
+              }
+            }
+
+            Timer {
+              id: scanTimer
+              interval: 5000
+              onTriggered: root.isScanning = false
             }
           }
 
           // Close button
           Rectangle {
             width: 20; height: 20
-            color: closeArea.containsMouse 
-              ? Colors.isDark ? Colors.overSecondary : Colors.secondary 
-              : "transparent"
+            color: closeArea.containsMouse ? Colors.close_btn_hovered : "transparent"
             radius: 4
             Text {
               anchors.centerIn: parent
               text: "✕"
-              color: Colors.overSurface
+              color: Colors.close_btn_icon
               font.pixelSize: 12
             }
             MouseArea {
@@ -193,144 +236,283 @@ PanelWindow {
         Rectangle {
           Layout.fillWidth: true
           height: 1
-          color: Colors.outline
+          color: Colors.divider
         }
 
         // Network list
-        ListView {
-          id: networkList
+        Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          clip: true
-          spacing: 6
 
-          model: root.networks
+          // ── List WiFi ──
+          ListView {
+            id: networkList
+            anchors.fill: parent
+            visible: !root.showPasswordForm
+            clip: true
+            spacing: 6
+            model: root.networks
 
-          Text {
-            anchors.centerIn: parent
-            text: scanProcess.running ? "Scanning..." : "No Networks"
-            color: Colors.overSurface
-            font.pixelSize: 12
-            visible: networkList.count === 0
-          }
-
-          delegate: Rectangle {
-            id: netItem
-            required property var modelData
-
-            width: networkList.width
-            height: 55
-            color: netArea.containsMouse 
-              ? Colors.isDark ? Colors.surfaceContainerHigh : Colors.primaryFixedDim 
-              : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
-            radius: 6
-
-            Behavior on color {
-              ColorAnimation { duration: 100 }
+            Text {
+              anchors.centerIn: parent
+              text: scanProcess.running ? "Scanning..." : "No Networks"
+              color: Colors.text
+              font.pixelSize: 12
+              visible: networkList.count === 0
             }
 
-            RowLayout {
-              anchors.fill: parent
-              anchors.leftMargin: 12
-              anchors.rightMargin: 12
-              spacing: 8
+            delegate: Rectangle {
+              id: netItem
+              required property var modelData
 
-              // Signal strength icon
-              Text {
-                Layout.alignment: Qt.AlignTop
-                topPadding: -2
-                text: {
-                  var s = netItem.modelData.signal
-                  if (s >= 75) return "󰤨"
-                  if (s >= 50) return "󰤥"
-                  if (s >= 25) return "󰤢"
-                  return "󰤯"
+              width: networkList.width
+              height: 55
+              color: netArea.containsMouse 
+              ? Colors.isDark ? Colors.net_item_hovered : Qt.alpha(Colors.net_item_hovered, 0.3) 
+              : Colors.net_item_bg
+              radius: 6
+
+              Behavior on color { ColorAnimation { duration: 100 } }
+
+              MouseArea {
+                id: netArea
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: {
+                  var isConnected = netItem.modelData.connected
+                  var isSecured = netItem.modelData.secured
+                  
+                  if (isConnected) {
+                    connectProcess.ssid = netItem.modelData.ssid
+                    connectProcess.isDisconnecting = true
+                    connectProcess.command = ["bash", "-c", "nmcli connection down '" + netItem.modelData.ssid + "'"]
+                    connectProcess.running = true
+                  } else {
+                    root.pendingSSID = netItem.modelData.ssid
+                    
+                    if (!isSecured) {
+                      root.showPasswordForm = false
+                      passwordField.text = ""
+                      doConnect()
+                    } else {
+                      checkKnownProcess.ssid = netItem.modelData.ssid
+                      checkKnownProcess.running = true
+                    }
+                  }
                 }
-                color: netItem.modelData.connected === true || netItem.modelData.connected === "true"
-                  ? (Colors.isDark ? Colors.tertiary : Colors.primary)
-                  : (Colors.isDark ? Colors.overSurfaceVariant : Colors.outline)
-                font.pixelSize: 40
               }
 
-              // SSID + status
-              ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 0
+              RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 12
+                anchors.rightMargin: 12
+                spacing: 8
 
                 Text {
-                  text: netItem.modelData.ssid
-                  color: Colors.overSurface
-                  font.pixelSize: 12
-                  elide: Text.ElideRight
+                  Layout.alignment: Qt.AlignVCenter
+                  topPadding: -2
+                  text: {
+                    var s = netItem.modelData.signal
+                    if (s >= 75) return "󰤨"
+                    if (s >= 50) return "󰤥"
+                    if (s >= 25) return "󰤢"
+                    return "󰤯"
+                  }
+                  color: modelData.connected ? Colors.net_icon_connected : Colors.net_icon_disconnected
+                  font.pixelSize: 24
+                }
+
+                ColumnLayout {
                   Layout.fillWidth: true
+                  spacing: 0
+
+                  Text {
+                    text: netItem.modelData.ssid
+                    color: Colors.net_ssid_text
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                  }
+
+                  Text {
+                    visible: netItem.modelData.connected
+                    text: "Connected"
+                    color: Colors.net_connected_text
+                    font.pixelSize: 10
+                  }
                 }
 
                 Text {
-                  visible: netItem.modelData.connected === true || netItem.modelData.connected === "true"
-                  text: "Connected"
-                  color: Colors.isDark ? Colors.primary : Colors.secondary
-                  font.pixelSize: 10
+                  visible: netItem.modelData.secured
+                  text: "󰌾"
+                  color: Colors.net_lock_icon
+                  font.pixelSize: 12
+                }
+
+                Rectangle {
+                  width: 40; height: 22
+                  radius: 11
+                  color: modelData.connected ? Colors.net_toggle_active_bg : Colors.net_toggle_inactive_bg
+                  Behavior on color { ColorAnimation { duration: 150 } }
+
+                  Text {
+                    anchors.centerIn: parent
+                    text: netItem.modelData.connected ? "On" : "Off"
+                    color: modelData.connected ? Colors.net_toggle_active_text : Colors.net_toggle_inactive_text
+                    font.pixelSize: 10
+                    font.bold: true
+                  }
+
+                  MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                      var isConnected = netItem.modelData.connected === true || netItem.modelData.connected === "true"
+                      if (isConnected) {
+                        connectProcess.ssid = netItem.modelData.ssid
+                        connectProcess.isDisconnecting = true
+                        connectProcess.command = ["bash", "-c", "nmcli connection down '" + netItem.modelData.ssid + "'"]
+                        connectProcess.running = true
+                      } else {
+                        checkKnownProcess.ssid = netItem.modelData.ssid
+                        checkKnownProcess.running = true
+                      }
+                    }
+                  }
                 }
               }
+            }
+          }
 
-              // Lock icon
-              Text {
-                visible: netItem.modelData.secured === true || netItem.modelData.secured === "true"
-                text: "󰌾"
-                color: Colors.tertiary
-                font.pixelSize: 12
-              }
+          // ── Password Form ──
+          ColumnLayout {
+            anchors.fill: parent
+            visible: root.showPasswordForm
+            spacing: 12
 
-              // Connect button
+            RowLayout {
+              Layout.fillWidth: true
+
               Rectangle {
-                width: 40; height: 22
-                radius: 11
-                color: netItem.modelData.connected === true || netItem.modelData.connected === "true"
-                  ? (Colors.isDark ? Colors.overPrimary : Colors.primaryContainer)
-                  : (Colors.isDark ? Colors.secondaryContainer : Colors.outline)
-
-                Behavior on color {
-                  ColorAnimation { duration: 150 }
-                }
+                width: 24; height: 24
+                color: backHover.containsMouse ? Colors.pwd_back_btn_hovered : "transparent"
+                radius: 4
 
                 Text {
                   anchors.centerIn: parent
-                  text: (netItem.modelData.connected === true || netItem.modelData.connected === "true") ? "On" : "Off"
-                  color: netItem.modelData.connected === true || netItem.modelData.connected === "true"
-                    ? (Colors.isDark ? Colors.tertiaryFixed : Colors.overPrimary)
-                    : (Colors.isDark ? Colors.overSurfaceVariant : Colors.overSecondary)
-                  font.pixelSize: 10
-                  font.bold: true
+                  text: "󰁍"
+                  font.pixelSize: 14
+                  font.family: "JetBrainsMono Nerd Font"
+                  color: Colors.pwd_back_btn_icon
                 }
 
                 MouseArea {
+                  id: backHover
                   anchors.fill: parent
-                  onClicked: {
-                    connectProcess.ssid = netItem.modelData.ssid
-                    connectProcess.running = true
+                  hoverEnabled: true
+                  cursorShape: Qt.PointingHandCursor
+                  onClicked: root.showPasswordForm = false
+                }
+              }
+
+              Text {
+                text: root.pendingSSID
+                color: Colors.pwd_ssid_text
+                font.pixelSize: 12
+                font.bold: true
+                Layout.fillWidth: true
+                elide: Text.ElideRight
+              }
+            }
+
+            Rectangle { Layout.fillWidth: true; height: 1; color: Colors.divider }
+
+            Rectangle {
+              Layout.fillWidth: true
+              height: 36
+              radius: 8
+              color: Colors.pwd_input_bg
+              border.color: passwordField.activeFocus ? Colors.pwd_input_border : Colors.outline_variant
+              border.width: 1
+              Behavior on border.color { ColorAnimation { duration: 150 } }
+
+              RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 10
+                anchors.rightMargin: 8
+                spacing: 6
+
+                TextInput {
+                  id: passwordField
+                  Layout.fillWidth: true
+                  echoMode: showPasswordToggle.checked ? TextInput.Normal : TextInput.Password
+                  color: Colors.pwd_input_text
+                  font.pixelSize: 12
+                  font.family: "JetBrainsMono Nerd Font"
+                  selectedTextColor: Colors.pwd_input_selected
+                  selectionColor: Colors.pwd_input_selection
+                  Keys.onReturnPressed: doConnect()
+                  Keys.onEscapePressed: root.showPasswordForm = false
+                }
+
+                Rectangle {
+                  width: 20; height: 20
+                  color: "transparent"
+
+                  Text {
+                    anchors.centerIn: parent
+                    text: showPasswordToggle.checked ? "󰈈" : "󰈉"
+                    font.pixelSize: 13
+                    font.family: "JetBrainsMono Nerd Font"
+                    color: Colors.pwd_eye_icon
+                  }
+
+                  MouseArea {
+                    id: showPasswordToggle
+                    anchors.fill: parent
+                    property bool checked: false
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: checked = !checked
                   }
                 }
               }
             }
 
-            MouseArea {
-              id: netArea
-              anchors.fill: parent
-              hoverEnabled: true
-              onClicked: {}
+            Rectangle {
+              Layout.fillWidth: true
+              height: 36
+              radius: 8
+              color: connectBtnHover.containsMouse ? Colors.pwd_connect_hovered : Colors.pwd_connect_bg
+              Behavior on color { ColorAnimation { duration: 100 } }
+
+              Text {
+                anchors.centerIn: parent
+                text: "Connect"
+                color: connectBtnHover.containsMouse
+                ? Colors.pwd_connect_text_hovered
+                : Colors.pwd_connect_text
+                font.pixelSize: 12
+                font.bold: true
+              }
+
+              MouseArea {
+                id: connectBtnHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: doConnect()
+              }
             }
+
+            Item { Layout.fillHeight: true }
           }
         }
       }
+
       Rectangle {
         id: rightPatch
         width: 12
         height: parent.height
-        gradient: Gradient {
-          orientation: Gradient.Horizontal 
-          GradientStop { position: 0.1; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.78; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-        }
+        color: Colors.rightbar_gradient1 
         anchors.right: parent.right
         anchors.rightMargin: -2
         z: 5
@@ -347,7 +529,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim
+          ctx.fillStyle = Colors.rightbar_gradient1
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -371,7 +553,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -395,7 +577,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+        ctx.fillStyle = Colors.rightbar_gradient3
         ctx.beginPath()
         ctx.moveTo(0, 0)
         ctx.lineTo(0, 2)
@@ -418,7 +600,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.beginPath()
         ctx.moveTo(0, 0)
         ctx.lineTo(0, 2)
@@ -430,15 +612,82 @@ PanelWindow {
         ctx.fill()
       }
     }
+
+    // ── Toast Notification ──
+    Rectangle {
+      id: toastContainer
+      anchors.bottom: parent.bottom
+      anchors.bottomMargin: 24
+      anchors.horizontalCenter: parent.horizontalCenter
+      width: Math.min(toastLabel.implicitWidth + 32, parent.width - 48)
+      height: 32
+      radius: 16
+      
+      color: Colors.toast_bg
+      border.color: root.isToastError ? "#FF5252" : Colors.toast_border
+      border.width: 1
+      
+      opacity: root.showToast ? 1 : 0
+      visible: opacity > 0
+      Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+
+      Text {
+        id: toastLabel
+        anchors.centerIn: parent
+        text: root.toastMsg
+        width: Math.min(implicitWidth, parent.width - 32) 
+        elide: Text.ElideRight
+        color: Colors.toast_text
+        font.pixelSize: 11
+        font.bold: true
+      }
+
+      Timer {
+        id: toastTimer
+        interval: 3500 
+        onTriggered: root.showToast = false
+      }
+    }
   }
 
   // Connect process 
   Process {
     id: connectProcess
     property string ssid: ""
-    command: [Quickshell.shellDir + "/scripts/connect_wifi.sh", ssid]
+    property bool isDisconnecting: false
+    command: []
+
+    stdout: StdioCollector {
+      onStreamFinished: {
+        if (connectProcess.isDisconnecting) return;
+
+        var output = text.trim()
+        
+        if (output === "AUTH_FAILED") {
+          root.displayToast("Incorrect password for " + connectProcess.ssid + "!", true)
+          root.pendingSSID = connectProcess.ssid
+          root.showPasswordForm = true
+        } else if (output === "CONNECT_FAILED") {
+          root.displayToast("Failed to connect to " + connectProcess.ssid, true)
+        } else if (output === "SUCCESS") {
+          root.displayToast("Successfully connected to " + connectProcess.ssid, false)
+          root.showPasswordForm = false
+        } else if (output === "ERROR_NO_SSID") {
+          root.displayToast("Invalid SSID", true)
+        }
+      }
+    }
+
     onRunningChanged: {
-      if (!running) scanProcess.running = true
+      if (running) {
+        if (isDisconnecting) {
+          root.displayToast("Disconnecting...", false)
+        } else {
+          root.displayToast("Connecting to " + connectProcess.ssid + "...", false)
+        }
+      } else {
+        scanProcess.running = true
+      }
     }
   }
 }

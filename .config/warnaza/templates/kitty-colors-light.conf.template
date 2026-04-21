@@ -1,0 +1,51 @@
+# Warnaza — Kitty Terminal Colors (Light)
+# Mode: {{warnaza_mode}}
+# Wallpaper: {{wallpaper_path}}
+
+# Backgrounds
+background            {{light9}}
+selection_background  {{light7}}
+
+# Foregrounds
+foreground            {{dark1}}
+selection_foreground  {{dark2}}
+
+# Cursor
+cursor                {{mid5}}
+cursor_text_color     {{light9}}
+
+# URL
+url_color             {{mid4}}
+
+# Terminal 16 colors
+# Black
+color0   {{light9}}
+color8   {{light6}}
+
+# Red
+color1   {{mid5}}
+color9   {{mid4}}
+
+# Green
+color2   {{mid3}}
+color10  {{mid2}}
+
+# Yellow
+color3   {{mid7}}
+color11  {{mid6}}
+
+# Blue
+color4   {{mid1}}
+color12  {{mid0}}
+
+# Magenta
+color5   {{mid9}}
+color13  {{mid8}}
+
+# Cyan
+color6   {{mid10}}
+color14  {{dark10}}
+
+# White
+color7   {{dark3}}
+color15  {{dark1}}

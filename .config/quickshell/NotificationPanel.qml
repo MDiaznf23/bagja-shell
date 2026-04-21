@@ -93,8 +93,8 @@ PanelWindow {
       layer.enabled: true
       gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       anchors.top: parent.top
       anchors.left: parent.left
@@ -121,11 +121,11 @@ PanelWindow {
       anchors.bottomMargin: 12
       gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       radius: 12
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       border.width: 2
 
       ColumnLayout {
@@ -139,7 +139,7 @@ PanelWindow {
 
           Text {
             text: "Notifications"
-            color: Colors.overSurfaceVariant
+            color: Colors.header_title
             font.pixelSize: 14
             font.bold: true
             Layout.fillWidth: true
@@ -147,14 +147,12 @@ PanelWindow {
 
           Rectangle {
             width: 20; height: 20
-            color: clearArea.containsMouse
-              ? Colors.isDark ? Colors.primaryContainer : Colors.secondaryFixed
-              : "transparent"
+            color: clearArea.containsMouse ? Colors.action_btn_hovered : "transparent"
             radius: 4
             Text {
               anchors.centerIn: parent
               text: "󰃢"
-              color: Colors.overSurface
+              color: Colors.action_btn_icon
               font.pixelSize: 14
             }
             MouseArea {
@@ -167,14 +165,12 @@ PanelWindow {
 
           Rectangle {
             width: 20; height: 20
-            color: closeArea.containsMouse
-              ? Colors.isDark ? Colors.overSecondary : Colors.secondary
-              : "transparent"
+            color: closeArea.containsMouse ? Colors.close_btn_hovered : "transparent"
             radius: 4
             Text {
               anchors.centerIn: parent
               text: "✕"
-              color: Colors.overSurface
+              color: Colors.close_btn_icon
               font.pixelSize: 12
             }
             MouseArea {
@@ -189,7 +185,7 @@ PanelWindow {
         Rectangle {
           Layout.fillWidth: true
           height: 2 
-          color: Colors.outlineVariant
+          color: Colors.divider
         }
 
         // Tab buttons
@@ -205,8 +201,7 @@ PanelWindow {
               height: 28
               radius: 6
               color: root.activeTab === modelData
-                ? Colors.isDark ? Colors.overPrimary : Colors.primaryFixedDim
-                : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+                ? Colors.tab_active_bg : Colors.tab_inactive_bg
 
               Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -216,8 +211,7 @@ PanelWindow {
                 font.pixelSize: 11
                 font.bold: root.activeTab === modelData
                 color: root.activeTab === modelData
-                  ? Colors.isDark ? Colors.primary : Colors.primary
-                  : Colors.overSurface
+                  ? Colors.tab_active_text : Colors.tab_inactive_text
               }
 
               MouseArea {
@@ -240,7 +234,7 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: "No Notifications"
-            color: Colors.overSurface
+            color: Colors.text
             font.pixelSize: 12
             visible: groupList.count === 0
           }
@@ -273,13 +267,13 @@ PanelWindow {
                   Rectangle {
                     width: 6; height: 6
                     radius: 3
-                    color: Colors.isDark ? Colors.primary : Colors.secondary
+                    color: Colors.notif_group_dot
                     Layout.alignment: Qt.AlignVCenter
                   }
 
                   Text {
                     text: groupDelegate.modelData.appName
-                    color: Colors.isDark ? Colors.primary : Colors.secondary
+                    color: Colors.notif_group_title
                     font.pixelSize: 10
                     font.bold: true
                     Layout.fillWidth: true
@@ -287,7 +281,7 @@ PanelWindow {
 
                   Text {
                     text: groupDelegate.modelData.count + " notifications"
-                    color: Colors.overSurfaceVariant
+                    color: Colors.notif_group_count
                     font.pixelSize: 9
                   }
                 }
@@ -303,9 +297,8 @@ PanelWindow {
 
                   width: groupColumn.width
                   height: itemContent.implicitHeight + 16
-                  color: notifArea.containsMouse
-                    ? Colors.isDark ? Colors.surfaceContainerHigh : Colors.primaryFixedDim
-                    : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+                  color: notifArea.containsMouse ? Colors.notif_panel_item_hovered : Colors.notif_panel_item_bg
+
                   radius: 6
 
                   Behavior on color {
@@ -319,16 +312,14 @@ PanelWindow {
                     anchors.right: parent.right
                     anchors.topMargin: 5
                     anchors.rightMargin: 5
-                    color: dismissArea.containsMouse
-                      ? Colors.isDark ? Colors.overSecondary : Colors.secondary
-                      : "transparent"
+                    color: dismissArea.containsMouse ? Colors.notif_dismiss_hovered : "transparent"
                     radius: 3
                     z: 2
 
                     Text {
                       anchors.centerIn: parent
                       text: "✕"
-                      color: Colors.overSurface
+                      color: Colors.notif_dismiss_icon
                       font.pixelSize: 9
                     }
 
@@ -355,13 +346,13 @@ PanelWindow {
                       visible: groupDelegate.modelData.count === 1
                       width: 42; height: 42
                       radius: 8
-                      color: Colors.isDark ? Colors.primaryContainer : Colors.secondaryFixed
+                      color: Colors.notif_icon_bg
                       Layout.alignment: Qt.AlignVCenter
 
                       Text {
                         anchors.centerIn: parent
                         text: "󰂚"
-                        color: Colors.isDark ? Colors.primary : Colors.secondary
+                        color: Colors.notif_icon
                         font.pixelSize: 16
                       }
                     }
@@ -377,7 +368,7 @@ PanelWindow {
 
                         Text {
                           text: notifItem.modelData.data.appName
-                          color: Colors.isDark ? Colors.primary : Colors.secondary
+                          color: Colors.notif_app_name
                           font.pixelSize: 10
                           font.bold: true
                           Layout.fillWidth: true
@@ -386,7 +377,7 @@ PanelWindow {
 
                         Text {
                           text: notifItem.modelData.data.time
-                          color: Colors.overSurface
+                          color: Colors.notif_time
                           font.pixelSize: 9
                         }
                       }
@@ -395,13 +386,13 @@ PanelWindow {
                       Text {
                         visible: groupDelegate.modelData.count > 1
                         text: notifItem.modelData.data.time
-                        color: Colors.overSurfaceVariant
+                        color: Colors.notif_time_grouped
                         font.pixelSize: 9
                       }
 
                       Text {
                         text: notifItem.modelData.data.summary
-                        color: Colors.overSurface
+                        color: Colors.notif_summary
                         font.pixelSize: 11
                         font.bold: true
                         elide: Text.ElideRight
@@ -410,7 +401,7 @@ PanelWindow {
 
                       Text {
                         text: notifItem.modelData.data.body
-                        color: Colors.overSurfaceVariant
+                        color: Colors.notif_body
                         font.pixelSize: 10
                         elide: Text.ElideRight
                         Layout.fillWidth: true
@@ -437,11 +428,7 @@ PanelWindow {
         id: rightPatch
         width: 12
         height: parent.height
-        gradient: Gradient {
-          orientation: Gradient.Horizontal
-          GradientStop { position: 0.1; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.78; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-        }
+        color: Colors.rightbar_gradient1 
         anchors.right: parent.right
         anchors.rightMargin: -2
         z: 5
@@ -458,7 +445,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim
+          ctx.fillStyle = Colors.rightbar_gradient1
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -482,7 +469,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
           ctx.moveTo(0, 0)
           ctx.lineTo(0, 2)
@@ -506,7 +493,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+        ctx.fillStyle = Colors.topbar_gradient5
         ctx.beginPath()
         ctx.moveTo(0, 0)
         ctx.lineTo(0, 2)
@@ -529,7 +516,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.beginPath()
         ctx.moveTo(0, 0)
         ctx.lineTo(0, 2)

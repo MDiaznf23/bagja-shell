@@ -11,12 +11,12 @@ Item {
 
   function topbarColorAt(p) {
     var stops = [
-      {pos: 0.0, color: Colors.isDark ? Colors.surface        : Colors.surface},
-      {pos: 0.2, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed},
-      {pos: 0.4, color: Colors.isDark ? Colors.surfaceContainerLow  : Colors.surface},
-      {pos: 0.6, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim},
-      {pos: 0.8, color: Colors.isDark ? Colors.surface            : Colors.surface},
-      {pos: 1.0, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim},
+      {pos: 0.0, color: Colors.topbar_gradient1},
+      {pos: 0.2, color: Colors.topbar_gradient2},
+      {pos: 0.4, color: Colors.topbar_gradient3},
+      {pos: 0.6, color: Colors.topbar_gradient4},
+      {pos: 0.8, color: Colors.topbar_gradient5},
+      {pos: 1.0, color: Colors.topbar_gradient6},
     ]
     if (p <= 0) return stops[0].color
     if (p >= 1) return stops[stops.length-1].color
@@ -40,16 +40,16 @@ Item {
 
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.surface }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.surface }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.surface }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.surface }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.surface }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.surface }
+      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
     }
     radius: 12
     border.width: 2 
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
 
     Column {
       anchors.fill: parent
@@ -74,25 +74,6 @@ Item {
             color: "transparent"
             radius: 6
 
-            property string cityName: "..."
-            property string tempMax: "..."
-
-            Process {
-              command: ["bash", "-c", "~/.config/quickshell/scripts/weather-wrapper.sh city"]
-              running: true
-              stdout: SplitParser {
-                  onRead: (data) => { cityTempRect.cityName = data.trim() }
-              }
-            }
-
-            Process {
-              command: ["bash", "-c", "~/.config/quickshell/scripts/weather_wrapper_forecast.sh day0 max"]
-              running: true
-              stdout: SplitParser {
-                  onRead: (data) => { cityTempRect.tempMax = data.trim() }
-              }
-            }
-
             Column {
               anchors.fill: parent
               anchors.topMargin: 0
@@ -100,16 +81,16 @@ Item {
 
               Text {
                 anchors.left: parent.left
-                text: cityTempRect.cityName
-                color: Colors.overSurface
+                text: StateGlobals.weatherCity
+                color: Colors.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 14
               }
 
               Text {
                 anchors.left: parent.left
-                text: cityTempRect.tempMax
-                color: Colors.isDark ? Colors.overSurfaceVariant : Colors.primary
+                text: StateGlobals.weatherTemp
+                color: Colors.text_variant6
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 36
                 font.bold: true
@@ -124,55 +105,21 @@ Item {
             color: "transparent"
             radius: 6
 
-            property string wIcon: "..."
-            property string wDesc: "..."
-            property string wLat: "..."
-            property string wLong: "..."
-
-            Process {
-              command: ["bash", "-c", "~/.config/quickshell/scripts/weather-wrapper.sh icon"]
-              running: true
-              stdout: SplitParser {
-                onRead: (data) => { weatherInfoRect.wIcon = data.trim() }
-              }
-            }
-            Process {
-              command: ["bash", "-c", "~/.config/quickshell/scripts/weather-wrapper.sh desc"]
-              running: true
-              stdout: SplitParser {
-                onRead: (data) => { weatherInfoRect.wDesc = data.trim() }
-              }
-            }
-            Process {
-              command: ["bash", "-c", "~/.config/quickshell/scripts/weather-wrapper.sh lat"]
-              running: true
-              stdout: SplitParser {
-                onRead: (data) => { weatherInfoRect.wLat = data.trim() }
-              }
-            }
-            Process {
-              command: ["bash", "-c", "~/.config/quickshell/scripts/weather-wrapper.sh long"]
-              running: true
-              stdout: SplitParser {
-                onRead: (data) => { weatherInfoRect.wLong = data.trim() }
-              }
-            }
-
             Column {
               anchors.fill: parent
               spacing: 2
 
               Text {
                 anchors.right: parent.right
-                text: weatherInfoRect.wIcon
-                color: Colors.isDark ? Colors.overSurface : Colors.primary
+                text: StateGlobals.weatherIcon
+                color: Colors.text
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 20
               }
               Text {
                 anchors.right: parent.right
-                text: weatherInfoRect.wDesc
-                color: Colors.overSurfaceVariant
+                text: StateGlobals.weatherText
+                color: Colors.text_variant6
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 10
               }
@@ -180,14 +127,14 @@ Item {
                 anchors.right: parent.right
                 spacing: 4
                 Text {
-                  text: weatherInfoRect.wLat
-                  color: Colors.overSurfaceVariant
+                  text: StateGlobals.weatherLat
+                  color: Colors.text_variant1
                   font.family: "JetBrainsMono Nerd Font"
                   font.pixelSize: 9
                 }
                 Text {
-                  text: weatherInfoRect.wLong
-                  color: Colors.overSurfaceVariant
+                  text: StateGlobals.weatherLong
+                  color: Colors.text_variant1
                   font.family: "JetBrainsMono Nerd Font"
                   font.pixelSize: 9
                 }
@@ -204,29 +151,12 @@ Item {
         color: "transparent"
         radius: 8
 
-        property var forecastData: []
-
-        Process {
-          command: ["bash", Quickshell.shellDir + "/scripts/weather_wrapper_forecast.sh", "json"]
-          running: true
-          stdout: SplitParser {
-            onRead: (data) => {
-              try {
-                forecastRect.forecastData = JSON.parse(data)
-              } 
-              catch (e) {
-                console.log("Forecast JSON Error: " + e)
-              }
-            }
-          }
-        }
-
         Row {
           anchors.centerIn: parent
           spacing: 8
 
           Repeater {
-            model: forecastRect.forecastData
+            model: StateGlobals.weatherForecast
 
             Column {
               spacing: 2
@@ -235,21 +165,21 @@ Item {
               Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: modelData.day
-                color: Colors.overSurfaceVariant
+                color: Colors.text_variant1
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 9
               }
               Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: modelData.icon
-                color: Colors.isDark ? Colors.overSurface : Colors.primary
+                color: Colors.text_variant3
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 16
               }
               Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: modelData.max
-                color: Colors.overSurface
+                color: Colors.text_variant2
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 10
                 font.bold: true
@@ -266,12 +196,12 @@ Item {
 
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.surface }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.surface }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.surface }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.surface }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.surface }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.surface }
+      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
     }
 
     anchors.top: parent.top
@@ -320,7 +250,7 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.beginPath()
       ctx.moveTo(0, 0)
       ctx.lineTo(0, 2)
@@ -369,7 +299,7 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.beginPath()
       ctx.moveTo(14, 0)
       ctx.lineTo(14, 2)

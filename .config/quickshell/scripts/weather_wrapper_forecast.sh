@@ -12,8 +12,7 @@ get_forecast_data() {
     CACHE_DATE="$CACHE_DIR/last_update"
     TODAY=$(date +%Y-%m-%d)
     
-    # Chech cache
-    if [ -f "$CACHE_DATE" ] && [ -f "$CACHE_FILE" ]; then
+    if [ -f "$CACHE_DATE" ] && [ -s "$CACHE_FILE" ]; then
         CACHED_DATE=$(cat "$CACHE_DATE")
         if [ "$CACHED_DATE" = "$TODAY" ]; then
             cat "$CACHE_FILE"

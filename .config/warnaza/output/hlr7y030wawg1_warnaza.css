@@ -1,0 +1,35 @@
+/* Warnaza — mode: dark */
+:root {
+  --warnaza-dark0: #081020;  /* L=4.76 */
+  --warnaza-dark1: #081024;  /* L=4.96 */
+  --warnaza-dark2: #0c1428;  /* L=6.61 */
+  --warnaza-dark3: #0c1830;  /* L=8.52 */
+  --warnaza-dark4: #0c1838;  /* L=9.13 */
+  --warnaza-dark5: #181830;  /* L=9.49 */
+  --warnaza-dark6: #0c2858;  /* L=16.99 */
+  --warnaza-dark7: #102858;  /* L=17.14 */
+  --warnaza-dark8: #0c2c58;  /* L=18.29 */
+  --warnaza-dark9: #0c2c5c;  /* L=18.59 */
+  --warnaza-dark10: #102c5c;  /* L=18.73 */
+  --warnaza-mid0: #6068b0;  /* L=46.34 */
+  --warnaza-mid1: #5870c0;  /* L=48.84 */
+  --warnaza-mid2: #6870b8;  /* L=49.49 */
+  --warnaza-mid3: #6074b8;  /* L=50.02 */
+  --warnaza-mid4: #6078bc;  /* L=51.32 */
+  --warnaza-mid5: #a084b4;  /* L=59.22 */
+  --warnaza-mid6: #6890dc;  /* L=59.94 */
+  --warnaza-mid7: #6890e0;  /* L=60.13 */
+  --warnaza-mid8: #a088b8;  /* L=60.38 */
+  --warnaza-mid9: #7890e0;  /* L=61.06 */
+  --warnaza-mid10: #78a0e8;  /* L=65.72 */
+  --warnaza-light0: #80a4e8;  /* L=67.25 */
+  --warnaza-light1: #d49898;  /* L=68.55 */
+  --warnaza-light2: #ffb498;  /* L=79.71 */
+  --warnaza-light3: #ffbc98;  /* L=81.56 */
+  --warnaza-light4: #f0c0b8;  /* L=81.67 */
+  --warnaza-light5: #ffc09c;  /* L=82.57 */
+  --warnaza-light6: #ffc8b4;  /* L=84.93 */
+  --warnaza-light7: #ffece8;  /* L=94.77 */
+  --warnaza-light8: #ffecec;  /* L=94.87 */
+  --warnaza-light9: #fff0f0;  /* L=95.94 */
+}

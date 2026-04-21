@@ -12,33 +12,16 @@ Item {
   property real tooltipStart: 0.0
   property real tooltipEnd: 1.0
 
-  Process {
-    command: ["bash", Quickshell.shellDir + "/scripts/get_battery_info.sh"]
-    running: true
-    stdout: SplitParser {
-      onRead: (data) => {
-        try {
-          var res = JSON.parse(data)
-          batteryName = res.battery_name
-          profile = res.profile
-        } 
-        catch (e) {
-          console.log("Battery JSON Error: " + e)
-        }
-      }
-    }
-  }
-
   function topbarColorAt(p) {
     var stops = [
-      {pos: 0.0, color: Colors.isDark ? Colors.surfaceDim        : Colors.surface},
-      {pos: 0.2, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed},
-      {pos: 0.4, color: Colors.isDark ? Colors.surface            : Colors.surface},
-      {pos: 0.6, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed},
-      {pos: 0.8, color: Colors.isDark ? Colors.surface            : Colors.surface},
-      {pos: 1.0, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim},
+      {pos: 0.0, color: Colors.topbar_gradient1},
+      {pos: 0.2, color: Colors.topbar_gradient2},
+      {pos: 0.4, color: Colors.topbar_gradient3},
+      {pos: 0.6, color: Colors.topbar_gradient4},
+      {pos: 0.8, color: Colors.topbar_gradient5},
+      {pos: 1.0, color: Colors.topbar_gradient6},
     ]
-    if (!Colors.surface) return "#000000"
+    if (!Colors.background) return "#000000"
     if (p <= 0) return stops[0].color
     if (p >= 1) return stops[stops.length-1].color
     for (var i = 0; i < stops.length - 1; i++) {
@@ -61,16 +44,16 @@ Item {
     
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.surface }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.surface }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.surface }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.surface }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.surface }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.surface }
+      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
     }
     radius: 12
     border.width: 2
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
 
     Column {
       anchors.centerIn: parent
@@ -80,19 +63,11 @@ Item {
       Text {
         width: parent.width
         horizontalAlignment: Text.AlignHCenter
-        text: batteryName
-        color: Colors.overSurface
+        text: "Model: " + StateGlobals.batModel
+        color: Colors.text
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 12
         font.bold: true
-      }
-      Text {
-        width: parent.width
-        horizontalAlignment: Text.AlignHCenter
-        text: "Profile: " + profile
-        color: Colors.overSurfaceVariant
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 12
       }
     }
   }
@@ -104,12 +79,12 @@ Item {
     
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.surface }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.surface }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.surface }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.surface }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.surface }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.surface }
+      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
     }
     anchors.top: parent.top
     anchors.left: parent.left
@@ -149,7 +124,7 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.beginPath()
       ctx.moveTo(0, 0)
       ctx.lineTo(0, 2)
@@ -198,7 +173,7 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.beginPath()
       ctx.moveTo(14, 0)
       ctx.lineTo(14, 2)

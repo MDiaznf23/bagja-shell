@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Services.Pipewire
 
 PanelWindow {
   id: root
@@ -12,52 +12,6 @@ PanelWindow {
   implicitHeight: 360
 
   property bool isShowing: false
-  property var sinks: []
-  property var sources: []
-
-  property var deviceModel: {
-    var items = []
-    items.push({ type: "header", label: "Output" })
-    if (sinks.length === 0)
-      items.push({ type: "empty", label: "No output device" })
-    for (var i = 0; i < sinks.length; i++)
-      items.push({ type: "sink", data: sinks[i] })
-    items.push({ type: "divider" })
-    items.push({ type: "header", label: "Input" })
-    if (sources.length === 0)
-      items.push({ type: "empty", label: "No input device" })
-    for (var j = 0; j < sources.length; j++)
-      items.push({ type: "source", data: sources[j] })
-    return items
-  }
-
-  Process {
-    id: sinkListener
-    command: ["python3", Quickshell.shellDir + "/scripts/get_audio_devices.py", "sink"] 
-    running: true
-    Component.onDestruction: running = false
-    stdout: SplitParser {
-      onRead: data => {
-        try { root.sinks = JSON.parse(data) } catch(e) {}
-      }
-    }
-  }
-
-  Process {
-    id: sourceListener
-    command: ["python3", Quickshell.shellDir + "/scripts/get_audio_devices.py", "source"]
-    running: false
-    stdout: SplitParser {
-      onRead: data => {
-        try { root.sources = JSON.parse(data) } catch(e) {}
-      }
-    }
-  }
-
-  Process {
-    id: setDefaultProc
-    command: []
-  }
 
   Timer {
     id: showTimer
@@ -69,31 +23,22 @@ PanelWindow {
     if (visible) {
       isShowing = false
       showTimer.start()
-      sinkListener.running = false
-      sourceListener.running = false
-      sinkListener.running = true
-      sourceListener.running = true
     } else {
       isShowing = false
-      sinkListener.running = false
-      sourceListener.running = false
     }
   }
 
-  anchors {
-    top: true
-    right: true
-  }
-
-  margins {
-    top: 28
-    right: 13
-  }
+  anchors { top: true; right: true }
+  margins { top: 28; right: 13 }
 
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
   WlrLayershell.layer: WlrLayer.Overlay
   WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+
+  PwObjectTracker {
+    objects: Pipewire.nodes.values
+  }
 
   signal requestClose()
 
@@ -118,9 +63,9 @@ PanelWindow {
       id: topPatch
       height: 12
       gradient: Gradient {
-        orientation: Gradient.Horizontal 
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        orientation: Gradient.Horizontal
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       anchors.top: parent.top
       anchors.left: parent.left
@@ -130,45 +75,40 @@ PanelWindow {
     }
 
     Rectangle {
+      id: innerRect
       anchors.fill: parent
       anchors.leftMargin: 12
       anchors.bottomMargin: 12
       gradient: Gradient {
-        orientation: Gradient.Horizontal 
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.9; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        orientation: Gradient.Horizontal
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.9; color: Colors.topbar_gradient6 }
       }
       radius: 10
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       border.width: 2
 
       ColumnLayout {
+        id: contentColumn
         anchors.fill: parent
         anchors.margins: 12
-        spacing: 10
+        spacing: 8
 
         // Header
         RowLayout {
           Layout.fillWidth: true
           Text {
             text: "Audio Devices"
-            color: Colors.isDark ? Colors.primary : Colors.secondary
+            color: Colors.header_title
             font.pixelSize: 14
             font.bold: true
             Layout.fillWidth: true
           }
           Rectangle {
             width: 20; height: 20
-            color: closeArea.containsMouse 
-            ? Colors.isDark ? Colors.errorContainer : Colors.errorContainer 
-            : "transparent"
+            color: closeArea.containsMouse ? Colors.close_btn_hovered : "transparent"
             radius: 4
-            Text {
-              anchors.centerIn: parent
-              text: "✕"
-              color: Colors.overSurface
-              font.pixelSize: 12
-            }
+            Text { anchors.centerIn: parent; text: "✕"; color: Colors.close_btn_icon; font.pixelSize: 12 }
             MouseArea {
               id: closeArea
               anchors.fill: parent
@@ -178,175 +118,197 @@ PanelWindow {
           }
         }
 
-        // Divider
-        Rectangle {
-          Layout.fillWidth: true
-          height: 1
-          color: Colors.outline
+        Rectangle { Layout.fillWidth: true; height: 1; color: Colors.divider }
+
+        // Output Label
+        Text {
+          text: "Output"
+          color: Colors.header_title
+          font.pixelSize: 12
+          font.bold: true
         }
 
-        // ListView
-        Item {
+        // Output List
+        ListView {
+          id: outputList
           Layout.fillWidth: true
-          Layout.fillHeight: true
+          Layout.preferredHeight: outputList.count * 44 + Math.max(0, outputList.count - 1) * 4
+          Layout.maximumHeight: outputList.count * 44 + Math.max(0, outputList.count - 1) * 4
           clip: true
+          spacing: 4
+          model: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream)
 
-          ListView {
-            id: deviceList
-            anchors.fill: parent
-            model: root.deviceModel
-            spacing: 6
-
-            ScrollBar.vertical: ScrollBar {
-              policy: ScrollBar.AsNeeded
-              width: 3
-              contentItem: Rectangle {
-                implicitWidth: 2
-                implicitHeight: 2
-                radius: 2
-                color: Colors.isDark ? Colors.primaryContainer : Colors.inversePrimary
-                opacity: parent.pressed ? 1.0 : parent.hovered ? 0.8 : 0.5
-              }
-              background: Rectangle {
-                implicitWidth: 2
-                radius: 2
-                color: Colors.isDark ? Colors.surfaceContainer : Colors.surface
-                opacity: 0.5
-              }
+          ScrollBar.vertical: ScrollBar {
+            policy: ScrollBar.AsNeeded
+            width: 3
+            contentItem: Rectangle {
+              implicitWidth: 2; implicitHeight: 2; radius: 2
+              color: Colors.scrollbar_thumb
+              opacity: parent.pressed ? 1.0 : parent.hovered ? 0.8 : 0.5
             }
+            background: Rectangle {
+              implicitWidth: 2; radius: 2
+              color: Colors.scrollbar_track
+              opacity: 0.5
+            }
+          }
 
-            delegate: Item {
-              id: delegateItem
-              required property var modelData
-              width: deviceList.width
+          delegate: Rectangle {
+            required property var modelData
+            width: outputList.width
+            height: 44
+            radius: 6
+            color: (Pipewire.defaultAudioSink && modelData.id === Pipewire.defaultAudioSink.id)
+            ? Colors.isDark ? Colors.audio_item_active_bg : Qt.alpha(Colors.audio_item_active_bg, 0.3) 
+            : Colors.audio_item_inactive_bg
 
-              height: modelData.type === "header"  ? 28
-                    : modelData.type === "divider" ? 17
-                    : modelData.type === "empty"   ? 24
-                    : 44
+            RowLayout {
+              anchors.fill: parent
+              anchors.leftMargin: 10
+              anchors.rightMargin: 10
+              spacing: 8
 
-              // Header
               Text {
-                visible: delegateItem.modelData.type === "header"
-                text: delegateItem.modelData.label || ""
-                color: Colors.isDark ? Colors.primary : Colors.secondary
-                font.pixelSize: 12
-                font.bold: true
-                anchors.verticalCenter: parent.verticalCenter
+                text: "󰕾"
+                color: (Pipewire.defaultAudioSink && modelData.id === Pipewire.defaultAudioSink.id)
+                  ? Colors.audio_item_active_icon : Colors.audio_item_inactive_icon
+                font.pixelSize: 16
               }
 
-              // Divider
-              Rectangle {
-                visible: delegateItem.modelData.type === "divider"
-                width: parent.width
-                height: 1
-                color: Colors.outlineVariant
-                anchors.verticalCenter: parent.verticalCenter
-              }
-
-              // Empty message
               Text {
-                visible: delegateItem.modelData.type === "empty"
-                text: delegateItem.modelData.label || ""
-                color: Colors.overSurfaceVariant
+                text: modelData.description || modelData.name || ""
+                color: Colors.audio_item_text
                 font.pixelSize: 11
-                anchors.verticalCenter: parent.verticalCenter
+                elide: Text.ElideRight
+                Layout.fillWidth: true
               }
 
-              // Device item
               Rectangle {
-                visible: delegateItem.modelData.type === "sink" || delegateItem.modelData.type === "source"
-                anchors.fill: parent
-                anchors.rightMargin: 5
-                color: (delegateItem.modelData.data && delegateItem.modelData.data.is_active) 
-                ? Colors.isDark ? Colors.overSecondary : Colors.inversePrimary 
-                : Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainerHigh
-                radius: 6
-                border.color: "transparent"
-                border.width: 1
+                width: 40; height: 22
+                radius: 11
+                color: (Pipewire.defaultAudioSink && modelData.id === Pipewire.defaultAudioSink.id)
+                  ? Colors.audio_toggle_active_bg : Colors.audio_toggle_inactive_bg
+                Behavior on color { ColorAnimation { duration: 150 } }
 
-                RowLayout {
+                Text {
+                  anchors.centerIn: parent
+                  text: (Pipewire.defaultAudioSink && modelData.id === Pipewire.defaultAudioSink.id) ? "✓" : "Set"
+                  color: (Pipewire.defaultAudioSink && modelData.id === Pipewire.defaultAudioSink.id)
+                    ? Colors.audio_toggle_active_text : Colors.audio_toggle_inactive_text
+                  font.pixelSize: 10
+                  font.bold: true
+                }
+
+                MouseArea {
                   anchors.fill: parent
-                  anchors.leftMargin: 10
-                  anchors.rightMargin: 10
-                  spacing: 8
-
-                  Text {
-                    text: delegateItem.modelData.type === "sink" ? "󰕾" : "󰍬"
-                    color: (delegateItem.modelData.data && delegateItem.modelData.data.is_active) 
-                    ? Colors.isDark ? Colors.primary : Colors.secondary
-                    : Colors.overSurface
-                    font.pixelSize: 16
-                  }
-
-                  ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 2
-                    Text {
-                      text: delegateItem.modelData.data
-                            ? (delegateItem.modelData.data.name_short || delegateItem.modelData.data.name)
-                            : ""
-                      color: Colors.overSurface
-                      font.pixelSize: 11
-                      elide: Text.ElideRight
-                      Layout.fillWidth: true
-                    }
-                    Text {
-                      text: delegateItem.modelData.data ? (delegateItem.modelData.data.volume + "%") : ""
-                      color: (delegateItem.modelData.data && delegateItem.modelData.data.is_active) 
-                      ? Colors.isDark ? Colors.primary : Colors.secondary
-                      : Colors.overSurface
-                      font.pixelSize: 10
-                    }
-                  }
-
-                  Rectangle {
-                    width: 40; height: 22
-                    radius: 11
-                    color: (delegateItem.modelData.data && delegateItem.modelData.data.is_active) 
-                    ? Colors.isDark ? Colors.secondaryContainer : Colors.secondaryContainer 
-                    : Colors.isDark ? Colors.surfaceContainerHighest : Colors.tertiaryContainer
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    Text {
-                      anchors.centerIn: parent
-                      text: (delegateItem.modelData.data && delegateItem.modelData.data.is_active) ? "✓" : "Set"
-                      color: (delegateItem.modelData.data && delegateItem.modelData.data.is_active) 
-                      ? Colors.isDark ? Colors.primary : Colors.overSecondaryContainer
-                      : Colors.isDark ? Colors.overSurface : Colors.overPrimary
-                      font.pixelSize: 10
-                      font.bold: true
-                    }
-                    MouseArea {
-                      anchors.fill: parent
-                      onClicked: {
-                        if (delegateItem.modelData.data && !delegateItem.modelData.data.is_active) {
-                          var isSource = delegateItem.modelData.type === "source"
-                          setDefaultProc.command = [
-                            "pactl",
-                            isSource ? "set-default-source" : "set-default-sink",
-                            delegateItem.modelData.data.name
-                          ]
-                          setDefaultProc.running = true
-                        }
-                      }
-                    }
-                  }
+                  onClicked: Pipewire.preferredDefaultAudioSink = modelData
                 }
               }
             }
           }
         }
+
+        Rectangle { Layout.fillWidth: true; height: 1; color: Colors.divider }
+
+        // Input Label
+        Text {
+          text: "Input"
+          color: Colors.header_title
+          font.pixelSize: 12
+          font.bold: true
+        }
+
+        // Input List
+        ListView {
+          id: inputList
+          Layout.fillWidth: true
+          Layout.preferredHeight: inputList.count * 44 + Math.max(0, inputList.count - 1) * 4
+          Layout.maximumHeight: inputList.count * 44 + Math.max(0, inputList.count - 1) * 4
+          clip: true
+          spacing: 4
+          model: Pipewire.nodes.values.filter(n => !n.isSink && !n.isStream && n.audio !== null)
+
+          ScrollBar.vertical: ScrollBar {
+            policy: ScrollBar.AsNeeded
+            width: 3
+            contentItem: Rectangle {
+              implicitWidth: 2; implicitHeight: 2; radius: 2
+              color: Colors.scrollbar_thumb
+              opacity: parent.pressed ? 1.0 : parent.hovered ? 0.8 : 0.5
+            }
+            background: Rectangle {
+              implicitWidth: 2; radius: 2
+              color: Colors.scrollbar_track
+              opacity: 0.5
+            }
+          }
+
+          delegate: Rectangle {
+            required property var modelData
+            width: inputList.width
+            height: 44
+            radius: 6
+            color: (Pipewire.defaultAudioSource && modelData.id === Pipewire.defaultAudioSource.id)
+            ? Colors.isDark ? Colors.audio_item_active_bg : Qt.alpha(Colors.audio_item_active_bg, 0.3)  
+            : Colors.audio_item_inactive_bg
+
+            RowLayout {
+              anchors.fill: parent
+              anchors.leftMargin: 10
+              anchors.rightMargin: 10
+              spacing: 8
+
+              Text {
+                text: "󰍬"
+                color: (Pipewire.defaultAudioSource && modelData.id === Pipewire.defaultAudioSource.id)
+                  ? Colors.audio_item_active_icon : Colors.audio_item_inactive_icon
+                font.pixelSize: 16
+              }
+
+              Text {
+                text: modelData.description || modelData.name || ""
+                color: Colors.audio_item_text
+                font.pixelSize: 11
+                elide: Text.ElideRight
+                Layout.fillWidth: true
+              }
+
+              Rectangle {
+                width: 40; height: 22
+                radius: 11
+                color: (Pipewire.defaultAudioSource && modelData.id === Pipewire.defaultAudioSource.id)
+                  ? Colors.audio_toggle_active_bg : Colors.audio_toggle_inactive_bg
+                Behavior on color { ColorAnimation { duration: 150 } }
+
+                Text {
+                  anchors.centerIn: parent
+                  text: (Pipewire.defaultAudioSource && modelData.id === Pipewire.defaultAudioSource.id) ? "✓" : "Set"
+                  color: (Pipewire.defaultAudioSource && modelData.id === Pipewire.defaultAudioSource.id)
+                    ? Colors.audio_toggle_active_text : Colors.audio_toggle_inactive_text
+                  font.pixelSize: 10
+                  font.bold: true
+                }
+
+                MouseArea {
+                  anchors.fill: parent
+                  onClicked: Pipewire.preferredDefaultAudioSource = modelData
+                }
+              }
+            }
+          }
+        }
+
+        // Spacer - serap sisa ruang
+        Item { Layout.fillWidth: true; Layout.fillHeight: true }
+
+        // Bottom padding
+        Item { Layout.fillWidth: true; height: 4 }
       }
 
       Rectangle {
         id: rightPatch
-        width: 12
-        height: parent.height
-        gradient: Gradient {
-          orientation: Gradient.Horizontal 
-          GradientStop { position: 0.1; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.78; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-        }
+        width: 12; height: parent.height
+        color: Colors.rightbar_gradient1 
         anchors.right: parent.right
         anchors.rightMargin: -2
         z: 5
@@ -358,21 +320,16 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.bottomMargin: -12
-        anchors.rightMargin: 0
         z: 10
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim
+          ctx.fillStyle = Colors.rightbar_gradient1
           ctx.beginPath()
-          ctx.moveTo(0, 0)
-          ctx.lineTo(0, 2)
+          ctx.moveTo(0, 0); ctx.lineTo(0, 2)
           ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
-          ctx.lineTo(12, 14)
-          ctx.lineTo(14, 14)
-          ctx.lineTo(14, 0)
-          ctx.closePath()
-          ctx.fill()
+          ctx.lineTo(12, 14); ctx.lineTo(14, 14); ctx.lineTo(14, 0)
+          ctx.closePath(); ctx.fill()
         }
       }
 
@@ -382,21 +339,17 @@ PanelWindow {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.bottomMargin: -12
-        anchors.rightMargin: 0
         z: 10
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
-          ctx.moveTo(0, 0)
-          ctx.lineTo(0, 2)
+          ctx.moveTo(0, 0); ctx.lineTo(0, 2)
           ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
-          ctx.lineTo(12, 14)
-          ctx.lineTo(14, 14)
+          ctx.lineTo(12, 14); ctx.lineTo(14, 14)
           ctx.arc(0, 14, 14, 0, Math.PI / 2, true)
-          ctx.closePath()
-          ctx.fill()
+          ctx.closePath(); ctx.fill()
         }
       }
     }
@@ -406,21 +359,16 @@ PanelWindow {
       width: 14; height: 14
       anchors.top: parent.top
       anchors.left: parent.left
-      anchors.leftMargin: 0
       z: 10
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+        ctx.fillStyle = Colors.topbar_gradient5
         ctx.beginPath()
-        ctx.moveTo(0, 0)
-        ctx.lineTo(0, 2)
+        ctx.moveTo(0, 0); ctx.lineTo(0, 2)
         ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
-        ctx.lineTo(12, 14)
-        ctx.lineTo(14, 14)
-        ctx.lineTo(14, 0)
-        ctx.closePath()
-        ctx.fill()
+        ctx.lineTo(12, 14); ctx.lineTo(14, 14); ctx.lineTo(14, 0)
+        ctx.closePath(); ctx.fill()
       }
     }
 
@@ -429,21 +377,17 @@ PanelWindow {
       width: 14; height: 14
       anchors.top: parent.top
       anchors.left: parent.left
-      anchors.leftMargin: 0
       z: 10
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.beginPath()
-        ctx.moveTo(0, 0)
-        ctx.lineTo(0, 2)
+        ctx.moveTo(0, 0); ctx.lineTo(0, 2)
         ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
-        ctx.lineTo(12, 14)
-        ctx.lineTo(14, 14)
+        ctx.lineTo(12, 14); ctx.lineTo(14, 14)
         ctx.arc(0, 14, 14, 0, Math.PI / 2, true)
-        ctx.closePath()
-        ctx.fill()
+        ctx.closePath(); ctx.fill()
       }
     }
   }

@@ -1,0 +1,28 @@
+{
+  "deployments": [
+    {
+      "source": "qt5ct.conf",
+      "destination": "~/.config/qt5ct/style-colors.conf"
+    },
+    {
+      "source": "qt6ct.conf",
+      "destination": "~/.config/qt6ct/style-colors.conf"
+    },
+    {
+      "source": "kde.colors",
+      "destination": "~/.config/qt6ct/colors/material3.colors"
+    },
+    {
+      "source": "kde.colors",
+      "destination": "~/.local/share/color-schemes/Material3.colors"
+    },
+    {
+      "source": "colors.scss",
+      "destination": "~/.config/eww/colors.scss"
+    },
+    {
+      "source": "vscode-settings.json",
+      "destination": "~/.config/Code/User/settings.json"
+    }
+  ]
+}

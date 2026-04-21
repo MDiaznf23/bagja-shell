@@ -1,0 +1,47 @@
+[
+  {
+    "id": "dev",
+    "name": "Developer Mode",
+    "icon": "󰘚",
+    "mfact": 0.2,
+    "apps": [
+      {
+        "exec": "code",
+        "workspace": 1,
+        "delay": 0
+      },
+      {
+        "exec": "kitty",
+        "workspace": 1,
+        "delay": 200
+      }
+    ]
+  },
+  {
+    "id": "workflow",
+    "name": "Workflow",
+    "icon": "󰘚",
+    "mfact": 0.13,
+    "apps": [
+      {
+        "exec": "dolphin",
+        "class": "org.kde.dolphin",
+        "workspace": 4,
+        "delay": 0
+      },
+      {
+        "exec": "kitty",
+        "class": "kitty",
+        "workspace": 4,
+        "delay": 200
+      },
+      {
+        "exec": "kitty",
+        "class": "kitty",
+        "workspace": 4,
+        "delay": 400
+      }
+    ]
+  }
+]
+

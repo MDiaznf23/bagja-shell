@@ -34,6 +34,7 @@ PanelWindow {
   property var categories: []
   property int currentCategoryIndex: 0
   property bool isShowing: false
+  property bool isLoading: false
   signal requestPowerMenu()
 
   Timer {
@@ -56,7 +57,7 @@ PanelWindow {
   Connections {
     target: DesktopEntries.applications
     function onValuesChanged() {
-      loadApplications()
+      reloadTimer.restart()
     }
   }
 
@@ -67,6 +68,13 @@ PanelWindow {
       console.log("Waiting for desktop entries to load...")
       delayTimer.start()
     }
+  }
+
+  Timer {
+    id: reloadTimer
+    interval: 200
+    repeat: false
+    onTriggered: loadApplications()
   }
 
   Timer {
@@ -85,61 +93,81 @@ PanelWindow {
   }
 
   function loadApplications() {
+    if (root.isLoading) return
+    root.isLoading = true
+
     var appsByCategory = {}
+    var seenIds = {}  // ← filter duplikat by id
 
     for (var i = 0; i < DesktopEntries.applications.values.length; i++) {
-      var app = DesktopEntries.applications.values[i]
+        var app = DesktopEntries.applications.values[i]
 
-      if (!app || !app.name) {
-        console.log("Skipping invalid app at index", i)
-        continue
-      }
+        if (!app || !app.name) continue
 
-      var category = "Other"
-      if (app.categories && app.categories.length > 0) {
-        category = app.categories[0]
-      }
+        // Skip kalau id sudah pernah diproses
+        var appId = app.id || app.name
+        if (seenIds[appId]) continue
+        seenIds[appId] = true
 
-      var categoryMapping = {
-        "AudioVideo": "Multimedia",
-        "Audio": "Multimedia",
-        "Video": "Multimedia",
-        "Development": "Development",
-        "Game": "Games",
-        "Graphics": "Graphics",
-        "Network": "Internet",
-        "Office": "Office",
-        "Settings": "Settings",
-        "System": "System",
-        "Utility": "Accessories"
-      }
+        var mainCategories = ["AudioVideo", "Audio", "Video", "Development", "Education",
+            "Game", "Graphics", "Network", "Office", "Science", "Settings", "System", "Utility"]
 
-      if (categoryMapping[category]) {
-        category = categoryMapping[category]
-      }
+        var category = "Other"
+        if (app.categories && app.categories.length > 0) {
+            if (app.categories.indexOf("X-WayDroid-App") !== -1) {
+                category = "WayDroid"
+            } else {
+                for (var c = 0; c < app.categories.length; c++) {
+                    if (mainCategories.indexOf(app.categories[c]) !== -1) {
+                        category = app.categories[c]
+                        break
+                    }
+                }
+            }
+        }
 
-      if (!appsByCategory[category]) {
-        appsByCategory[category] = []
-      }
+        var categoryMapping = {
+            "AudioVideo": "Multimedia",
+            "Audio": "Multimedia",
+            "Video": "Multimedia",
+            "Development": "Development",
+            "Game": "Games",
+            "Graphics": "Graphics",
+            "Network": "Internet",
+            "Office": "Office",
+            "Settings": "Settings",
+            "System": "System",
+            "Utility": "Accessories"
+        }
 
-      appsByCategory[category].push(app)
+        if (categoryMapping[category]) {
+            category = categoryMapping[category]
+        }
+
+        if (!appsByCategory[category]) {
+            appsByCategory[category] = []
+        }
+
+        appsByCategory[category].push(app)
     }
 
     root.categoryApps = appsByCategory
     root.categories = Object.keys(appsByCategory).sort()
 
+    if (root.currentCategoryIndex >= root.categories.length) {
+        root.currentCategoryIndex = 0
+    }
+
     categoryModel.clear()
     for (var j = 0; j < root.categories.length; j++) {
-      categoryModel.append({
-        categoryName: root.categories[j]
-      })
+        categoryModel.append({ categoryName: root.categories[j] })
     }
 
     if (root.categories.length > 0) {
-      updateAppList()
-    } else {
-      console.log("WARNING: No categories found!")
+        updateAppList()
     }
+
+    root.isLoading = false
   }
 
   ListModel {
@@ -186,13 +214,13 @@ PanelWindow {
     anchors.left: parent.left
     gradient: Gradient {
       orientation: Gradient.Horizontal
-      GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.5; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed }
-      GradientStop { position: 0.99; color: Colors.isDark ? Colors.surfaceContainerLow : Colors.surface  }
+      GradientStop { position: 0.1; color: Colors.topbar_gradient1  }
+      GradientStop { position: 0.5; color: Colors.topbar_gradient2 }
+      GradientStop { position: 0.99; color: Colors.topbar_gradient3 }
     }
 
     radius: 12
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
     border.width: 2
 
     opacity: root.isShowing ? 1 : 0
@@ -234,7 +262,7 @@ PanelWindow {
 
               Text {
                 text: "Categories"
-                color: Colors.overSurface
+                color: Colors.text
                 font.bold: true
                 font.pixelSize: 14
               }
@@ -263,13 +291,13 @@ PanelWindow {
                       implicitWidth: 2
                       implicitHeight: 2
                       radius: 2
-                      color: Colors.outline
+                      color: Colors.scrollbar_thumb
                       opacity: parent.pressed ? 1.0 : parent.hovered ? 0.8 : 0.5
                     }
                     background: Rectangle {
                       implicitWidth: 2
                       radius: 2
-                      color: Colors.isDark ? Colors.overSecondary : Colors.surfaceContainerHigh
+                      color: Colors.scrollbar_track
                       opacity: 0.5
                     }
                   }
@@ -283,10 +311,10 @@ PanelWindow {
                       anchors.fill: parent
                       anchors.rightMargin: 5
                       color: {
-                        if (root.currentCategoryIndex === index) 
-                            return Colors.isDark ? Colors.overSecondary : Colors.primaryFixedDim
-                        if (parent.containsMouse) 
-                            return Colors.isDark ? Colors.surfaceContainer : Qt.alpha(Colors.inversePrimary, 0.7)
+                        if (root.currentCategoryIndex === index)
+                          return Colors.category_selected
+                        if (parent.containsMouse)
+                          return Qt.alpha(Colors.category_hovered, 0.7)
                         return "transparent"
                       }
                       radius: 6
@@ -298,7 +326,7 @@ PanelWindow {
 
                         Text {
                           text: model.categoryName
-                          color: root.currentCategoryIndex === index ? Colors.overSurface : Colors.overSurfaceVariant 
+                          color: root.currentCategoryIndex === index ? Colors.text : Colors.text_variant1 
                           font.pixelSize: 12
                           Layout.fillWidth: true
                         }
@@ -316,7 +344,7 @@ PanelWindow {
           }
         }
 
-        Rectangle { Layout.preferredWidth: 2; Layout.fillHeight: true; color: Colors.outlineVariant }
+        Rectangle { Layout.preferredWidth: 2; Layout.fillHeight: true; color: Colors.outline_variant }
 
         Item {
           Layout.fillHeight: true
@@ -340,7 +368,7 @@ PanelWindow {
 
                 Text {
                   text: root.categories[root.currentCategoryIndex] || "Applications"
-                  color: Colors.overSurface
+                  color: Colors.text
                   font.bold: true
                   font.pixelSize: 14
                   Layout.fillWidth: true
@@ -348,7 +376,7 @@ PanelWindow {
 
                 Text {
                   text: appListModel.count + " apps"
-                  color: Colors.overSurface
+                  color: Colors.text
                   font.pixelSize: 11
                 }
               }
@@ -376,13 +404,13 @@ PanelWindow {
                       implicitWidth: 4
                       implicitHeight: 4
                       radius: 2
-                      color: Colors.outline
+                      color: Colors.scrollbar_thumb
                       opacity: parent.pressed ? 1.0 : parent.hovered ? 0.8 : 0.5
                     }
                     background: Rectangle {
                       implicitWidth: 4
                       radius: 2
-                      color: Colors.isDark ? Colors.overSecondary : Colors.surfaceContainerLow
+                      color: Colors.scrollbar_track
                       opacity: 0.5
                     }
                   }
@@ -411,7 +439,7 @@ PanelWindow {
                       anchors.fill: parent
                       anchors.rightMargin: 5
                       color: parent.containsMouse 
-                        ? (Colors.isDark ? Colors.surfaceContainerHigh : Colors.inversePrimary) 
+                        ? Colors.container_level_1_variant1 
                         : "transparent"
                       radius: 6
                       border.color: "transparent"
@@ -426,9 +454,9 @@ PanelWindow {
                         Rectangle {
                           Layout.preferredWidth: 32
                           Layout.preferredHeight: 32
-                          color: Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainer
+                          color: Colors.container_level_1
                           radius: 6
-                          border.color: Colors.outlineVariant
+                          border.color: Colors.outline_variant
                           border.width: 2
 
                           Image {
@@ -444,6 +472,11 @@ PanelWindow {
                             }
                             sourceSize: Qt.size(24, 24)
                             fillMode: Image.PreserveAspectFit
+
+                            onStatusChanged: {
+                              if (status === Image.Error)
+                                source = "image://icon/application-x-executable"
+                            }
                           }
                         }
 
@@ -453,7 +486,7 @@ PanelWindow {
 
                           Text {
                             text: model.name
-                            color: Colors.overSurface
+                            color: Colors.text
                             font.pixelSize: 13
                             elide: Text.ElideRight
                             Layout.fillWidth: true
@@ -461,7 +494,7 @@ PanelWindow {
 
                           Text {
                             text: model.comment || "No description"
-                            color: Colors.overSurfaceVariant
+                            color: Colors.text
                             font.pixelSize: 10
                             elide: Text.ElideRight
                             Layout.fillWidth: true
@@ -480,7 +513,7 @@ PanelWindow {
       Rectangle { 
         Layout.fillWidth: true; 
         Layout.preferredHeight: 2; 
-        color: Colors.outlineVariant 
+        color: Colors.outline_variant 
       }
 
       Rectangle {
@@ -504,7 +537,7 @@ PanelWindow {
               text: ""
               font.pixelSize: 18
               font.family: "JetBrainsMono Nerd Font"
-              color: Colors.overSurface
+              color: Colors.text
             }
 
             MouseArea {
@@ -541,7 +574,7 @@ PanelWindow {
 
           Text {
             id: usernameText
-            color: Colors.overSurface
+            color: Colors.text
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             Layout.fillWidth: true
@@ -563,8 +596,9 @@ PanelWindow {
             Text {
               anchors.centerIn: parent
               text: "\uf011"
+              font.family: "JetBrainsMono Nerd Font"
               font.pixelSize: 16
-              color: Colors.overSurface
+              color: Colors.text
             }
 
             MouseArea {
@@ -591,7 +625,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surfaceContainerLow : Colors.surface 
+        ctx.fillStyle = Colors.topbar_gradient3 
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)
@@ -615,7 +649,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)
@@ -639,7 +673,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface 
+        ctx.fillStyle = Colors.topbar_gradient1 
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)
@@ -663,7 +697,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(14, 0)
@@ -682,9 +716,9 @@ PanelWindow {
       height: 12
       gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface  }
-        GradientStop { position: 0.5; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.surfaceContainerLow : Colors.surface  }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient1  }
+        GradientStop { position: 0.5; color: Colors.topbar_gradient2 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient3 }
       }
       anchors.top: mainRect.top
       anchors.left: mainRect.left
@@ -695,14 +729,7 @@ PanelWindow {
       id: leftPatch
       height: parent.height
       width: 12
-      gradient: Gradient {
-        orientation: Gradient.Vertical 
-        GradientStop { position: 0.0; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.3; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.5; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.85; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 1.0; color: Colors.isDark ? Colors.surface : Colors.surface }
-      }
+      color: Colors.topbar_gradient1 
       anchors.top: mainRect.top
       anchors.left: mainRect.left
     }
@@ -715,7 +742,7 @@ PanelWindow {
     width: 140
     height: 36
     z: 999
-    color: Colors.isDark ? Colors.surface : Colors.surfaceContainerHigh
+    color: Colors.context_menu_bg
     radius: 6
     border.color: Colors.outline
     border.width: 1
@@ -726,11 +753,11 @@ PanelWindow {
       Rectangle {
         anchors.fill: parent
         color: parent.containsMouse 
-          ? (Colors.isDark ? Colors.surfaceContainerHigh : Colors.primaryFixedDim) 
+          ? Colors.context_menu_hovered 
           : "transparent"
         radius: 6
       }
-      Text { anchors.centerIn: parent; text: "Add to Panel"; color: Colors.overSurfaceVariant; font.pixelSize: 12 }
+      Text { anchors.centerIn: parent; text: "Add to Panel"; color: Colors.text_variant1; font.pixelSize: 12 }
       onClicked: {
         addProcess.command = ["python3", Quickshell.shellDir + "/scripts/app_manager.py", "add", contextMenu.appName]
         addProcess.running = true

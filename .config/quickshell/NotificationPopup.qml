@@ -13,28 +13,38 @@ PanelWindow {
   property bool isHiding: false
   property bool isHovering: false
   property bool dndActive: false 
-  
+
+  property bool blockingPanelOpen: false
+  property bool shiftDownPanelOpen: false 
+
   anchors {
-    top: true
+    top: !shiftDownPanelOpen
+    bottom: shiftDownPanelOpen
     right: true
   }
   
   margins {
-    top: 28
+    top: shiftDownPanelOpen ? 0 : 28
+    bottom: shiftDownPanelOpen ? 13 : 0
     right: 13 
   }
   
   property bool panelVisible: false
-  visible: (notificationServer.notifications.length > 0 || isHiding) && !panelVisible && !dndActive
+  visible: (notificationServer.notifications.length > 0 || isHiding) && !dndActive && !blockingPanelOpen
   
   implicitWidth: 300 + 14
-  implicitHeight: Math.max(110, contentColumn.implicitHeight + 20) + 16 
+  implicitHeight: Math.max(110, contentColumn.implicitHeight + 25) + 14  
   
   color: "transparent"
   
   exclusionMode: ExclusionMode.Ignore
   
   WlrLayershell.layer: WlrLayer.Top
+
+  onShiftDownPanelOpenChanged: {
+    shouldAnimate = false
+    showTimer.restart()
+  }
   
   onVisibleChanged: {
     if (visible && notificationServer.notifications.length > 0) {
@@ -97,40 +107,29 @@ PanelWindow {
       }
     }
   }
-  
-  MouseArea {
-    id: hoverArea
-    anchors.fill: parent
-    hoverEnabled: true
-    propagateComposedEvents: true
-    
-    onContainsMouseChanged: {
-      isHovering = containsMouse
-      
-      if (containsMouse) {
-        if (autoDismissTimer.running) {
-          autoDismissTimer.stop()
-        }
+
+  HoverHandler {
+    id: hoverHandler
+    onHoveredChanged: {
+      notifWindow.isHovering = hovered
+      if (hovered) {
+        autoDismissTimer.stop()
       } else {
-        if (notificationServer.notifications.length > 0 && !isHiding) {
+        if (notificationServer.notifications.length > 0 && !notifWindow.isHiding) {
           autoDismissTimer.restart()
         }
       }
-    }
-    
-    onClicked: function(mouse) {
-      mouse.accepted = false
     }
   }
   
   Rectangle {
     id: mainRect
     x: 14  
-    y: shouldAnimate ? 0 : -(notifWindow.height + 50)
+    y: shouldAnimate ? (shiftDownPanelOpen ? 14 : 0) : (shiftDownPanelOpen ? notifWindow.height : -(mainRect.height))
     width: 300
-    height: notifWindow.height - 14
+    height: contentColumn.implicitHeight + 25
     border.width: 2
-    border.color: Colors.outlineVariant 
+    border.color: Colors.outline_variant 
 
     property real screenHeight: 768
     property real topMargin: 28  
@@ -139,11 +138,11 @@ PanelWindow {
 
     function rightbarColorAt(p) {
         var stops = [
-            {pos: 0.0,  color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim},
-            {pos: 0.48, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim},
-            {pos: 0.6,  color: Colors.isDark ? Colors.surface            : Colors.surface},
-            {pos: 0.87, color: Colors.isDark ? Colors.surface            : Colors.surface},
-            {pos: 0.9,  color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed},
+            {pos: 0.0,  color: Colors.rightbar_gradient1},
+            {pos: 0.48, color: Colors.rightbar_gradient2},
+            {pos: 0.6,  color: Colors.rightbar_gradient3},
+            {pos: 0.87, color: Colors.rightbar_gradient4},
+            {pos: 0.9,  color: Colors.rightbar_gradient5},
         ]
         if (p <= 0) return stops[0].color
         if (p >= 1) return stops[stops.length-1].color
@@ -162,15 +161,16 @@ PanelWindow {
     
     gradient: Gradient {
       orientation: Gradient.Horizontal 
-      GradientStop { position: 0.18; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+      GradientStop { position: 0.18; color: Colors.topbar_gradient5 }
+      GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
     }
     radius: 12
     
     opacity: shouldAnimate ? 1 : 0
     
     Behavior on y {
-      NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+      enabled: notifWindow.shouldAnimate
+      NumberAnimation { duration: 200; easing.type: Easing.InOutCubic }
     }
     
     Behavior on opacity {
@@ -178,6 +178,7 @@ PanelWindow {
     }
     
     Behavior on height {
+      enabled: !notifWindow.shiftDownPanelOpen
       NumberAnimation { duration: 200 }
     }
     
@@ -186,26 +187,46 @@ PanelWindow {
       anchors {
         left: parent.left
         right: parent.right
-        top: parent.top
-        leftMargin: 12 
-        rightMargin: 12 
-        topMargin: 12
-        bottomMargin: 12
+        leftMargin: 12
+        rightMargin: 12
       }
+      anchors.top: parent.top
+      anchors.topMargin: 12
+
       spacing: 10
+
+      states: State {
+        name: "bottom"
+        when: notifWindow.shiftDownPanelOpen
+        AnchorChanges {
+          target: contentColumn
+          anchors.top: undefined
+          anchors.bottom: mainRect.bottom
+        }
+        PropertyChanges {
+          target: contentColumn
+          anchors.topMargin: 0
+          anchors.bottomMargin: 12
+        }
+      }
       
       Repeater {
         model: Math.min(notificationServer.notifications.length, 3)
         
         delegate: NotificationItem {
+          id: delegateItem
           required property int index
           
-          width: contentColumn.width
+          width: contentColumn.width 
           
-          notification: notificationServer.notifications[index]
+          property var rawNotif: (index < notificationServer.notifications.length) ? notificationServer.notifications[index] : null
+          notification: (rawNotif && rawNotif.appName !== undefined) ? rawNotif : null
           
+          visible: notification !== null
+          opacity: notification ? 1 : 0
+
           onDismissClicked: {
-            notificationServer.dismiss(notificationServer.notifications[index])
+            notification.dismiss()
           }
         }
       }
@@ -217,31 +238,72 @@ PanelWindow {
     height: 10
     gradient: Gradient {
       orientation: Gradient.Horizontal 
-      GradientStop { position: 0.18; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+      GradientStop { position: 0.18; color: Colors.topbar_gradient5 }
+      GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
     }
-    anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.leftMargin: 16
     opacity: mainRect.opacity
+
+    states: State {
+      name: "bottom"
+      when: notifWindow.shiftDownPanelOpen
+      AnchorChanges {
+        target: topPatch
+        anchors.top: undefined
+        anchors.bottom: parent.bottom
+      }
+    }
+    AnchorChanges {
+      id: topPatchDefault
+    }
+
+    anchors.top: parent.top
   }
 
   Rectangle {
     id: rightPatch
-    height: parent.height - 14
     width: 10 
-    gradient: Gradient {
-      orientation: Gradient.Vertical
-      GradientStop { position: 0.0;   color: mainRect.rightbarColorAt(mainRect.wStart) }
-      GradientStop { position: (0.48 - mainRect.wStart) / (mainRect.wEnd - mainRect.wStart); color: mainRect.rightbarColorAt(0.48) }
-      GradientStop { position: (0.6  - mainRect.wStart) / (mainRect.wEnd - mainRect.wStart); color: mainRect.rightbarColorAt(0.6) }
-      GradientStop { position: (0.87 - mainRect.wStart) / (mainRect.wEnd - mainRect.wStart); color: mainRect.rightbarColorAt(0.87) }
-      GradientStop { position: 0.9;   color: mainRect.rightbarColorAt(mainRect.wEnd) }
-    }
-    anchors.top: parent.top
+    height: parent.height - 14
     anchors.right: parent.right
     opacity: mainRect.opacity
+
+    anchors.top: parent.top
+
+    states: State {
+      name: "bottom"
+      when: notifWindow.shiftDownPanelOpen
+      AnchorChanges {
+        target: rightPatch
+        anchors.top: undefined
+        anchors.bottom: parent.bottom
+      }
+    }
+    
+    gradient: Gradient {
+      orientation: Gradient.Vertical
+      GradientStop { 
+        position: 0.0
+        color: mainRect.rightbarColorAt(notifWindow.shiftDownPanelOpen ? mainRect.wEnd : mainRect.wStart) 
+      }
+      GradientStop { 
+        position: Math.abs((0.48 - (notifWindow.shiftDownPanelOpen ? mainRect.wEnd : mainRect.wStart)) / (mainRect.wEnd - mainRect.wStart))
+        color: mainRect.rightbarColorAt(0.48) 
+      }
+      GradientStop { 
+        position: Math.abs((0.6 - (notifWindow.shiftDownPanelOpen ? mainRect.wEnd : mainRect.wStart)) / (mainRect.wEnd - mainRect.wStart))
+        color: mainRect.rightbarColorAt(0.6) 
+      }
+      GradientStop { 
+        position: Math.abs((0.87 - (notifWindow.shiftDownPanelOpen ? mainRect.wEnd : mainRect.wStart)) / (mainRect.wEnd - mainRect.wStart))
+        color: mainRect.rightbarColorAt(0.87) 
+      }
+      GradientStop { 
+        position: 1.0
+        color: mainRect.rightbarColorAt(notifWindow.shiftDownPanelOpen ? mainRect.wStart : mainRect.wEnd) 
+      }
+    }
   }
 
   Canvas {
@@ -253,13 +315,14 @@ PanelWindow {
     anchors.rightMargin: -16
     z: 10
     opacity: mainRect.opacity
+    visible: !shiftDownPanelOpen
     
     onOpacityChanged: requestPaint()
     
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+      ctx.fillStyle = Colors.topbar_gradient5
       ctx.globalAlpha = opacity
       ctx.beginPath()
       ctx.moveTo(0, 0)
@@ -282,13 +345,14 @@ PanelWindow {
     anchors.rightMargin: -16
     z: 11
     opacity: mainRect.opacity
+    visible: !shiftDownPanelOpen
     
     onOpacityChanged: requestPaint()
     
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.globalAlpha = opacity
       ctx.beginPath()
       ctx.moveTo(0, 0)
@@ -320,6 +384,148 @@ PanelWindow {
   }
 
   Canvas {
+    id: leftbottom
+    width: 14; height: 14
+    anchors {
+      bottom: parent.bottom
+      left: parent.left
+    }
+    anchors.bottomMargin: 0
+    anchors.leftMargin: 2
+    opacity: mainRect.opacity
+    visible: shiftDownPanelOpen
+    onOpacityChanged: requestPaint()
+    transform: Scale {
+      origin.x: 7
+      origin.y: 7
+      yScale: -1
+      xScale: -1
+    }
+    z: 1
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.reset()
+      ctx.fillStyle = Colors.bottombar_gradient5
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.moveTo(14, 0)
+      ctx.lineTo(14, 2)
+      ctx.arc(14, 14, 12, Math.PI / 2, Math.PI, true)
+      ctx.lineTo(2, 14)
+      ctx.lineTo(0, 14)
+      ctx.lineTo(0, 0)
+      ctx.closePath()
+      ctx.fill()
+    }
+  }
+
+  Canvas  {
+    id: leftbottom1
+    width: 14; height: 14
+    anchors {
+      bottom: parent.bottom
+      left: parent.left
+    }
+    anchors.bottomMargin: 0
+    anchors.leftMargin: 2
+    opacity: mainRect.opacity
+    visible: shiftDownPanelOpen
+    onOpacityChanged: requestPaint()
+    transform: Scale {
+      origin.x: 7
+      origin.y: 7
+      yScale: -1
+      xScale: -1
+    }
+    z: 1
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.reset()
+      ctx.fillStyle = Colors.outline_variant 
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.moveTo(14, 0)
+      ctx.lineTo(14, 2)
+      ctx.arc(14, 14, 12, Math.PI / 2, Math.PI, true)
+      ctx.lineTo(2, 14)
+      ctx.lineTo(0, 14)
+      ctx.arc(14, 14, 14, Math.PI, Math.PI / 2, false)
+      ctx.closePath()
+      ctx.fill()
+    }
+  }
+
+  Canvas {
+    id: rightTop
+    width: 14; height: 14
+    anchors {
+      top: parent.top
+      right: parent.right
+    }
+    visible: shiftDownPanelOpen
+    opacity: mainRect.opacity
+    onOpacityChanged: requestPaint()
+    anchors.topMargin: 2
+    transform: Scale {
+      origin.x: 7
+      origin.y: 7
+      yScale: -1
+      xScale: -1
+    }
+    z: 10
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.reset()
+      ctx.fillStyle = mainRect.rightbarColorAt(mainRect.wStart).toString()
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.moveTo(14, 0)
+      ctx.lineTo(14, 2)
+      ctx.arc(14, 14, 12, Math.PI / 2, Math.PI, true)
+      ctx.lineTo(2, 14)
+      ctx.lineTo(0, 14)
+      ctx.lineTo(0, 0)
+      ctx.closePath()
+      ctx.fill()
+    }
+  }
+
+  Canvas {
+    id: rightTop1
+    width: 14; height: 14
+    anchors {
+      top: parent.top
+      right: parent.right
+    }
+    visible: shiftDownPanelOpen
+    opacity: mainRect.opacity
+    onOpacityChanged: requestPaint()
+    anchors.topMargin: 2
+    transform: Scale {
+      origin.x: 7
+      origin.y: 7
+      yScale: -1
+      xScale: -1
+    }
+    z: 10
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.reset()
+      ctx.fillStyle = Colors.outline_variant
+      ctx.lineWidth = 2
+      ctx.beginPath()
+      ctx.moveTo(14, 0)
+      ctx.lineTo(14, 2)
+      ctx.arc(14, 14, 12, Math.PI / 2, Math.PI, true)
+      ctx.lineTo(2, 14)
+      ctx.lineTo(0, 14)
+      ctx.arc(14, 14, 14, Math.PI, Math.PI / 2, false)
+      ctx.closePath()
+      ctx.fill()
+    }
+  }
+
+  Canvas {
     id: rightWing
     width: 14
     height: 14
@@ -328,9 +534,8 @@ PanelWindow {
     anchors.bottomMargin: 2 
     z: 10
     opacity: mainRect.opacity
-    
+    visible: !shiftDownPanelOpen
     onOpacityChanged: requestPaint()
-    
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
@@ -357,13 +562,12 @@ PanelWindow {
     anchors.bottomMargin: 2 
     z: 11
     opacity: mainRect.opacity
-    
+    visible: !shiftDownPanelOpen
     onOpacityChanged: requestPaint()
-    
     onPaint: {
       var ctx = getContext("2d")
       ctx.reset()
-      ctx.fillStyle = Colors.outlineVariant
+      ctx.fillStyle = Colors.outline_variant
       ctx.globalAlpha = opacity
       ctx.beginPath()
       ctx.moveTo(0, 0)

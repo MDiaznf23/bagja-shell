@@ -57,7 +57,7 @@ PanelWindow {
         root.clipItems = result
       }
     }
-  }
+  } 
 
   Process {
     id: copyProcess
@@ -129,8 +129,8 @@ PanelWindow {
       layer.enabled: true
       gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       anchors.top: parent.top
       anchors.left: parent.left
@@ -157,11 +157,11 @@ PanelWindow {
       anchors.bottomMargin: 12
       gradient: Gradient {
         orientation: Gradient.Horizontal
-        GradientStop { position: 0.1; color: Colors.isDark ? Colors.surface : Colors.surface }
-        GradientStop { position: 0.99; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
+        GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
+        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
       }
       radius: 12
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       border.width: 2
 
       ColumnLayout {
@@ -179,7 +179,7 @@ PanelWindow {
 
             Text {
               text: "󰅍"
-              color: Colors.isDark ? Colors.primary : Colors.secondary
+              color: Colors.header_title
               font.pixelSize: 14
               font.family: "JetBrainsMono Nerd Font"
               anchors.verticalCenter: parent.verticalCenter
@@ -187,7 +187,7 @@ PanelWindow {
 
             Text {
               text: "Clipboard"
-              color: Colors.overSurfaceVariant
+              color: Colors.text_variant1
               font.pixelSize: 14
               font.bold: true
               anchors.verticalCenter: parent.verticalCenter
@@ -198,14 +198,14 @@ PanelWindow {
           Rectangle {
             width: 20; height: 20
             color: clearArea.containsMouse
-              ? Colors.isDark ? Colors.primaryContainer : Colors.secondaryFixed
+              ? Colors.action_btn_hovered
               : "transparent"
             radius: 4
 
             Text {
               anchors.centerIn: parent
               text: "󰃢"
-              color: Colors.overSurface
+              color: Colors.text
               font.pixelSize: 13
               font.family: "JetBrainsMono Nerd Font"
             }
@@ -222,14 +222,14 @@ PanelWindow {
           Rectangle {
             width: 20; height: 20
             color: closeArea.containsMouse
-              ? Colors.isDark ? Colors.overSecondary : Colors.secondary
+              ? Colors.close_btn_hovered
               : "transparent"
             radius: 4
 
             Text {
               anchors.centerIn: parent
               text: "✕"
-              color: Colors.overSurface
+              color: Colors.close_btn_icon
               font.pixelSize: 12
             }
 
@@ -246,7 +246,7 @@ PanelWindow {
         Rectangle {
           Layout.fillWidth: true
           height: 1
-          color: Colors.outline
+          color: Colors.divider
         }
 
         // List
@@ -262,7 +262,7 @@ PanelWindow {
           Text {
             anchors.centerIn: parent
             text: listProcess.running ? "Loading..." : "Clipboard kosong"
-            color: Colors.overSurface
+            color: Colors.text
             font.pixelSize: 12
             visible: clipList.count === 0
           }
@@ -274,9 +274,7 @@ PanelWindow {
 
             width: clipList.width
             height: 44
-            color: itemArea.containsMouse
-              ? Colors.isDark ? Colors.surfaceContainerHigh : Colors.primaryFixedDim
-              : Colors.isDark ? Colors.surfaceContainer : Colors.surfaceContainerHigh
+            color: itemArea.containsMouse ? Colors.clipboard_item_hovered : Colors.clipboard_item_bg
             radius: 6
 
             Behavior on color { ColorAnimation { duration: 100 } }
@@ -307,7 +305,7 @@ PanelWindow {
 
               Text {
                 text: clipItem.modelData.preview
-                color: Colors.overSurface
+                color: Colors.clipboard_item_text
                 font.pixelSize: 11
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -319,17 +317,13 @@ PanelWindow {
                 radius: 10
                 property bool isHovered: itemArea.containsMouse && 
                   itemArea.mouseX <= (clipItem.width - 36)
-                color: isHovered
-                  ? Colors.isDark ? Colors.primaryContainer : Colors.primary
-                  : "transparent"
+                color: isHovered ? Colors.clipboard_copy_hovered : "transparent"
                 Behavior on color { ColorAnimation { duration: 100 } }
 
                 Text {
                   anchors.centerIn: parent
                   text: "󰆏"
-                  color: parent.isHovered
-                    ? Colors.isDark ? Colors.overPrimaryContainer : Colors.overPrimary
-                    : Colors.overSurface
+                  color: parent.isHovered ? Colors.clipboard_copy_icon : Colors.clipboard_copy_icon_normal
                   font.pixelSize: 12
                   font.family: "JetBrainsMono Nerd Font"
                 }
@@ -342,15 +336,13 @@ PanelWindow {
                 radius: 10
                 property bool isHovered: itemArea.containsMouse && 
                   itemArea.mouseX > (clipItem.width - 36)
-                color: isHovered
-                  ? Colors.isDark ? Colors.errorContainer : Colors.error
-                  : "transparent"
+                color: isHovered ? Colors.clipboard_delete_hovered : "transparent"
                 Behavior on color { ColorAnimation { duration: 100 } }
 
                 Text {
                   anchors.centerIn: parent
                   text: "󰅖"
-                  color: deleteRect.isHovered ? Colors.overError : Colors.overSurface
+                  color: deleteRect.isHovered ? Colors.error_on : Colors.clipboard_delete_icon_normal
                   font.pixelSize: 11
                   font.family: "JetBrainsMono Nerd Font"
                 }
@@ -364,11 +356,7 @@ PanelWindow {
         id: rightPatch
         width: 12
         height: parent.height
-        gradient: Gradient {
-          orientation: Gradient.Horizontal
-          GradientStop { position: 0.1; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-          GradientStop { position: 0.78; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim }
-        }
+        color: Colors.rightbar_gradient1 
         anchors.right: parent.right
         anchors.rightMargin: -2
         z: 5
@@ -383,7 +371,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.isDark ? Colors.overSecondaryFixed : Colors.secondaryFixedDim
+          ctx.fillStyle = Colors.rightbar_gradient1
           ctx.beginPath()
           ctx.moveTo(0, 0); ctx.lineTo(0, 2)
           ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
@@ -401,7 +389,7 @@ PanelWindow {
         onPaint: {
           var ctx = getContext("2d")
           ctx.reset()
-          ctx.fillStyle = Colors.outlineVariant
+          ctx.fillStyle = Colors.outline_variant
           ctx.beginPath()
           ctx.moveTo(0, 0); ctx.lineTo(0, 2)
           ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
@@ -420,7 +408,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.isDark ? Colors.surface : Colors.surface
+        ctx.fillStyle = Colors.topbar_gradient5
         ctx.beginPath()
         ctx.moveTo(0, 0); ctx.lineTo(0, 2)
         ctx.arc(0, 14, 12, Math.PI / 2, 0, false)
@@ -437,7 +425,7 @@ PanelWindow {
       onPaint: {
         var ctx = getContext("2d")
         ctx.reset()
-        ctx.fillStyle = Colors.outlineVariant
+        ctx.fillStyle = Colors.outline_variant
         ctx.beginPath()
         ctx.moveTo(0, 0); ctx.lineTo(0, 2)
         ctx.arc(0, 14, 12, Math.PI / 2, 0, false)

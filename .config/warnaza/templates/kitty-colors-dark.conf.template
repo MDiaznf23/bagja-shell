@@ -1,0 +1,51 @@
+# Warnaza — Kitty Terminal Colors
+# Mode: {{warnaza_mode}}
+# Wallpaper: {{wallpaper_path}}
+
+# Backgrounds
+background            {{dark0}}
+selection_background  {{dark4}}
+
+# Foregrounds
+foreground            {{light8}}
+selection_foreground  {{light9}}
+
+# Cursor
+cursor                {{mid6}}
+cursor_text_color     {{dark0}}
+
+# URL
+url_color             {{mid8}}
+
+# Terminal 16 colors
+# Black — darkest dark, bright = sedikit lebih terang
+color0   {{dark0}}
+color8   {{dark4}}
+
+# Red — mid bawah, bright lebih terang
+color1   {{mid2}}
+color9   {{mid4}}
+
+# Green — mid tengah
+color2   {{mid3}}
+color10  {{mid5}}
+
+# Yellow — mid atas
+color3   {{mid7}}
+color11  {{mid9}}
+
+# Blue — mid bawah sisi lain
+color4   {{mid1}}
+color12  {{mid3}}
+
+# Magenta — mid atas
+color5   {{mid8}}
+color13  {{mid10}}
+
+# Cyan — dark atas / mid bawah
+color6   {{dark9}}
+color14  {{mid0}}
+
+# White — light, bright = paling terang
+color7   {{light5}}
+color15  {{light9}}

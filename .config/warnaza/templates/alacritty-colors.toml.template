@@ -1,0 +1,35 @@
+# Warnaza — Alacritty Terminal Colors
+# Mode: {{warnaza_mode}}
+# Wallpaper: {{wallpaper_path}}
+
+[colors.primary]
+background = "{{dark0}}"
+foreground = "{{light9}}"
+
+[colors.cursor]
+text   = "{{dark0}}"
+cursor = "{{mid5}}"
+
+[colors.selection]
+text       = "{{light9}}"
+background = "{{dark2}}"
+
+[colors.normal]
+black   = "{{dark0}}"
+red     = "{{mid5}}"
+green   = "{{mid3}}"
+yellow  = "{{mid7}}"
+blue    = "{{mid1}}"
+magenta = "{{mid9}}"
+cyan    = "{{dark10}}"
+white   = "{{light7}}"
+
+[colors.bright]
+black   = "{{dark3}}"
+red     = "{{mid6}}"
+green   = "{{mid4}}"
+yellow  = "{{mid8}}"
+blue    = "{{mid2}}"
+magenta = "{{mid10}}"
+cyan    = "{{mid0}}"
+white   = "{{light9}}"

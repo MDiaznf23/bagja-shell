@@ -20,8 +20,8 @@ Singleton {
   Process {
     id: mediaProcess
     command: root.selectedPlayer !== ""
-    ? [Quickshell.shellDir + "/scripts/media_listener.sh", "--watch", root.selectedPlayer]
-    : [Quickshell.shellDir + "/scripts/media_listener.sh", "--watch"]
+    ? [Quickshell.shellDir + "/scripts/media_listener.py", "--watch", root.selectedPlayer]
+    : [Quickshell.shellDir + "/scripts/media_listener.py", "--watch"]
     running: true
     stdout: SplitParser {
       onRead: data => {
@@ -33,7 +33,7 @@ Singleton {
 
   Process {
     id: listProcess
-    command: [Quickshell.shellDir + "/scripts/media_listener.sh", "--list"]
+    command: [Quickshell.shellDir + "/scripts/media_listener.py", "--list"]
     running: true
     stdout: SplitParser {
       onRead: data => {

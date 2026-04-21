@@ -38,7 +38,7 @@ Item {
 
           Text {
             text: MediaState.mediaData.player || "No Player"
-            color: Colors.overSurface
+            color: Colors.text
             font.pixelSize: 12
             anchors.verticalCenter: parent.verticalCenter
           }
@@ -60,7 +60,7 @@ Item {
 
       Rectangle {
         anchors.fill: parent
-        color: Colors.surface
+        color: Colors.background
         radius: 8
         z: 0
       }
@@ -95,7 +95,7 @@ Item {
 
       Text {
         text: MediaState.mediaData.title || "No Song Playing"
-        color: Colors.overSurfaceVariant
+        color: Colors.text_variant1
         font.pixelSize: 12
         width: parent.width
         elide: Text.ElideRight
@@ -103,7 +103,7 @@ Item {
       }
       Text {
         text: MediaState.mediaData.artist || "Unknown Artist"
-        color: Colors.overSurface
+        color: Colors.text
         font.pixelSize: 10
         width: parent.width
         elide: Text.ElideRight
@@ -111,9 +111,9 @@ Item {
       }
       Text {
         text: MediaState.mediaData.status || ""
-        color: MediaState.mediaData.status === "Playing" 
-        ? Colors.isDark ? Colors.primary : Colors.secondary 
-        : Colors.overSurface
+        color: MediaState.mediaData.status === "Playing"
+        ? Colors.media_status_playing
+        : Colors.media_status_other
         font.pixelSize: 9
         width: parent.width
         horizontalAlignment: Text.AlignHCenter
@@ -127,17 +127,17 @@ Item {
 
       Text {
         text: root.formatTime(MediaState.mediaData.position)
-        color: Colors.overSurfaceVariant
+        color: Colors.text_variant1
         font.pixelSize: 9
       }
       Text {
         text: "/"
-        color: Colors.overSurface
+        color: Colors.text
         font.pixelSize: 9
       }
       Text {
         text: root.formatTime(MediaState.mediaData.length)
-        color: Colors.overSurfaceVariant
+        color: Colors.text_variant1
         font.pixelSize: 9
       }
     }
@@ -161,7 +161,7 @@ Item {
           height: 2
           radius: 1
           anchors.verticalCenter: parent.verticalCenter
-          color: Colors.isDark ? Colors.surfaceContainerHighest : Colors.surfaceContainerHigh 
+          color: Colors.media_progress_remaining
         }
 
         Canvas {
@@ -206,7 +206,7 @@ Item {
             ctx.beginPath();
             ctx.lineWidth = 2.5;
             ctx.lineCap = "round";
-            ctx.strokeStyle = Colors.isDark ? Colors.tertiary : Colors.overPrimaryFixedVariant; 
+            ctx.strokeStyle = Colors.media_progress_wave
 
             ctx.moveTo(0, h); 
 
@@ -230,7 +230,7 @@ Item {
           radius: 2
           x: waveCanvas.currentW - (width / 2)
           anchors.verticalCenter: parent.verticalCenter
-          color: Colors.isDark ? Colors.tertiary : Colors.overPrimaryFixedVariant 
+          color: Colors.media_progress_handle
           border.width: 1
           border.color: "transparent"
         }
@@ -248,9 +248,7 @@ Item {
           Text {
             id: prevText
             text: "󰒮"
-            color: parent.containsMouse 
-            ? Colors.isDark ? Colors.overSurface : Colors.secondary 
-            : Colors.isDark ? Colors.tertiary : Colors.secondary 
+            color: Colors.text_variant2 
             font.pixelSize: 20
           }
         }
@@ -263,9 +261,7 @@ Item {
           Text {
             id: playText
             text: MediaState.mediaData.status === "Playing" ? "󰏤" : "󰐊"
-            color: parent.containsMouse 
-            ? Colors.isDark ? Colors.overSurface : Colors.secondary 
-            : Colors.isDark ? Colors.tertiary : Colors.secondary 
+            color: Colors.text_variant2 
             font.pixelSize: 20
           }
         }
@@ -278,9 +274,7 @@ Item {
           Text {
             id: nextText
             text: "󰒭"
-            color: parent.containsMouse 
-            ? Colors.isDark ? Colors.overSurface : Colors.secondary 
-            : Colors.isDark ? Colors.tertiary : Colors.secondary 
+            color: Colors.text_variant2 
             font.pixelSize: 20
           }
         }
@@ -293,10 +287,10 @@ Item {
     visible: root.showDropdown && MediaState.playerList.length > 0
     width: 120
     height: MediaState.playerList.length * 24
-    color: Colors.isDark ? Colors.surface : Colors.surfaceContainer
+    color: Colors.media_dropdown_bg
     radius: 6
     z: 9999
-    border.color: Colors.outlineVariant
+    border.color: Colors.outline_variant
     border.width: 1
     anchors.top: mediaColumn.top
     anchors.horizontalCenter: mediaColumn.horizontalCenter
@@ -322,9 +316,7 @@ Item {
 
           Rectangle {
             anchors.fill: parent
-            color: parent.containsMouse 
-            ? Colors.isDark ? Colors.surfaceContainerHigh : Colors.surfaceContainerHighest 
-            : "transparent"
+            color: parent.containsMouse ? Colors.media_dropdown_item_hovered : "transparent"
             radius: 4
           }
 
@@ -333,17 +325,17 @@ Item {
             spacing: 6
             Text {
               text: modelData.player
-              color: MediaState.selectedPlayer === modelData.player 
-              ? Colors.isDark ? Colors.primary : Colors.secondary 
-              : Colors.overSurfaceVariant
+              color: MediaState.selectedPlayer === modelData.player
+              ? Colors.media_dropdown_player_active
+              : Colors.media_dropdown_player_inactive
               font.pixelSize: 11
               anchors.verticalCenter: parent.verticalCenter
             }
             Text {
               text: "●"
-              color: modelData.status === "Playing" 
-              ? Colors.isDark ? Colors.primaryContainer : Colors.inversePrimary
-              : Colors.isDark ? Colors.overSurfaceVariant : Colors.overPrimaryFixed
+              color: modelData.status === "Playing"
+              ? Colors.media_dropdown_dot_playing
+              : Colors.media_dropdown_dot_stopped
               font.pixelSize: 8
               anchors.verticalCenter: parent.verticalCenter
             }

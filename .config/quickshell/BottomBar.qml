@@ -18,12 +18,12 @@ PanelWindow {
     
     gradient: Gradient {
       orientation: Gradient.Horizontal 
-      GradientStop { position: 0.0; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed }
-      GradientStop { position: 0.2; color: Colors.isDark ? Colors.surface : Colors.surface  }
-      GradientStop { position: 0.3; color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed }
-      GradientStop { position: 0.5; color: Colors.isDark ? Colors.surface : Colors.surface }
-      GradientStop { position: 0.8; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim  }
-      GradientStop { position: 1.0; color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim }
+      GradientStop { position: 0.0; color: Colors.bottombar_gradient1 }
+      GradientStop { position: 0.2; color: Colors.bottombar_gradient2 }
+      GradientStop { position: 0.3; color: Colors.bottombar_gradient3 }
+      GradientStop { position: 0.5; color: Colors.bottombar_gradient4 }
+      GradientStop { position: 0.8; color: Colors.bottombar_gradient5 }
+      GradientStop { position: 1.0; color: Colors.bottombar_gradient6 }
     }
         
     Rectangle {
@@ -32,7 +32,7 @@ PanelWindow {
       anchors.right: parent.right
       height: 2             
       border.width: 2 
-      border.color: Colors.outlineVariant
+      border.color: Colors.outline_variant
       anchors.leftMargin: 13 
       anchors.rightMargin: 13
     }
@@ -209,7 +209,7 @@ PanelWindow {
             onPaint: {
               var ctx = getContext("2d")
               ctx.reset()
-              ctx.fillStyle = Colors.outlineVariant
+              ctx.fillStyle = Colors.outline_variant
               ctx.lineWidth = 2
               ctx.beginPath()
               ctx.moveTo(0, 0)
@@ -267,7 +267,7 @@ PanelWindow {
             onPaint: {
               var ctx = getContext("2d")
               ctx.reset()
-              ctx.fillStyle = Colors.outlineVariant
+              ctx.fillStyle = Colors.outline_variant
               ctx.lineWidth = 2
               ctx.beginPath()
               ctx.moveTo(0, 0)
@@ -293,12 +293,12 @@ PanelWindow {
 
             function bottombarColorAt(p) {
               var stops = [
-                  {pos: 0.0, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixed},
-                  {pos: 0.2, color: Colors.isDark ? Colors.surface            : Colors.surface},
-                  {pos: 0.3, color: Colors.isDark ? Colors.overSecondaryFixed : Colors.primaryFixed},
-                  {pos: 0.5, color: Colors.isDark ? Colors.surface            : Colors.surface},
-                  {pos: 0.8, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim},
-                  {pos: 1.0, color: Colors.isDark ? Colors.overPrimaryFixed : Colors.primaryFixedDim},
+                  {pos: 0.0, color: Colors.bottombar_gradient1},
+                  {pos: 0.2, color: Colors.bottombar_gradient2},
+                  {pos: 0.3, color: Colors.bottombar_gradient3},
+                  {pos: 0.5, color: Colors.bottombar_gradient4},
+                  {pos: 0.8, color: Colors.bottombar_gradient5},
+                  {pos: 1.0, color: Colors.bottombar_gradient6},
               ]
               if (p <= 0) return stops[0].color
               if (p >= 1) return stops[stops.length-1].color
@@ -325,7 +325,7 @@ PanelWindow {
               GradientStop { position: 1.0;  color: listAppsRect.bottombarColorAt(listAppsRect.wEnd) }
             }
             radius: 10
-            border.color: Colors.outlineVariant
+            border.color: Colors.outline_variant
             border.width: 2
 
             ListApps {
