@@ -35,7 +35,7 @@ section "Pacman Packages"
 
 PACMAN_PKGS=(
     # Hyprland
-    hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk polkit-kde-agent
+    hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpolkitagent
 
     # Audio
     pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber libpulse
@@ -49,7 +49,7 @@ PACMAN_PKGS=(
     # Dependencies
     libqalculate aubio dolphin fftw wl-clipboard cliphist neovim awww swappy
     inotify-tools playerctl lm_sensors imagemagick brightnessctl dex
-    fastfetch python python-pip python-pipx jq socat kde-cli-tools konsole archlinux-xdg-menu
+    fastfetch python python-pip python-pipx jq socat kde-cli-tools konsole archlinux-xdg-menu grim slurp
 
     # Qt
     qt5-quickcontrols2 qt5-graphicaleffects qt6-5compat
@@ -66,7 +66,7 @@ success "Pacman packages done"
 section "AUR Packages"
 
 AUR_PKGS=(
-    quickshell-git mpdris2
+    quickshell-git
     qt5ct-kde qt6ct-kde
     ttf-jetbrains-mono-nerd ttf-iosevka-nerd ttf-twemoji
     m3wal
