@@ -49,7 +49,7 @@ PACMAN_PKGS=(
     # Dependencies
     libqalculate aubio dolphin fftw wl-clipboard cliphist neovim awww swappy
     inotify-tools playerctl lm_sensors imagemagick brightnessctl dex
-    fastfetch python python-pip python-pipx jq socat kde-cli-tools konsole archlinux-xdg-menu grim slurp python-dbus
+    fastfetch python python-pip python-pipx jq socat kde-cli-tools konsole archlinux-xdg-menu grim slurp python-dbus wlsunset hyprpicker
 
     # Qt
     qt5-quickcontrols2 qt5-graphicaleffects qt6-5compat
