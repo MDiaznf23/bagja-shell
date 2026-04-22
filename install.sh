@@ -35,7 +35,7 @@ section "Pacman Packages"
 
 PACMAN_PKGS=(
     # Hyprland
-    hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpolkitagent
+    hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpolkitagent kitty
 
     # Audio
     pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber libpulse
