@@ -70,6 +70,7 @@ AUR_PKGS=(
     qt5ct-kde qt6ct-kde
     ttf-jetbrains-mono-nerd ttf-iosevka-nerd ttf-twemoji
     m3wal
+    mpd-mpris
 )
 
 yay -S --needed --noconfirm "${AUR_PKGS[@]}"
