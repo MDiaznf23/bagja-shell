@@ -9,7 +9,7 @@ PanelWindow {
   id: root
 
   implicitWidth: 280
-  implicitHeight: 360
+  implicitHeight: Math.min(contentColumn.implicitHeight + 36, 560)
 
   property bool isShowing: false
 
@@ -132,8 +132,9 @@ PanelWindow {
         ListView {
           id: outputList
           Layout.fillWidth: true
-          Layout.preferredHeight: outputList.count * 44 + Math.max(0, outputList.count - 1) * 4
-          Layout.maximumHeight: outputList.count * 44 + Math.max(0, outputList.count - 1) * 4
+          Layout.fillHeight: true
+          Layout.preferredHeight: outputList.count * 48
+          Layout.maximumHeight: 6 * 48
           clip: true
           spacing: 4
           model: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream)
@@ -159,7 +160,7 @@ PanelWindow {
             height: 44
             radius: 6
             color: (Pipewire.defaultAudioSink && modelData.id === Pipewire.defaultAudioSink.id)
-            ? Colors.isDark ? Colors.audio_item_active_bg : Qt.alpha(Colors.audio_item_active_bg, 0.3) 
+            ? Colors.isDark ? Colors.audio_item_active_bg : Qt.alpha(Colors.audio_item_active_bg, 0.3)
             : Colors.audio_item_inactive_bg
 
             RowLayout {
@@ -222,8 +223,9 @@ PanelWindow {
         ListView {
           id: inputList
           Layout.fillWidth: true
-          Layout.preferredHeight: inputList.count * 44 + Math.max(0, inputList.count - 1) * 4
-          Layout.maximumHeight: inputList.count * 44 + Math.max(0, inputList.count - 1) * 4
+          Layout.fillHeight: true
+          Layout.preferredHeight: inputList.count * 48
+          Layout.maximumHeight: 6 * 48
           clip: true
           spacing: 4
           model: Pipewire.nodes.values.filter(n => !n.isSink && !n.isStream && n.audio !== null)
@@ -249,7 +251,7 @@ PanelWindow {
             height: 44
             radius: 6
             color: (Pipewire.defaultAudioSource && modelData.id === Pipewire.defaultAudioSource.id)
-            ? Colors.isDark ? Colors.audio_item_active_bg : Qt.alpha(Colors.audio_item_active_bg, 0.3)  
+            ? Colors.isDark ? Colors.audio_item_active_bg : Qt.alpha(Colors.audio_item_active_bg, 0.3)
             : Colors.audio_item_inactive_bg
 
             RowLayout {
@@ -298,9 +300,6 @@ PanelWindow {
           }
         }
 
-        // Spacer - serap sisa ruang
-        Item { Layout.fillWidth: true; Layout.fillHeight: true }
-
         // Bottom padding
         Item { Layout.fillWidth: true; height: 4 }
       }
@@ -308,7 +307,7 @@ PanelWindow {
       Rectangle {
         id: rightPatch
         width: 12; height: parent.height
-        color: Colors.rightbar_gradient1 
+        color: Colors.rightbar_gradient1
         anchors.right: parent.right
         anchors.rightMargin: -2
         z: 5

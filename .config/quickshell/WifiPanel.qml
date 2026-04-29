@@ -122,7 +122,7 @@ PanelWindow {
       gradient: Gradient {
         orientation: Gradient.Horizontal 
         GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
-        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
+        GradientStop { position: 0.95; color: Colors.topbar_gradient6 }
       }
       anchors.top: parent.top
       anchors.left: parent.left
@@ -150,7 +150,7 @@ PanelWindow {
       gradient: Gradient {
         orientation: Gradient.Horizontal 
         GradientStop { position: 0.1; color: Colors.topbar_gradient5 }
-        GradientStop { position: 0.99; color: Colors.topbar_gradient6 }
+        GradientStop { position: 0.8; color: Colors.topbar_gradient6 }
       }
       radius: 12
       border.color: Colors.outline_variant
@@ -319,7 +319,7 @@ PanelWindow {
                     return "󰤯"
                   }
                   color: modelData.connected ? Colors.net_icon_connected : Colors.net_icon_disconnected
-                  font.pixelSize: 24
+                  font.pixelSize: modelData.connected ? 36 : 32
                 }
 
                 ColumnLayout {

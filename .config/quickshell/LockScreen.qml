@@ -3,6 +3,7 @@ import QtQuick.Controls.Basic
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
+import QtMultimedia
 import Quickshell.Services.Pam
 
 Rectangle {
@@ -13,19 +14,54 @@ Rectangle {
 
   property string lockState: "idle"
 
-  Image {
+property string wallpaperPath: Quickshell.env("HOME") + "/.config/warnaza/current_wallpaper"
+property string resolvedPath: ""
+property bool isVideo: resolvedPath.endsWith(".gif")
+property string videoPath: Quickshell.env("HOME") + "/.config/warnaza/current_wallpaper.mp4"
+
+Process {
+    id: readlink
+    command: ["readlink", "-f", root.wallpaperPath]
+    running: true
+    stdout: SplitParser {
+        onRead: data => {
+          root.resolvedPath = data.trim()
+          if (root.resolvedPath === "") return
+          if (root.isVideo) {
+              mediaPlayer.source = "file://" + root.videoPath
+              mediaPlayer.play()
+          }
+      }
+    }
+}
+
+VideoOutput {
+    id: wallpaperVideo
+    anchors.fill: parent
+    fillMode: VideoOutput.PreserveAspectCrop
+    visible: root.isVideo
+}
+
+MediaPlayer {
+    id: mediaPlayer
+    loops: MediaPlayer.Infinite
+    videoOutput: wallpaperVideo
+}
+
+Image {
     id: wallpaperImage
     anchors.fill: parent
     fillMode: Image.PreserveAspectCrop
-    source: "file://" + Quickshell.env("HOME") + "/.config/warnaza/current_wallpaper"
+    source: (!root.isVideo && root.resolvedPath !== "") ? ("file://" + root.resolvedPath) : ""
+    visible: !root.isVideo
 
     layer.enabled: root.lockState === "login" || root.lockState === "unlocking"
     layer.effect: MultiEffect {
-      blurEnabled: true
-      blur: 1.0
-      blurMax: 64
+        blurEnabled: true
+        blur: 1.0
+        blurMax: 64
     }
-  }
+}
 
   Rectangle {
     anchors.fill: parent

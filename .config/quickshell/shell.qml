@@ -171,7 +171,10 @@ ShellRoot {
   }
 
   function closeSecondaryPanels() {
-    isOSDPopupVisible = false
+    if (isOSDPopupVisible) {
+      osdPopup.isShowing = false
+      osdCloseTimer.start()
+    }
     if (isWallpaperPickerVisible) {
       wallpaperPickerWindow.isShowing = false
       wallpaperCloseTimer.start()
@@ -493,9 +496,16 @@ ShellRoot {
     closeDelayTimer.start()
   }
 
+  Timer {
+    id: osdCloseTimer
+    interval: 300
+    onTriggered: isOSDPopupVisible = false
+  }
+
   OSDPopup {
     id: osdPopup
     visible: isOSDPopupVisible
+    onRequestClose: isOSDPopupVisible = false
     onVisibleChanged: if (!visible) isOSDPopupVisible = false
   }
   

@@ -1,38 +1,23 @@
 [
   {
-    "name": "org.telegram.desktop"
+    "name": "kamoso"
+  },
+  {
+    "name": "visual-studio-code"
   },
   {
     "name": "PCSX2"
   },
   {
-    "name": "org.freecad.FreeCAD"
+    "name": "brave-origin-nightly"
   },
   {
-    "name": "org.qcad.QCAD"
+    "name": "firefox"
   },
   {
-    "name": "org.inkscape.Inkscape"
+    "name": "com.github.wwmm.easyeffects"
   },
   {
-    "name": "blender"
-  },
-  {
-    "name": "discord"
-  },
-  {
-    "name": "org.mozilla.Thunderbird"
-  },
-  {
-    "name": "Zoom"
-  },
-  {
-    "name": "steam"
-  },
-  {
-    "name": "onlyoffice-desktopeditors"
-  },
-  {
-    "name": "kamoso"
+    "name": "koodo-reader"
   }
 ]

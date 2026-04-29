@@ -146,7 +146,7 @@ PanelWindow {
     id: scanProcess
     command: ["bash", "-c",
     "find " + Quickshell.env("HOME") + "/Pictures/Wallpapers -maxdepth 1 -type f " +
-    "\\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) | sort | " +
+    "\\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' \\) | sort | " +
     "while read f; do " +
     "  base=$(basename \"$f\" | sed 's/\\.[^.]*$//'); " +
     "  thumb=\"/tmp/wallpaper-thumbs/$base.jpg\"; " +
@@ -240,24 +240,23 @@ PanelWindow {
               width: wallpaperList.width
               height: 90
               property bool pressed: false
+              property bool isGif: model.wallpath.toLowerCase().endsWith(".gif")
+              property bool isActive: wallpaperList.currentIndex === index
+              property bool useGif: isGif && isActive && gifImage.status === Image.Ready
 
               Rectangle {
                 id: delegateRect
                 anchors.fill: parent
-                anchors.margins: wallpaperList.currentIndex === index ? 0 : 5
+                anchors.margins: isActive ? 0 : 5
 
                 Behavior on anchors.margins {
                     NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                 }
-                color: wallpaperList.currentIndex === index 
-                ? Colors.wallpaper_item_active_bg
-                : Colors.wallpaper_item_inactive_bg
+                color: isActive ? Colors.wallpaper_item_active_bg : Colors.wallpaper_item_inactive_bg
                 radius: 8
-                border.color: wallpaperList.currentIndex === index 
-                ? Colors.wallpaper_item_active_border
-                : Colors.wallpaper_item_inactive_border
-                border.width: wallpaperList.currentIndex === index ? 3 : 2
- 
+                border.color: isActive ? Colors.wallpaper_item_active_border : Colors.wallpaper_item_inactive_border
+                border.width: isActive ? 3 : 2
+
                 transform: Translate {
                   y: delegateRect.parent.pressed ? 4 : 0
                   Behavior on y { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
@@ -267,7 +266,7 @@ PanelWindow {
                   id: thumbImage
                   anchors.fill: parent
                   anchors.margins: 2
-                  source: "file://" + model.thumbpath
+                  source: (isGif && isActive) ? "" : "file://" + model.thumbpath
                   fillMode: Image.PreserveAspectCrop
                   smooth: true
                   asynchronous: true
@@ -282,9 +281,24 @@ PanelWindow {
                   }
                 }
 
+                AnimatedImage {
+                  id: gifImage
+                  anchors.fill: parent
+                  anchors.margins: 2
+                  source: (isGif && isActive) ? "file://" + model.wallpath : ""
+                  fillMode: Image.PreserveAspectCrop
+                  smooth: true
+                  asynchronous: true
+                  visible: false
+                  playing: isGif && isActive
+                  cache: false
+                  sourceSize: Qt.size(130, 90)
+                  opacity: status === Image.Ready ? 1 : 0
+                }
+
                 Item {
                   id: maskItem
-                  anchors.fill: thumbImage
+                  anchors.fill: useGif ? gifImage : thumbImage
                   layer.enabled: true
                   visible: false
                   Rectangle {
@@ -295,29 +309,29 @@ PanelWindow {
                 }
 
                 MultiEffect {
-                  anchors.fill: thumbImage
-                  source: thumbImage
+                  anchors.fill: useGif ? gifImage : thumbImage
+                  source: useGif ? gifImage : thumbImage
                   maskEnabled: true
                   maskSource: maskItem
 
-                  opacity: thumbImage.opacity
+                  opacity: useGif ? gifImage.opacity : thumbImage.opacity
                   Behavior on opacity {
                     NumberAnimation { duration: 100 }
                   }
                 }
-                // Loading placeholder (tampil saat isLoading atau image belum ready)
+
                 Rectangle {
                   id: loadingPlaceholder
                   anchors.fill: parent
                   anchors.margins: 2
                   radius: 7
                   color: Colors.wallpaper_placeholder_bg
-                  visible: thumbImage.status !== Image.Ready
+                  visible: useGif ? gifImage.status !== Image.Ready : thumbImage.status !== Image.Ready
                   property real shimmerPos: 0.0
 
                   SequentialAnimation on shimmerPos {
                     loops: Animation.Infinite
-                    running: thumbImage.status !== Image.Ready
+                    running: loadingPlaceholder.visible
                     NumberAnimation { from: -0.5; to: 1.5; duration: 1200 }
                   }
 

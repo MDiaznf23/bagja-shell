@@ -256,13 +256,28 @@ class SystemMonitor:
 
     def _setup_upower(self):
         try:
-            self.system_bus.add_signal_receiver(
-                self._on_upower_changed,
-                signal_name="PropertiesChanged",
-                dbus_interface="org.freedesktop.DBus.Properties",
-                bus_name="org.freedesktop.UPower",
+            upower = self.system_bus.get_object(
+                "org.freedesktop.UPower", "/org/freedesktop/UPower"
             )
-            print("[system-monitor] UPower subscribed", file=sys.stderr, flush=True)
+            upower_iface = dbus.Interface(upower, "org.freedesktop.UPower")
+            devices = upower_iface.EnumerateDevices()
+            for dev_path in devices:
+                dev = self.system_bus.get_object("org.freedesktop.UPower", dev_path)
+                props = dbus.Interface(dev, "org.freedesktop.DBus.Properties")
+                p = props.GetAll("org.freedesktop.UPower.Device")
+                if int(p.get("Type", 0)) != 2:
+                    continue
+                # Subscribe langsung ke device path spesifik
+                self.system_bus.add_signal_receiver(
+                    self._on_upower_changed,
+                    signal_name="PropertiesChanged",
+                    dbus_interface="org.freedesktop.DBus.Properties",
+                    bus_name="org.freedesktop.UPower",
+                    path=str(dev_path),  # <-- ini yang beda
+                )
+                self._bat_dev_path = dev_path
+                print(f"[system-monitor] UPower subscribed: {dev_path}", file=sys.stderr, flush=True)
+                break
         except Exception as e:
             print(f"[system-monitor] UPower error: {e}", file=sys.stderr)
 
@@ -297,8 +312,16 @@ class SystemMonitor:
             print(f"[system-monitor] Init battery error: {e}", file=sys.stderr)
 
     def _on_upower_changed(self, iface, changed, invalidated):
-        if "Percentage" in changed or "State" in changed:
-            self._init_battery()
+        if "Percentage" not in changed and "State" not in changed:
+            return
+        updated = False
+        if "Percentage" in changed:
+            self.state.bat_capacity = int(changed["Percentage"])
+            updated = True
+        if "State" in changed:
+            self.state.bat_charging = int(changed["State"]) in (1, 4)
+            updated = True
+        if updated:
             with self._lock:
                 self._emit()
 
@@ -729,7 +752,10 @@ class SystemMonitor:
     # ── Emit ──────────────────────────────────────────────────────────────────
 
     def _emit(self):
-        print(self.state.to_json(), flush=True)
+        new_json = self.state.to_json()
+        if not hasattr(self, '_last_json') or new_json != self._last_json:
+            self._last_json = new_json
+            print(new_json, flush=True)
 
 
 # ─── Entry point ──────────────────────────────────────────────────────────────
