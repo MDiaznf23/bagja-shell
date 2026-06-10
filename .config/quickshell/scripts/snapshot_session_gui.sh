@@ -3,10 +3,32 @@ SESSION_NAME="$1"
 SESSION_ICON="${2:-󰘚}"
 
 SESSIONS_FILE="$HOME/.config/quickshell/sessions.json"
+
 WS=$(hyprctl activeworkspace -j | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
-GAPS_IN=$(hyprctl getoption general:gaps_in | grep "custom type" | awk '{print $3}')
-GAPS_OUT=$(hyprctl getoption general:gaps_out | grep "custom type" | awk '{print $3}')
-LAYOUT=$(hyprctl getoption general:layout | grep "str:" | awk '{print $2}')
+
+# gaps_in/gaps_out sekarang bertipe custom (CSS-style: top right bottom left)
+# pakai -j dan ambil nilai 'top' sebagai representasi uniform gaps
+GAPS_IN=$(hyprctl -j getoption general.gaps_in | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+custom = d.get('custom', '').strip()
+if custom:
+    print(custom.split()[0])
+else:
+    print(d.get('int', 0))
+")
+
+GAPS_OUT=$(hyprctl -j getoption general.gaps_out | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+custom = d.get('custom', '').strip()
+if custom:
+    print(custom.split()[0])
+else:
+    print(d.get('int', 0))
+")
+
+LAYOUT=$(hyprctl -j getoption general.layout | python3 -c "import json,sys; print(json.load(sys.stdin)['str'])")
 
 hyprctl clients -j | python3 -c "
 import json, sys, os

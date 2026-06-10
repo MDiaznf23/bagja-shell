@@ -1,6 +1,13 @@
 # ~/.config/warnaza/warnaza-post.sh
 
-magick ~/.config/warnaza/current_wallpaper -resize 800x -quality 100 ~/.config/warnaza/current-rofi.jpg &
+if file -bL ~/.config/warnaza/current_wallpaper | grep -q "GIF"; then
+    ffmpeg -y -i ~/.config/warnaza/current_wallpaper \
+        -vf "fps=15,scale=1920:-2:flags=lanczos" \
+        -c:v libx264 -pix_fmt yuv420p -an \
+        ~/.config/warnaza/current_wallpaper.mp4
+else
+    magick ~/.config/warnaza/current_wallpaper -resize 800x -quality 100 ~/.config/warnaza/current-rofi.jpg
+fi
 
 kill -SIGUSR1 $(pidof kitty) 2>/dev/null
 

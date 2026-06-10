@@ -20,7 +20,7 @@ PanelWindow {
 
   Process {
       id: getLayout
-      command: ["bash", "-c", "hyprctl getoption general:layout | grep 'str:' | awk '{print $2}'"]
+      command: ["bash", "-c", "hyprctl getoption general.layout | grep 'str:' | awk '{print $2}'"]
       running: false
       stdout: StdioCollector {
           waitForEnd: true

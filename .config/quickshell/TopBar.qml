@@ -267,7 +267,7 @@ PanelWindow {
                   anchors.fill: parent
                   hoverEnabled: true
                   onClicked: {
-                    hyprDispatch.command = ["hyprctl", "dispatch", "workspace", modelData.id.toString()]
+                    hyprDispatch.command = ["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + modelData.id.toString() + " })"]
                     hyprDispatch.running = true
                   }
                 }

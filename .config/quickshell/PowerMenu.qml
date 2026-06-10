@@ -27,7 +27,7 @@ PanelWindow {
 
   property var actions: [
     { label: "Lock",     icon: "󰌾", command: "qs ipc call lockscreen lock" },
-    { label: "Logout",   icon: "󰍃", command: "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch exit" },
+    { label: "Logout",   icon: "󰍃", command: "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'" },
     { label: "Sleep",    icon: "󰤄", command: "systemctl suspend" },
     { label: "Reboot",   icon: "󰑙", command: "systemctl reboot" },
     { label: "Shutdown", icon: "󰐥", command: "systemctl poweroff" },

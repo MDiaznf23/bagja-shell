@@ -66,7 +66,7 @@ Item {
       id: contentCol
       anchors.centerIn: parent
       width: parent.width - 20
-      spacing: 8
+      spacing: 4
 
       // MAC Address
       Row {
@@ -82,8 +82,8 @@ Item {
         }
 
         Text {
-          text: BluetoothService.connectedDevices.length > 0 
-            ? BluetoothService.connectedDevices[0].mac 
+          text: BluetoothService.hasConnected
+            ? BluetoothService.connectedDevices[0].address
             : "No device"
           color: Colors.text
           font.family: "JetBrainsMono Nerd Font"
@@ -95,70 +95,86 @@ Item {
       // Connected devices from script
       Repeater {
         model: BluetoothService.connectedDevices
+        Column {
+          required property var modelData
+          spacing: 4
+          anchors.horizontalCenter: parent.horizontalCenter
+
+          Row {
+            spacing: 6
+            anchors.horizontalCenter: parent.horizontalCenter
+            Text {
+              text: "Devices:" 
+              color: Colors.text_variant4
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 11
+              anchors.verticalCenter: parent.verticalCenter
+            }
+            Text {
+              text: modelData.name
+              color: Colors.text
+              font.family: "JetBrainsMono Nerd Font"
+              font.pixelSize: 11
+              font.bold: true
+              anchors.verticalCenter: parent.verticalCenter
+            }
+        }
 
         Row {
-          required property var modelData
-          spacing: 6
+          visible: modelData.batteryAvailable
+          spacing: 4
           anchors.horizontalCenter: parent.horizontalCenter
 
           Text {
-            text: {
-              switch(modelData.type) {
-                case "headphone": return "󰋋"
-                case "phone":     return "󰄜"
-                case "keyboard":  return "󰌌"
-                case "mouse":     return "󰍽"
-                default:          return "󰂱"
-              }
-            }
-            color: Colors.text_variant4
+            text: "Battery:"  
+            color: modelData.battery < 0.2 ? "red" : Colors.text_variant4
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
             anchors.verticalCenter: parent.verticalCenter
           }
 
           Text {
-            text: modelData.name
+            text: Math.round(modelData.battery * 100) + "%"
             color: Colors.text
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 11
-            font.bold: true
             anchors.verticalCenter: parent.verticalCenter
           }
         }
       }
+    }
 
-      // No device
-      Text {
-        visible: !BluetoothService.hasConnected
-        text: "No devices connected"
-        color: Colors.text_variant1
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 11
-        width: parent.width
-        horizontalAlignment: Text.AlignHCenter
-      }
+    // No device
+    Text {
+      visible: !BluetoothService.hasConnected
+      text: "No devices connected"
+      color: Colors.text_variant1
+      font.family: "JetBrainsMono Nerd Font"
+      font.pixelSize: 11
+      width: parent.width
+      horizontalAlignment: Text.AlignHCenter
     }
   }
+}
 
-  // Top patch
-  Rectangle {
-    height: 10
-    antialiasing: true
-    layer.enabled: true
-    gradient: Gradient {
-      orientation: Gradient.Horizontal
-      GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
-      GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
-      GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
-      GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
-      GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
-      GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
-    }
-    anchors.top: parent.top
-    anchors.left: parent.left
-    anchors.right: parent.right
+// Top patch
+Rectangle {
+  height: 10
+  antialiasing: true
+  layer.enabled: true
+  gradient: Gradient {
+    orientation: Gradient.Horizontal
+    GradientStop { position: 0.0; color: topbarColorAt(tooltipStart) ?? Colors.background }
+    GradientStop { position: (0.2 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.2) ?? Colors.background }
+    GradientStop { position: (0.4 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.4) ?? Colors.background }
+    GradientStop { position: (0.6 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.6) ?? Colors.background }
+    GradientStop { position: (0.8 - tooltipStart) / (tooltipEnd - tooltipStart); color: topbarColorAt(0.8) ?? Colors.background }
+    GradientStop { position: 1.0; color: topbarColorAt(tooltipEnd) ?? Colors.background }
   }
+  anchors.top: parent.top
+  anchors.left: parent.left
+  anchors.right: parent.right
+}
 
   // Wings
   Canvas {

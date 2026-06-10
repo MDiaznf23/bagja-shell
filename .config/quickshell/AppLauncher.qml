@@ -130,15 +130,12 @@ PanelWindow {
   // ── Session launcher ───────────────────────────────────
   function launchSession(session) {
     var ws = launcherWindow.currentWorkspace
-    Quickshell.execDetached(["hyprctl", "dispatch", "workspace", ws.toString()])
-
+    Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + ws + " })"])
     var layout = session.layout || "master"
-    Quickshell.execDetached(["hyprctl", "keyword", "general:layout", layout])
-
+    Quickshell.execDetached(["hyprctl", "eval", 'hl.config({ general = { layout = "' + layout + '" } })'])
     if (layout === "master") {
-        Quickshell.execDetached(["hyprctl", "keyword", "master:new_status", "slave"])
+        Quickshell.execDetached(["hyprctl", "eval", 'hl.config({ master = { new_status = "slave" } })'])
     }
-
     var launchedAddresses = []
     launchNext(session.apps, 0, ws, session, launchedAddresses)
     requestClose()
@@ -154,27 +151,24 @@ PanelWindow {
                 finishTimer.destroy()
                 Quickshell.execDetached([
                   "bash", "-c",
-                  "hyprctl dispatch focuswindow address:0x" + launchedAddresses[0] +
+                  "hyprctl dispatch 'hl.dsp.window.focus({ window = \"address:0x" + launchedAddresses[0] + "\" })'" +
                   " && sleep 0.02" +
-                  " && hyprctl dispatch layoutmsg 'mfact -0.05'" +
+                  " && hyprctl dispatch 'hl.dsp.layout(\"mfact -0.05\")'" +
                   " && sleep 0.02" +
-                  " && hyprctl dispatch layoutmsg 'mfact " + session.mfact + "'"
-              ])
+                  " && hyprctl dispatch 'hl.dsp.layout(\"mfact " + session.mfact + "\")'"
+                ])
             })
             finishTimer.start()
         }
         return
     }
-
     var app = apps[index]
     var launchTimer = Qt.createQmlObject('import QtQuick; Timer {}', launcherWindow)
     launchTimer.interval = app.delay || 0
     launchTimer.repeat = false
     launchTimer.triggered.connect(function() {
-    launchTimer.destroy()
-
+      launchTimer.destroy()
       var snapClass = app["class"] || app.exec.split(" ")[0]
-
       var watcher = Qt.createQmlObject('
           import Quickshell.Io
           Process { running: false }', launcherWindow)
@@ -197,10 +191,9 @@ PanelWindow {
           launchNext(apps, index + 1, ws, session, launchedAddresses)
       })
       watcher.running = true
-
       Quickshell.execDetached([
-          "hyprctl", "dispatch", "exec",
-          "[workspace " + ws + "] " + app.exec
+          "hyprctl", "dispatch",
+          "hl.dsp.exec_cmd(\"[workspace " + ws + "] " + app.exec + "\")"
       ])
     })
     launchTimer.start()
@@ -210,8 +203,6 @@ PanelWindow {
     target: DesktopEntries.applications
     function onValuesChanged() { updateFilteredApps() }
   }
-
-  // ── Background gradient helper (unchanged from original) ─
 
   // ══════════════════════════════════════════════════════
   //  MAIN BACKGROUND

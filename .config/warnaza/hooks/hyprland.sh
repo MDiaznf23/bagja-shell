@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SOURCE=~/.cache/warnaza/colors_hyprland
-OUTPUT=~/.config/hypr/colors_hyprland.conf
+SOURCE=~/.cache/warnaza/colors_hyprland.lua
+OUTPUT=~/.config/hypr/colors_hyprland.lua
 TMPFILE=$(mktemp ~/.config/hypr/.colors_hyprland.tmp.XXXXXX)
 
 # Tulis ke tmp dulu
