@@ -3,7 +3,14 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import Quickshell.Wayland   
+import Quickshell.Wayland
+import "./config"
+import "./services"
+import "./tooltips"
+import "./popups"
+import "./panels"
+import "./screen"
+import "./bars"
 
 ShellRoot {
   property bool isDashboardVisible: false

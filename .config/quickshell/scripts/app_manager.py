@@ -12,7 +12,7 @@ from typing import List, Dict
 
 
 class AppManager:
-    def __init__(self, config_path: str = "~/.config/quickshell/apps.json"):
+    def __init__(self, config_path: str = "~/.config/quickshell/config/apps.json"):
         self.config_path = Path(config_path).expanduser()
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
 
