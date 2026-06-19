@@ -6,8 +6,7 @@ import Quickshell.Io
 import QtMultimedia
 import Quickshell.Services.Pam
 
-import "../services"
-import ".."
+import "./services"
 
 Rectangle {
   id: root
