@@ -153,7 +153,7 @@ PanelWindow {
                 finishTimer.destroy()
                 Quickshell.execDetached([
                   "bash", "-c",
-                  "hyprctl dispatch 'hl.dsp.window.focus({ window = \"address:0x" + launchedAddresses[0] + "\" })'" +
+                  "hyprctl dispatch 'hl.dsp.focus({ window = \"address:0x" + launchedAddresses[0] + "\" })'" +
                   " && sleep 0.02" +
                   " && hyprctl dispatch 'hl.dsp.layout(\"mfact -0.05\")'" +
                   " && sleep 0.02" +

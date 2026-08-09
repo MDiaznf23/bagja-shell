@@ -266,11 +266,6 @@ PanelWindow {
     var icon = sessionIconInput.text.trim() || "󰘚"
 
     snapshotProc.command = [
-      "bash", "-c",
-      "echo '" + name + "\n" + icon + "' | bash " +
-      Quickshell.shellDir + "/scripts/snapshot_session.sh '" + name + "' '" + icon + "'"
-    ]
-    snapshotProc.command = [
       "bash", Quickshell.shellDir + "/scripts/snapshot_session_gui.sh",
       name, icon
     ]

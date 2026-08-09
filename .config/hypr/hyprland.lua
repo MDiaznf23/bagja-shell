@@ -46,7 +46,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("~/m3-colors-switch.sh")
     hl.exec_cmd("awww-daemon")
     hl.exec_cmd([[sleep 1 && WALL=$(awww query 2>/dev/null | awk -F': ' '{print $NF}' | head -1) && warnaza "${WALL:-~/Pictures/Wallpapers/caelestia.png}"]])
-    hl.exec_cmd("quickshell")
+    hl.exec_cmd("qs")
     hl.exec_cmd("kbuildsycoca6 --noincremental")
     hl.exec_cmd("/usr/bin/kded6")
     hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
@@ -302,7 +302,6 @@ hl.window_rule({
     name  = "float-viewnior",
     match = { class = "viewnior" },
     float = true,
-    pin   = true,
     size  = { 960, 540 },
     center = true,
 })
@@ -358,6 +357,12 @@ hl.window_rule({
     name  = "float-wine",
     match = { class = "wine" },
     float = true,
+})
+
+hl.window_rule({
+    name = "no-border-quickshell",
+    match = { class = "^(org\\.quickshell)$", title = "^(quickshell)$" },
+    border_size = 0,
 })
 
 hl.workspace_rule({ workspace = "1", persistent = true })

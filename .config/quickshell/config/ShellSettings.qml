@@ -1,32 +1,22 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Wayland
 import Quickshell.Io
 import QtQuick.Controls
 import ".."
 import "../services"
 
-PanelWindow {
+FloatingWindow {
   id: root
 
   implicitWidth: 600
   implicitHeight: 500
+  minimumSize: Qt.size(420, 360)
 
   property bool isShowing: false
   property string activeTab: "Appearance"
 
-  anchors {
-    top: true
-    left: true
-    right: true
-    bottom: true
-  }
-
   color: "transparent"
-  exclusionMode: ExclusionMode.Ignore
-  WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
   signal requestClose()
 
@@ -48,9 +38,7 @@ PanelWindow {
   Rectangle {
     id: panel
     Keys.onEscapePressed: root.requestClose()
-    width: root.implicitWidth
-    height: root.implicitHeight
-    anchors.centerIn: parent
+    anchors.fill: parent
     gradient: Gradient {
       orientation: Gradient.Horizontal
       GradientStop { position: 0.1; color: Colors.background }
@@ -61,10 +49,6 @@ PanelWindow {
     border.width: 2
     opacity: root.isShowing ? 1 : 0
     Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-    transform: Translate {
-      y: root.isShowing ? 0 : -20
-      Behavior on y { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-    }
 
     RowLayout {
       anchors.fill: parent
@@ -144,6 +128,7 @@ PanelWindow {
               model: [
                 { label: "Appearance", icon: "󰔎" },
                 { label: "Behavior",   icon: "󰒓" },
+                { label: "Themes",     icon: "󰉏" },
                 { label: "About",      icon: "󰋽" }
               ]
 
@@ -729,6 +714,325 @@ PanelWindow {
               }
 
               Item { height: 4 }
+            }
+          }
+        }
+
+        // Themes
+        ColumnLayout {
+          id: themesTab
+          visible: root.activeTab === "Themes"
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          Layout.topMargin: 10
+          Layout.rightMargin: 16
+          Layout.leftMargin: 20
+          spacing: 10
+
+          property string fetchStatusText: "Memuat catalog…"
+          property string currentThemeName: ""
+          property var pendingChecks: []
+          readonly property string scriptsDir: Quickshell.shellDir + "/scripts"
+          readonly property string catalogCacheFile: Quickshell.env("HOME") + "/.cache/quickshell/themes-catalog.json"
+          readonly property string currentThemeFile: Quickshell.env("HOME") + "/.cache/quickshell/current-theme"
+
+          function refreshCatalog() {
+            fetchStatusText = "Mengambil catalog…"
+            fetchCatalogProcess.running = false
+            fetchCatalogProcess.running = true
+          }
+
+          function checkAllStatuses() {
+            var arr = []
+            for (var i = 0; i < themesModel.count; i++) arr.push(i)
+            pendingChecks = arr
+            runNextStatusCheck()
+          }
+
+          function runNextStatusCheck() {
+            if (pendingChecks.length === 0 || statusCheckProcess.running) return
+            var idx = pendingChecks.shift()
+            var item = themesModel.get(idx)
+            statusCheckProcess.targetIndex = idx
+            statusCheckProcess.command = ["bash", scriptsDir + "/theme_status.sh", item.name, item.repo, item.branch]
+            statusCheckProcess.running = true
+          }
+
+          function installTheme(index) {
+            var item = themesModel.get(index)
+            themesModel.setProperty(index, "status", "installing")
+            installProcess.targetIndex = index
+            installProcess.command = ["bash", scriptsDir + "/theme_install.sh", item.name, item.repo, item.branch]
+            installProcess.running = true
+          }
+
+          function switchTheme(name) {
+            switchProcess.command = ["bash", scriptsDir + "/theme_switch.sh", name]
+            switchProcess.running = true
+          }
+
+          onVisibleChanged: {
+            if (visible) {
+              currentThemeReadProcess.running = true
+              refreshCatalog()
+            }
+          }
+
+          ListModel { id: themesModel }
+
+          Process {
+            id: currentThemeReadProcess
+            running: false
+            command: ["bash", "-c", "cat '" + themesTab.currentThemeFile + "' 2>/dev/null"]
+            stdout: StdioCollector {
+              onStreamFinished: themesTab.currentThemeName = this.text.trim()
+            }
+          }
+
+          Process {
+            id: fetchCatalogProcess
+            running: false
+            command: ["bash", themesTab.scriptsDir + "/theme_fetch_catalog.sh"]
+            stdout: StdioCollector {
+              onStreamFinished: {
+                var result = this.text.trim()
+                if (result === "OK") {
+                  themesTab.fetchStatusText = "Catalog terbaru"
+                  catalogFile.reload()
+                } else if (result === "STALE") {
+                  themesTab.fetchStatusText = "Gagal update, pakai cache lama"
+                  catalogFile.reload()
+                } else {
+                  themesTab.fetchStatusText = "Gagal ambil catalog & belum ada cache"
+                }
+              }
+            }
+          }
+
+          Process {
+            id: statusCheckProcess
+            property int targetIndex: -1
+            running: false
+            stdout: StdioCollector {
+              onStreamFinished: {
+                if (statusCheckProcess.targetIndex >= 0) {
+                  themesModel.setProperty(statusCheckProcess.targetIndex, "status", this.text.trim())
+                }
+              }
+            }
+            onExited: themesTab.runNextStatusCheck()
+          }
+
+          Process {
+            id: installProcess
+            property int targetIndex: -1
+            running: false
+            stdout: StdioCollector {
+              onStreamFinished: {
+                var result = this.text.trim()
+                themesModel.setProperty(installProcess.targetIndex, "status",
+                  result === "DONE" ? "installed" : "error")
+              }
+            }
+          }
+
+          Process {
+            id: switchProcess
+            running: false
+            stdout: StdioCollector {
+              onStreamFinished: {
+                if (this.text.trim() === "SWITCHED") currentThemeReadProcess.running = true
+              }
+            }
+          }
+
+          FileView {
+            id: catalogFile
+            path: themesTab.catalogCacheFile
+            printErrors: false
+            onLoaded: {
+              try {
+                var data = JSON.parse(text())
+                themesModel.clear()
+                for (var i = 0; i < data.length; i++) {
+                  var t = data[i]
+                  themesModel.append({
+                    name: t.name || "",
+                    display_name: t.display_name || t.name || "",
+                    description: t.description || "",
+                    repo: t.repo || "",
+                    branch: t.branch || "main",
+                    preview: t.preview || "",
+                    status: "checking"
+                  })
+                }
+                themesTab.checkAllStatuses()
+              } catch (e) {
+                themesTab.fetchStatusText = "Format catalog.json tidak valid"
+              }
+            }
+          }
+
+          // Header
+          RowLayout {
+            Layout.fillWidth: true
+            ColumnLayout {
+              spacing: 2
+              Layout.fillWidth: true
+              Text { text: "Ricing Catalog"; color: Colors.text; font.pixelSize: 12; font.bold: true }
+              Text { text: themesTab.fetchStatusText; color: Colors.text_variant1; font.pixelSize: 10 }
+            }
+            Item { Layout.fillWidth: true }
+            Rectangle {
+              width: 70; height: 24; radius: 6
+              color: refreshHover.containsMouse ? Colors.variant_inactive_bg : "transparent"
+              border.color: Colors.outline_variant
+              border.width: 1
+              Text { anchors.centerIn: parent; text: "Refresh"; font.pixelSize: 10; color: Colors.text }
+              MouseArea {
+                id: refreshHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: themesTab.refreshCatalog()
+              }
+            }
+          }
+
+          Rectangle { Layout.fillWidth: true; height: 1; color: Colors.outline_variant }
+
+          ScrollView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            contentWidth: availableWidth
+            clip: true
+
+            ColumnLayout {
+              width: parent.width
+              spacing: 8
+
+              Repeater {
+                model: themesModel
+                delegate: Rectangle {
+                  id: themeCard
+                  required property string name
+                  required property string display_name
+                  required property string description
+                  required property string preview
+                  required property string status
+                  required property int index
+
+                  Layout.fillWidth: true
+                  Layout.preferredHeight: 84
+                  radius: 10
+                  color: themesTab.currentThemeName === name ? Colors.settings_tab_active_bg : Colors.settings_sidebar_bg
+                  border.color: Colors.outline_variant
+                  border.width: 1
+
+                  RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 10
+
+                    Rectangle {
+                      width: 64; height: 64
+                      radius: 8
+                      color: Colors.variant_inactive_bg
+                      clip: true
+                      Image {
+                        anchors.fill: parent
+                        source: themeCard.preview
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                      }
+                    }
+
+                    ColumnLayout {
+                      Layout.fillWidth: true
+                      spacing: 2
+
+                      RowLayout {
+                        spacing: 6
+                        Text { text: themeCard.display_name; color: Colors.text; font.pixelSize: 12; font.bold: true }
+                        Text {
+                          visible: themesTab.currentThemeName === themeCard.name
+                          text: "• Active"
+                          color: Colors.settings_tab_active_text
+                          font.pixelSize: 9
+                        }
+                      }
+                      Text {
+                        text: themeCard.description
+                        color: Colors.text_variant1
+                        font.pixelSize: 10
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
+                      }
+                      Text {
+                        text: themeCard.status === "not_installed" ? "Belum diinstall"
+                          : themeCard.status === "installed" ? "Terinstall"
+                          : themeCard.status === "update_available" ? "Ada update"
+                          : themeCard.status === "installing" ? "Menginstall…"
+                          : themeCard.status === "checking" ? "Mengecek…"
+                          : "Gagal, coba refresh"
+                        color: themeCard.status === "update_available" ? Colors.mode_selector_active_text : Colors.text_variant1
+                        font.pixelSize: 9
+                      }
+                    }
+
+                    ColumnLayout {
+                      spacing: 4
+                      Layout.alignment: Qt.AlignVCenter
+
+                      Rectangle {
+                        width: 90; height: 24
+                        radius: 6
+                        visible: themeCard.status === "not_installed" || themeCard.status === "update_available" || themeCard.status === "error"
+                        color: installHover.containsMouse ? Colors.variant_active_bg : Colors.variant_inactive_bg
+                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Text {
+                          anchors.centerIn: parent
+                          text: themeCard.status === "update_available" ? "Update" : "Install"
+                          font.pixelSize: 10
+                          color: Colors.text
+                        }
+                        MouseArea {
+                          id: installHover
+                          anchors.fill: parent
+                          hoverEnabled: true
+                          cursorShape: Qt.PointingHandCursor
+                          onClicked: themesTab.installTheme(themeCard.index)
+                        }
+                      }
+
+                      Rectangle {
+                        width: 90; height: 24
+                        radius: 6
+                        visible: themeCard.status === "installed" || themeCard.status === "update_available"
+                        color: themesTab.currentThemeName === themeCard.name
+                          ? Colors.variant_active_bg
+                          : (switchHover.containsMouse ? Colors.variant_active_bg : Colors.variant_inactive_bg)
+                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Text {
+                          anchors.centerIn: parent
+                          text: themesTab.currentThemeName === themeCard.name ? "Aktif" : "Switch"
+                          font.pixelSize: 10
+                          color: Colors.text
+                        }
+                        MouseArea {
+                          id: switchHover
+                          anchors.fill: parent
+                          hoverEnabled: themesTab.currentThemeName !== themeCard.name
+                          cursorShape: Qt.PointingHandCursor
+                          onClicked: if (themesTab.currentThemeName !== themeCard.name) themesTab.switchTheme(themeCard.name)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }

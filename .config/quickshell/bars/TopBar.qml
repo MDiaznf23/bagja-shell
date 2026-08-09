@@ -221,27 +221,44 @@ PanelWindow {
                       sourceSize: Qt.size(14, 14)
                       source: {
                         var cls = modelData.class.toLowerCase()
-                        
-                        var entry = DesktopEntries.byId(cls)
+
+                        var entry = DesktopEntries.heuristicLookup(cls)
+
                         if (!entry) {
                           var all = DesktopEntries.applications.values
                           for (var i = 0; i < all.length; i++) {
-                            if (all[i].id.toLowerCase() === cls || 
-                              all[i].name.toLowerCase() === cls) {
+                            if (all[i].name.toLowerCase() === cls || all[i].id.toLowerCase() === cls) {
                               entry = all[i]
                               break
                             }
                           }
                         }
-                        
+
+                        if (!entry || !entry.icon) {
+                          var steamMatch = cls.match(/^steam_app_(\d+)$/)
+                          if (steamMatch) {
+                            var appId = steamMatch[1]
+                            var all2 = DesktopEntries.applications.values
+                            for (var j = 0; j < all2.length; j++) {
+                              if (all2[j].execString && all2[j].execString.indexOf("rungameid/" + appId) !== -1) {
+                                entry = all2[j]
+                                break
+                              }
+                            }
+                          }
+                        }
+
                         if (entry && entry.icon) {
+                          if (entry.icon.charAt(0) === "/") {
+                            return "file://" + entry.icon
+                          }
                           var path = Quickshell.iconPath(entry.icon, true)
                           if (path) return path
                         }
-                        
+
                         var path2 = Quickshell.iconPath(cls, true)
                         if (path2) return path2
-                        
+
                         return Qt.resolvedUrl(Quickshell.shellDir + "/assets/error.png")
                       }
                       opacity: workspaceItem.isFocused ? 1.0 : 0.5

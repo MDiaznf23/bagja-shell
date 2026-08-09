@@ -71,6 +71,7 @@ AUR_PKGS=(
     ttf-jetbrains-mono-nerd ttf-iosevka-nerd ttf-twemoji
     m3wal
     mpd-mpris
+    warnaza
 )
 
 yay -S --needed --noconfirm "${AUR_PKGS[@]}"
@@ -89,7 +90,11 @@ else
 fi
 
 # ─── 5. Setup Dotfiles ────────────────────────────────────────
+
 section "Setup Dotfiles"
+
+pkill -f "^qs$" >/dev/null 2>&1 || true
+sleep 0.3
 
 if [ -d "$HOME/.config" ]; then
     info "Backing up ~/.config → ~/.config.bak"
@@ -110,6 +115,45 @@ if [ -d "$DOTFILES_DIR/.local" ]; then
     cp -rf "$DOTFILES_DIR/.local/." "$HOME/.local/"
     success ".local copied"
 fi
+
+# ─── 5b. Hubungkan ke Theme Switcher (tab Themes / ShellSettings) ──
+section "Setup Theme Switcher"
+
+THEME_NAME="bagja-shell"
+THEMES_DIR="$HOME/.local/share/quickshell-themes"
+HYPR_DIR="$HOME/.config/hypr"
+STAGING_DIR="$HOME/.cache/quickshell/staging"
+STATE_FILE="$HOME/.cache/quickshell/current-theme"
+
+mkdir -p "$THEMES_DIR" "$HYPR_DIR" "$STAGING_DIR" "$(dirname "$STATE_FILE")"
+
+if [ -d "$HOME/.config/quickshell" ] && [ ! -L "$HOME/.config/quickshell" ]; then
+    rm -rf "$THEMES_DIR/$THEME_NAME"
+    mv "$HOME/.config/quickshell" "$THEMES_DIR/$THEME_NAME"
+    ln -sfn "$THEMES_DIR/$THEME_NAME" "$HOME/.config/quickshell"
+    success "quickshell dipindah ke $THEMES_DIR/$THEME_NAME (symlink dibuat)"
+else
+    info "~/.config/quickshell sudah symlink, skip"
+fi
+
+if [ -f "$HYPR_DIR/hyprland.lua" ] && [ ! -L "$HYPR_DIR/hyprland.lua" ]; then
+    mv "$HYPR_DIR/hyprland.lua" "$HYPR_DIR/$THEME_NAME.lua"
+    ln -sfn "$HYPR_DIR/$THEME_NAME.lua" "$HYPR_DIR/active-ricing.lua"
+    cat > "$HYPR_DIR/hyprland.lua" << 'EOF'
+require("active-ricing")
+EOF
+    success "hyprland.lua dipindah ke $HYPR_DIR/$THEME_NAME.lua (loader + symlink dibuat)"
+else
+    info "~/.config/hypr/hyprland.lua sudah loader/symlink, skip"
+fi
+
+rm -rf "$STAGING_DIR/$THEME_NAME"
+cp -r "$DOTFILES_DIR" "$STAGING_DIR/$THEME_NAME"
+success "Staging git disinkronkan untuk deteksi update"
+
+# Tandai tema ini sebagai tema yang lagi aktif
+echo "$THEME_NAME" > "$STATE_FILE"
+success "Ditandai sebagai tema aktif ($THEME_NAME)"
 
 # ─── 6. Chmod ─────────────────────────────────────────────────
 section "Set Executable Permissions"

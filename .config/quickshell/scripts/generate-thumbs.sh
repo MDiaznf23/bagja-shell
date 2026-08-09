@@ -6,9 +6,12 @@ mkdir -p "$THUMBDIR"
 for img in "$WALLDIR"/*.{jpg,jpeg,png,webp,gif}; do
   [ -f "$img" ] || continue
   thumb="$THUMBDIR/$(basename "$img" | sed 's/\.[^.]*$//').jpg"
-  [ -f "$thumb" ] && continue
 
-  # Untuk GIF, ambil frame pertama saja ([0])
+  if [ -f "$thumb" ]; then
+    echo "$thumb|$img"
+    continue
+  fi
+
   src="$img"
   ext="${img##*.}"
   if [[ "${ext,,}" == "gif" ]]; then

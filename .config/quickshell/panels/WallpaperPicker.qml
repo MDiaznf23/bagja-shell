@@ -13,6 +13,8 @@ PanelWindow {
   id: wallpaperPicker
   property var screen: Quickshell.screens[0]
   property bool isShowing: false
+  property bool initializing: false
+  property bool modelReady: false
     
   visible: true
   implicitWidth: 160
@@ -32,12 +34,24 @@ PanelWindow {
   WlrLayershell.layer: WlrLayer.Overlay
   WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
+  property int baselineIndex: -1
+  property string activeWallpath: ""
+
+  Timer {
+    id: initializingResetTimer
+    interval: 500
+    onTriggered: wallpaperPicker.initializing = false
+  }
+
   onVisibleChanged: {
     if (visible) {
       isShowing = true
+      baselineIndex = wallpaperList.currentIndex
       wallpaperList.forceActiveFocus()
       if (wallpaperModel.count === 0) {
-        thumbGenProcess.running = true
+        modelReady = false
+        activeWallpath = ""
+        currentWallpaperProcess.running = true
       }
     }
   }
@@ -47,6 +61,22 @@ PanelWindow {
   Process {
     id: setWallpaperProcess
     running: false
+  }
+
+  Process {
+    id: currentWallpaperProcess
+    command: ["bash", "-c",
+      "readlink -f " + Quickshell.env("HOME") +
+      (StateGlobals.colorEngine === "m3wal"
+        ? "/.config/m3-colors/current_wallpaper"
+        : "/.config/warnaza/current_wallpaper")]
+    running: false
+    stdout: SplitParser {
+      onRead: data => {
+        wallpaperPicker.activeWallpath = data.trim()
+        thumbGenProcess.running = true
+      }
+    }
   }
 
   property int lastFileCount: 0
@@ -66,7 +96,6 @@ PanelWindow {
         var fullpath = Quickshell.env("HOME") + "/Pictures/Wallpapers/" + filename
 
         if (event === "DELETE" || event === "MOVED_FROM") {
-          // Langsung remove dari model
           for (var i = 0; i < wallpaperModel.count; i++) {
             if (wallpaperModel.get(i).wallpath === fullpath) {
               wallpaperModel.remove(i)
@@ -127,7 +156,6 @@ PanelWindow {
     running: false
     stdout: SplitParser {
       onRead: data => {
-        // Sama persis dengan watcherThumbProcess
         var parts = data.trim().split("|")
         if (parts.length !== 2 || parts[0] === "" || parts[1] === "") return
         var insertAt = wallpaperModel.count
@@ -138,10 +166,27 @@ PanelWindow {
           }
         }
         wallpaperModel.insert(insertAt, { thumbpath: parts[0], wallpath: parts[1], isLoading: false })
+        // Sengaja TIDAK set currentIndex di sini. Posisi item bisa masih
+        // bergeser kalau item lain yang alfabetnya lebih awal baru masuk
+        // belakangan (generate-thumbs.sh loop per-ekstensi, bukan alfabet
+        // gabungan) — currentIndex gak otomatis ngikutin pergeseran itu.
+        // Resolusi index final dilakukan sekali di onRunningChanged, setelah
+        // semua item pasti sudah masuk & posisinya stabil.
       }
     }
     onRunningChanged: {
-      if (!running) scanProcess.running = true
+      if (!running) {
+        wallpaperPicker.modelReady = true
+        for (var i = 0; i < wallpaperModel.count; i++) {
+          if (wallpaperModel.get(i).wallpath === wallpaperPicker.activeWallpath) {
+            wallpaperPicker.initializing = true
+            wallpaperPicker.baselineIndex = i
+            wallpaperList.currentIndex = i
+            initializingResetTimer.restart()
+            break
+          }
+        }
+      }
     }
   }
 
@@ -166,6 +211,14 @@ PanelWindow {
         }
 
         wallpaperModel.append({ thumbpath: parts[0], wallpath: parts[1], isLoading: false })
+
+        if (parts[1] === wallpaperPicker.activeWallpath) {
+          var idx = wallpaperModel.count - 1
+          wallpaperPicker.initializing = true
+          wallpaperPicker.baselineIndex = idx
+          wallpaperList.currentIndex = idx
+          initializingResetTimer.restart()
+        }
       }
     }
   }
@@ -259,11 +312,6 @@ PanelWindow {
                 radius: 8
                 border.color: isActive ? Colors.wallpaper_item_active_border : Colors.wallpaper_item_inactive_border
                 border.width: isActive ? 3 : 2
-
-                transform: Translate {
-                  y: delegateRect.parent.pressed ? 4 : 0
-                  Behavior on y { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
-                }
 
                 Image {
                   id: thumbImage
@@ -359,26 +407,27 @@ PanelWindow {
               }
             }  
 
-            Keys.onReturnPressed: {
+            function applyCurrentWallpaper() {
               var item = wallpaperModel.get(currentIndex)
               if (item) {
-                var delegate = wallpaperList.itemAtIndex(currentIndex)
-                if (delegate) {
-                  delegate.pressed = true
-                  pressResetTimer.delegate = delegate
-                  pressResetTimer.start()
-                }
                 var cmd = StateGlobals.colorEngine + " '" + item.wallpath + "'"
                 setWallpaperProcess.command = ["bash", "-c", cmd]
                 setWallpaperProcess.running = true
               }
             }
 
+            onCurrentIndexChanged: {
+              if (!wallpaperPicker.modelReady) return
+              if (wallpaperPicker.initializing) return
+              if (wallpaperPicker.isShowing) {
+                applyDebounce.restart()
+              }
+            }
+
             Timer {
-              id: pressResetTimer
-              interval: 200
-              property var delegate: null
-              onTriggered: if (delegate) delegate.pressed = false
+              id: applyDebounce
+              interval: 150
+              onTriggered: wallpaperList.applyCurrentWallpaper()
             }
 
             Keys.onEscapePressed: {
