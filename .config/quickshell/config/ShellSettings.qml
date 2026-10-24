@@ -5,6 +5,7 @@ import Quickshell.Io
 import QtQuick.Controls
 import ".."
 import "../services"
+import "../components"
 
 FloatingWindow {
   id: root
@@ -126,10 +127,10 @@ FloatingWindow {
 
             Repeater {
               model: [
-                { label: "Appearance", icon: "󰔎" },
-                { label: "Behavior",   icon: "󰒓" },
-                { label: "Themes",     icon: "󰉏" },
-                { label: "About",      icon: "󰋽" }
+                { label: "Appearance", icon: "palette" },
+                { label: "Behavior",   icon: "settings" },
+                { label: "Themes",     icon: "paintbrush" },
+                { label: "About",      icon: "info" }
               ]
 
               delegate: Rectangle {
@@ -150,10 +151,9 @@ FloatingWindow {
                   anchors.rightMargin: 10
                   spacing: 8
 
-                  Text {
-                    text: modelData.icon
-                    font.pixelSize: 14
-                    font.family: "JetBrainsMono Nerd Font"
+                  SvgIcon {
+                    source: Icons.url(modelData.icon)
+                    size: 16
                     color: root.activeTab === modelData.label
                       ? Colors.settings_tab_active_text : Colors.settings_tab_inactive_text
                     Layout.alignment: Qt.AlignVCenter
@@ -219,11 +219,11 @@ FloatingWindow {
               radius: 4
               Layout.alignment: Qt.AlignVCenter
 
-              Text {
+              SvgIcon {
                 anchors.centerIn: parent
-                text: "✕"
+                source: Icons.url("x")
+                size: 14
                 color: Colors.close_btn_icon
-                font.pixelSize: 12
               }
 
               MouseArea {
@@ -290,10 +290,12 @@ FloatingWindow {
                   Layout.alignment: Qt.AlignVCenter
                 }
 
-                Text {
-                  text: enginePopup.visible ? "⌃" : "⌄"
+                SvgIcon {
+                  source: Icons.url("chevron-down")
+                  size: 12
                   color: Colors.text_variant1
-                  font.pixelSize: 10
+                  rotation: enginePopup.visible ? 180 : 0
+                  Behavior on rotation { NumberAnimation { duration: 150 } }
                   Layout.alignment: Qt.AlignVCenter
                 }
               }
@@ -508,6 +510,7 @@ FloatingWindow {
             clip: true
 
             ScrollBar.vertical: ScrollBar {
+              visible: size < 1.0
               anchors.right: parent.right  // paksa ke kanan
               anchors.rightMargin: 16
               anchors.top: parent.top

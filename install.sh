@@ -90,11 +90,15 @@ else
 fi
 
 # ─── 5. Setup Dotfiles ────────────────────────────────────────
-
 section "Setup Dotfiles"
 
+# Kill qs first (if running) before ~/.config gets overwritten.
 pkill -f "^qs$" >/dev/null 2>&1 || true
 sleep 0.3
+
+if [ -L "$HOME/.config/quickshell" ]; then
+    rm "$HOME/.config/quickshell"
+fi
 
 if [ -d "$HOME/.config" ]; then
     info "Backing up ~/.config → ~/.config.bak"
@@ -116,7 +120,7 @@ if [ -d "$DOTFILES_DIR/.local" ]; then
     success ".local copied"
 fi
 
-# ─── 5b. Hubungkan ke Theme Switcher (tab Themes / ShellSettings) ──
+# ─── 5b. Hook into the Theme Switcher (Themes tab / ShellSettings) ──
 section "Setup Theme Switcher"
 
 THEME_NAME="bagja-shell"
@@ -127,33 +131,36 @@ STATE_FILE="$HOME/.cache/quickshell/current-theme"
 
 mkdir -p "$THEMES_DIR" "$HYPR_DIR" "$STAGING_DIR" "$(dirname "$STATE_FILE")"
 
+# Move the quickshell contents out of ~/.config into its final home,
 if [ -d "$HOME/.config/quickshell" ] && [ ! -L "$HOME/.config/quickshell" ]; then
     rm -rf "$THEMES_DIR/$THEME_NAME"
     mv "$HOME/.config/quickshell" "$THEMES_DIR/$THEME_NAME"
     ln -sfn "$THEMES_DIR/$THEME_NAME" "$HOME/.config/quickshell"
-    success "quickshell dipindah ke $THEMES_DIR/$THEME_NAME (symlink dibuat)"
+    success "quickshell moved to $THEMES_DIR/$THEME_NAME (symlink created)"
 else
-    info "~/.config/quickshell sudah symlink, skip"
+    info "~/.config/quickshell is already a symlink, skipping"
 fi
 
+# Move hyprland.lua into a per-theme file (<name>.lua)
 if [ -f "$HYPR_DIR/hyprland.lua" ] && [ ! -L "$HYPR_DIR/hyprland.lua" ]; then
     mv "$HYPR_DIR/hyprland.lua" "$HYPR_DIR/$THEME_NAME.lua"
     ln -sfn "$HYPR_DIR/$THEME_NAME.lua" "$HYPR_DIR/active-ricing.lua"
     cat > "$HYPR_DIR/hyprland.lua" << 'EOF'
 require("active-ricing")
 EOF
-    success "hyprland.lua dipindah ke $HYPR_DIR/$THEME_NAME.lua (loader + symlink dibuat)"
+    success "hyprland.lua moved to $HYPR_DIR/$THEME_NAME.lua (loader + symlink created)"
 else
-    info "~/.config/hypr/hyprland.lua sudah loader/symlink, skip"
+    info "~/.config/hypr/hyprland.lua is already a loader/symlink, skipping"
 fi
 
+# Sync the staging git checkout 
 rm -rf "$STAGING_DIR/$THEME_NAME"
 cp -r "$DOTFILES_DIR" "$STAGING_DIR/$THEME_NAME"
-success "Staging git disinkronkan untuk deteksi update"
+success "Staging git checkout synced for update detection"
 
-# Tandai tema ini sebagai tema yang lagi aktif
+# Mark this theme as the currently active one
 echo "$THEME_NAME" > "$STATE_FILE"
-success "Ditandai sebagai tema aktif ($THEME_NAME)"
+success "Marked as active theme ($THEME_NAME)"
 
 # ─── 6. Chmod ─────────────────────────────────────────────────
 section "Set Executable Permissions"

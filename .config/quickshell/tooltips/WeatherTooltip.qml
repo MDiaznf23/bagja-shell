@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import "../services"
 import ".."
+import "../components"
 
 Item {
   implicitWidth: 260
@@ -111,12 +112,11 @@ Item {
               anchors.fill: parent
               spacing: 2
 
-              Text {
+              SvgIcon {
                 anchors.right: parent.right
-                text: StateGlobals.weatherIcon
+                source: StateGlobals.weatherIconSource
+                size: 24
                 color: Colors.text
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 20
               }
               Text {
                 anchors.right: parent.right
@@ -171,12 +171,11 @@ Item {
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: 9
               }
-              Text {
+              SvgIcon {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: modelData.icon
+                source: modelData.iconSource
+                size: 18
                 color: Colors.text_variant3
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 16
               }
               Text {
                 anchors.horizontalCenter: parent.horizontalCenter

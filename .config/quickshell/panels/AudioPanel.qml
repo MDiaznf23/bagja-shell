@@ -30,8 +30,8 @@ PanelWindow {
     }
   }
 
-  anchors { top: true; right: true }
-  margins { top: 28; right: 13 }
+  anchors { top: true; bottom: true; left: true; right: true }
+  margins { top: 28 }
 
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
@@ -44,10 +44,25 @@ PanelWindow {
 
   signal requestClose()
 
+  // Klik di area mana pun di luar panel -> minta tutup
+  MouseArea {
+    anchors.fill: parent
+    onClicked: root.requestClose()
+  }
+
   Rectangle {
     id: mainRect
-    anchors.fill: parent
+    width: root.implicitWidth
+    height: root.implicitHeight
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.rightMargin: 13
     color: "transparent"
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: {}
+    }
 
     opacity: root.isShowing ? 1 : 0
     Behavior on opacity {

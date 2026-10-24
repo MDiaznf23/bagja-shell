@@ -1,23 +1,5 @@
 [
   {
-    "id": "dev",
-    "name": "Developer Mode",
-    "icon": "󰘚",
-    "mfact": 0.2,
-    "apps": [
-      {
-        "exec": "code",
-        "workspace": 1,
-        "delay": 0
-      },
-      {
-        "exec": "kitty",
-        "workspace": 1,
-        "delay": 200
-      }
-    ]
-  },
-  {
     "id": "workflow",
     "name": "Workflow",
     "icon": "󰘚",

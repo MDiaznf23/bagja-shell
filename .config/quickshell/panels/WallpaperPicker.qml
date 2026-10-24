@@ -77,6 +77,12 @@ PanelWindow {
         thumbGenProcess.running = true
       }
     }
+    // Fallback: kalau readlink tidak mengeluarkan apa-apa, tetap load thumbnail
+    // supaya animasi loading tidak muter selamanya.
+    onExited: (exitCode, exitStatus) => {
+      if (wallpaperPicker.activeWallpath === "")
+        thumbGenProcess.running = true
+    }
   }
 
   property int lastFileCount: 0
@@ -432,6 +438,78 @@ PanelWindow {
 
             Keys.onEscapePressed: {
               wallpaperPicker.requestClose()
+            }
+          }
+        }
+
+        // ===== Overlay loading =====
+        Rectangle {
+          id: loadingOverlay
+          anchors.fill: parent
+          anchors.margins: 2
+          radius: 10
+          z: 5
+          color: Colors.rightbar_gradient2
+
+          opacity: wallpaperPicker.modelReady ? 0 : 1
+          visible: opacity > 0
+
+          Behavior on opacity {
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+          }
+
+          // Blok klik mouse ke list selama loading
+          MouseArea {
+            anchors.fill: parent
+            enabled: loadingOverlay.visible
+            hoverEnabled: true
+          }
+
+          Column {
+            anchors.centerIn: parent
+            spacing: 14
+
+            // Spinner
+            Item {
+              id: spinner
+              width: 44
+              height: 44
+              anchors.horizontalCenter: parent.horizontalCenter
+
+              RotationAnimator on rotation {
+                from: 0
+                to: 360
+                duration: 900
+                loops: Animation.Infinite
+                running: loadingOverlay.visible
+              }
+
+              Repeater {
+                model: 8
+                Rectangle {
+                  width: 7
+                  height: 7
+                  radius: 3.5
+                  color: Colors.wallpaper_item_active_border
+                  opacity: 0.15 + (index / 8) * 0.85
+                  x: spinner.width / 2 - width / 2 + Math.cos(index * Math.PI / 4) * 17
+                  y: spinner.height / 2 - height / 2 + Math.sin(index * Math.PI / 4) * 17
+                }
+              }
+            }
+
+            Text {
+              anchors.horizontalCenter: parent.horizontalCenter
+              text: "Loading wallpaper…"
+              color: Qt.rgba(1, 1, 1, 0.7)
+              font.pixelSize: 12
+            }
+
+            Text {
+              anchors.horizontalCenter: parent.horizontalCenter
+              text: wallpaperModel.count + " pictures"
+              color: Qt.rgba(1, 1, 1, 0.4)
+              font.pixelSize: 10
             }
           }
         }

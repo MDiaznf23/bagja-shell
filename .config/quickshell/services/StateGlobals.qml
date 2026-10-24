@@ -59,56 +59,53 @@ Singleton {
   readonly property var clockDate: globalClockSec.date
   readonly property var clockDateMin: globalClockMin.date
 
-  // System Status
-  property string wifiIcon: ""
+  // System Status (data dari scripts/system-status.py)
+  property bool wifiConnected: false
+  property bool wifiPowered: false
+  property int wifiSignal: 0
   property string wifiDesc: ""
   property string wifiSSID: ""
-  property string wifiSignal: ""
   property string wifiSecurity: ""
-  property string btDevices: ""
-  property string btConnected: ""
-  property string btPowered: ""
-  property bool wifiConnected: false
-  property string batIcon: ""
+
   property string batDesc: ""
   property string batModel: ""
   property int batCapacity: 0
   property bool batCharging: false
-  property string brightIcon: ""
+
   property string brightDesc: ""
   property int brightPct: 0
-  property string volIcon: ""
+
   property string volDesc: ""
   property int volPct: 0
   property bool volMuted: false
 
+  // Ikon SVG (diturunkan dari state di atas, lihat Icons.qml)
+  readonly property url wifiIconSource:   Icons.wifi(wifiConnected, wifiPowered, wifiSignal)
+  readonly property url batIconSource:    Icons.battery(batCapacity, batCharging)
+  readonly property url brightIconSource: Icons.brightness(brightPct)
+  readonly property url volIconSource:    Icons.volume(volPct, volMuted)
+
   Process {
     id: systemProc
     command: ["python3", "-u", Quickshell.shellDir + "/scripts/system-status.py"]
-    running: true 
+    running: true
 
     stdout: SplitParser {
       onRead: (data) => {
         try {
           var res = JSON.parse(data)
-          root.wifiIcon      = res.wifi_icon
-          root.wifiDesc      = res.wifi_desc
           root.wifiConnected = res.wifi_connected
-          root.wifiSSID      = res.wifi_ssid
+          root.wifiPowered   = res.wifi_powered
           root.wifiSignal    = res.wifi_signal
+          root.wifiDesc      = res.wifi_desc
+          root.wifiSSID      = res.wifi_ssid
           root.wifiSecurity  = res.wifi_security
-          root.btDevices     = res.bt_devices
-          root.btConnected   = res.bt_connected
-          root.btPowered     = res.bt_powered
-          root.batIcon       = res.bat_icon
           root.batDesc       = res.bat_desc
           root.batModel      = res.bat_model
           root.batCapacity   = res.bat_capacity
           root.batCharging   = res.bat_charging
-          root.brightIcon    = res.bright_icon
           root.brightDesc    = res.bright_desc
           root.brightPct     = res.bright_pct
-          root.volIcon       = res.vol_icon
           root.volDesc       = res.vol_desc
           root.volPct        = res.vol_pct
           root.volMuted      = res.vol_muted
@@ -119,70 +116,40 @@ Singleton {
     }
   }
 
-  // Weather state
-  property string weatherIcon: ""
+  property int weatherCode: 3
+  property bool weatherIsDay: true
   property string weatherText: "Loading..."
-  property string weatherColor: ""
   property string weatherCity: ""
   property string weatherLat: ""
   property string weatherLong: ""
   property string weatherTemp: ""
+  property var weatherForecast: []
+
+  readonly property url weatherIconSource: Icons.weather(weatherCode, weatherIsDay)
 
   Timer {
     interval: (root.weatherText === "Offline" || root.weatherText === "Loading...") ? 30000 : 600000
-    running: true
-    repeat: true
-    triggeredOnStart: true
-    onTriggered: {
-      weatherProcess.running = true
-      restart()
-    }
+    running: true; repeat: true; triggeredOnStart: true
+    onTriggered: { weatherProc.running = true; restart() }
   }
 
   Process {
-    id: weatherProcess
-    command: ["bash", Quickshell.shellDir + "/scripts/weather-wrapper.sh", "json"]
+    id: weatherProc
+    command: ["python3", Quickshell.shellDir + "/scripts/weather.py"]
     stdout: SplitParser {
-      onRead: (data) => {
+      onRead: data => {
         try {
-          var res = JSON.parse(data)
-          root.weatherIcon = res.icon
-          root.weatherColor = res.color
-          root.weatherText = res.text
-          root.weatherCity = res.city
-          root.weatherLat = res.lat 
-          root.weatherLong = res.lon
-          root.weatherTemp = res.temp
-        } catch (e) {}
-      }
-    }
-  }
-
-  // Weather Forecast
-  property var weatherForecast: []
-
-  Timer {
-    interval: root.weatherForecast.length === 0 ? 30000 : 600000
-    running: true
-    repeat: true
-    triggeredOnStart: true
-    onTriggered: {
-      forecastProc.running = true
-      restart() 
-    }
-  }
-
-  Process {
-    id: forecastProc
-    command: ["bash", Quickshell.shellDir + "/scripts/weather_wrapper_forecast.sh", "json"]
-    stdout: SplitParser {
-      onRead: (data) => {
-        try {
-          var res = JSON.parse(data)
-          root.weatherForecast = res
-        } catch (e) {
-          console.log("Forecast JSON Error: " + e)
-        }
+          var r = JSON.parse(data)
+          if (r.error) { root.weatherText = "Offline"; return }
+          root.weatherCode = r.code
+          root.weatherIsDay = r.is_day
+          root.weatherText = r.text
+          root.weatherCity = r.city
+          root.weatherLat = r.lat
+          root.weatherLong = r.lon
+          root.weatherTemp = r.temp
+          root.weatherForecast = r.forecast.map(f => Object.assign(f, { iconSource: Icons.weather(f.code, true) }))
+        } catch (e) { console.log("Weather JSON Error: " + e) }
       }
     }
   }

@@ -2,12 +2,10 @@
 SESSION_NAME="$1"
 SESSION_ICON="${2:-󰘚}"
 
-SESSIONS_FILE="$HOME/.config/quickshell/sessions.json"
+SESSIONS_FILE="$HOME/.config/quickshell/config/sessions.json"
 
 WS=$(hyprctl activeworkspace -j | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
 
-# gaps_in/gaps_out sekarang bertipe custom (CSS-style: top right bottom left)
-# pakai -j dan ambil nilai 'top' sebagai representasi uniform gaps
 GAPS_IN=$(hyprctl -j getoption general.gaps_in | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
@@ -31,21 +29,79 @@ else:
 LAYOUT=$(hyprctl -j getoption general.layout | python3 -c "import json,sys; print(json.load(sys.stdin)['str'])")
 
 hyprctl clients -j | python3 -c "
-import json, sys, os
+import json, sys, os, glob, shlex, configparser
 
 clients = json.load(sys.stdin)
 EXCLUDE = ['quickshell', 'waybar', 'rofi', 'dunst']
 ws_clients = [c for c in clients if c['workspace']['id'] == $WS and c['class'] not in EXCLUDE]
 ws_clients.sort(key=lambda c: c['at'][0])
 
+DESKTOP_DIRS = [
+    os.path.expanduser('~/.local/share/applications'),
+    '/usr/share/applications',
+    '/usr/local/share/applications',
+    '/var/lib/flatpak/exports/share/applications',
+    os.path.expanduser('~/.local/share/flatpak/exports/share/applications'),
+]
+
+FIELD_CODES = {'%f', '%F', '%u', '%U', '%d', '%D', '%n', '%N', '%i', '%c', '%k', '%v', '%m'}
+
+def clean_exec(exec_line):
+    if not exec_line:
+        return None
+    try:
+        parts = shlex.split(exec_line)
+    except ValueError:
+        parts = exec_line.split()
+    parts = [p for p in parts if p not in FIELD_CODES]
+    return ' '.join(parts) if parts else None
+
+desktop_index = {}
+for d in DESKTOP_DIRS:
+    if not os.path.isdir(d):
+        continue
+    for f in glob.glob(os.path.join(d, '**', '*.desktop'), recursive=True):
+        try:
+            cp = configparser.ConfigParser(interpolation=None, strict=False)
+            cp.read(f, encoding='utf-8')
+            if 'Desktop Entry' not in cp:
+                continue
+            entry = cp['Desktop Entry']
+            cleaned = clean_exec(entry.get('Exec', ''))
+            if not cleaned:
+                continue
+            wmclass = entry.get('StartupWMClass', '').strip()
+            if wmclass:
+                desktop_index[wmclass.lower()] = cleaned
+            # fallback key: nama file .desktop itu sendiri (misal openplc-editor.desktop)
+            base = os.path.splitext(os.path.basename(f))[0].lower()
+            desktop_index.setdefault(base, cleaned)
+            # fallback key lain: Name= di dalam .desktop (kadang class = nama app, bukan wmclass)
+            name = entry.get('Name', '').strip()
+            if name:
+                desktop_index.setdefault(name.lower(), cleaned)
+        except Exception:
+            continue
+
+def resolve_exec(c):
+    klass = c['class']
+    # 1) cocokkan lewat StartupWMClass / nama .desktop (paling akurat)
+    hit = desktop_index.get(klass.lower())
+    if hit:
+        return hit
+    # 2) fallback: baca /proc/pid/cmdline seperti sebelumnya
+    try:
+        cmd = open(f'/proc/{c[\"pid\"]}/cmdline').read().replace('\x00', ' ').strip()
+        if cmd:
+            return os.path.basename(cmd.split()[0])
+    except Exception:
+        pass
+    # 3) fallback terakhir: pakai class apa adanya
+    return klass
+
 apps = []
 for i, c in enumerate(ws_clients):
-    pid = c['pid']
-    try:
-        cmd = open(f'/proc/{pid}/cmdline').read().replace('\x00', ' ').strip()
-        exec_cmd = os.path.basename(cmd.split()[0])
-    except:
-        exec_cmd = c['class']
+    exec_cmd = resolve_exec(c)
     apps.append({
         'exec': exec_cmd,
         'class': c['class'],

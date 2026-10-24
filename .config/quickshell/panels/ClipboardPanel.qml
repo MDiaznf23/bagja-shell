@@ -104,12 +104,13 @@ PanelWindow {
 
   anchors {
     top: true
+    bottom: true
+    left: true
     right: true
   }
 
   margins {
     top: 28
-    right: 13
   }
 
   color: "transparent"
@@ -119,10 +120,25 @@ PanelWindow {
 
   signal requestClose()
 
+  // Klik di area mana pun di luar panel -> minta tutup
+  MouseArea {
+    anchors.fill: parent
+    onClicked: root.requestClose()
+  }
+
   Rectangle {
     id: mainRect
-    anchors.fill: parent
+    width: root.implicitWidth
+    height: root.implicitHeight
+    anchors.top: parent.top
+    anchors.right: parent.right
+    anchors.rightMargin: 13
     color: "transparent"
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: {}
+    }
 
     Rectangle {
       id: topPatch
@@ -178,14 +194,6 @@ PanelWindow {
           Row {
             spacing: 6
             Layout.fillWidth: true
-
-            Text {
-              text: "󰅍"
-              color: Colors.header_title
-              font.pixelSize: 14
-              font.family: "JetBrainsMono Nerd Font"
-              anchors.verticalCenter: parent.verticalCenter
-            }
 
             Text {
               text: "Clipboard"

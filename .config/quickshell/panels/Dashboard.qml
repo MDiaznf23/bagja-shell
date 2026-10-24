@@ -2,18 +2,36 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import Qt5Compat.GraphicalEffects
 import Quickshell.Widgets
 import "../services"
+import "../components"
 import ".."
 
-PopupWindow {
+PanelWindow {
   id: root
 
-  implicitWidth: 700
-  implicitHeight: 700
-
   property bool isShowing: false
+
+  property int topOffset: 28
+
+  signal requestClose()
+
+  anchors {
+    top: true
+    bottom: true
+    left: true
+    right: true
+  }
+
+  margins {
+    top: root.topOffset
+  }
+
+  exclusionMode: ExclusionMode.Ignore
+  WlrLayershell.layer: WlrLayer.Overlay
+  WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
   onVisibleChanged: {
     if (visible) {
@@ -26,6 +44,12 @@ PopupWindow {
   color: "transparent"
   property int currentTab: 1
 
+  // Klik di area mana pun di luar dashboard -> minta tutup
+  MouseArea {
+    anchors.fill: parent
+    onClicked: root.requestClose()
+  }
+
   Item {
     anchors.fill: parent
 
@@ -33,7 +57,6 @@ PopupWindow {
       id: mainRect
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.top: parent.top
-      anchors.topMargin: -10
       width: contentLayout.implicitWidth + 24
       height: contentLayout.implicitHeight + 24
 
@@ -94,6 +117,13 @@ PopupWindow {
       Behavior on width  { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
       Behavior on height { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
 
+      MouseArea {
+        anchors.fill: parent
+        anchors.leftMargin: -12
+        anchors.rightMargin: -12
+        onClicked: {}
+      }
+
       ColumnLayout {
         id: contentLayout
         anchors.centerIn: parent
@@ -123,11 +153,10 @@ PopupWindow {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 2
 
-                Text {
-                  text: "󰒓"
+                SvgIcon {
+                  source: Icons.url("settings")
                   color: (currentTab === 0 ? Colors.text_variant2 : Colors.text_variant1) 
-                  font.family: "Iosevka Nerd Font"
-                  font.pixelSize: 14
+                  size: 16
                   anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -150,11 +179,6 @@ PopupWindow {
 
                 Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
               }
-
-              MouseArea {
-                  anchors.fill: parent
-                  onClicked: currentTab = 0
-              }
             }
             Item { width: tabBar.spacerWidth; height: 1 }
             Item {
@@ -168,11 +192,10 @@ PopupWindow {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 2
 
-                Text {
-                  text: "󰕮"
+                SvgIcon {
+                  source: Icons.url("layout-dashboard")
                   color: (currentTab === 1 ? Colors.text_variant2 : Colors.text_variant1) 
-                  font.family: "Iosevka Nerd Font"
-                  font.pixelSize: 14
+                  size: 16
                   anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -195,11 +218,6 @@ PopupWindow {
 
                 Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
               }
-
-              MouseArea {
-                anchors.fill: parent
-                onClicked: currentTab = 1
-              }
             }
             Item { width: tabBar.spacerWidth; height: 1 }
             Item {
@@ -213,11 +231,10 @@ PopupWindow {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 2
 
-                Text {
-                  text: "󰀉"
+                SvgIcon {
+                  source: Icons.url("circle-user")
                   color: (currentTab === 2 ? Colors.text_variant2 : Colors.text_variant1)
-                  font.family: "Iosevka Nerd Font"
-                  font.pixelSize: 14
+                  size: 16
                   anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -240,13 +257,24 @@ PopupWindow {
 
                 Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
               }
-
-              MouseArea {
-                anchors.fill: parent
-                onClicked: currentTab = 2
-              }
             }
             Item { width: tabBar.spacerWidth; height: 1 }
+          }
+
+          // Area klik: seluruh lebar tab bar, dibagi 3 di titik tengah antar tab
+          MouseArea {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: tabBar.height + 10
+            cursorShape: Qt.PointingHandCursor
+            onClicked: (mouse) => {
+              var c0 = tab0.x + tab0.width / 2
+              var c1 = tab1.x + tab1.width / 2
+              var c2 = tab2.x + tab2.width / 2
+              currentTab = mouse.x < (c0 + c1) / 2 ? 0
+                         : mouse.x < (c1 + c2) / 2 ? 1 : 2
+            }
           }
         }
 
@@ -524,11 +552,10 @@ PopupWindow {
                           RowLayout {
                             spacing: 7
 
-                            Text { 
-                              text: "";
-                              font.family: "JetBrainsMono Nerd Font"
+                            SvgIcon { 
+                              source: Icons.url("user")
                               color: Colors.text_variant2
-                              font.pixelSize: 12
+                              size: 14
                             }
 
                             Text { 
@@ -542,11 +569,10 @@ PopupWindow {
                           
                           RowLayout {
                             spacing: 7
-                            Text { 
-                              text:"";
-                              font.family: "JetBrainsMono Nerd Font"
+                            SvgIcon { 
+                              source: Icons.url("app-window")
                               color: Colors.text_variant2
-                              font.pixelSize: 12
+                              size: 14
                             }
                             Text { 
                               text: profileProc.data.wm || ""; 
@@ -559,11 +585,10 @@ PopupWindow {
                           
                           RowLayout {
                             spacing: 7
-                            Text { 
-                              text: "" ;
-                              font.family: "JetBrainsMono Nerd Font"
+                            SvgIcon { 
+                              source: Icons.url("clock")
                               color: Colors.text_variant2
-                              font.pixelSize: 12
+                              size: 14
                             }
                             Text { 
                               text: profileProc.data.uptime || ""; 
@@ -596,12 +621,11 @@ PopupWindow {
                           Layout.fillHeight: true
                           color: "transparent"
                           radius: 4
-                          Text { 
+                          SvgIcon { 
                             anchors.centerIn: parent
-                            text: StateGlobals.weatherIcon
+                            source: StateGlobals.weatherIconSource
                             color: Colors.text_variant2
-                            font.pixelSize: 63
-                            font.family: "JetBrainsMono Nerd Font"
+                            size: 56
                           }
                         }
                           
@@ -621,7 +645,7 @@ PopupWindow {
                                 return d.length > 12 ? d.substring(0, 12) + "…" : d
                               }
                               color: Colors.text_variant1
-                              font.pixelSize: 20
+                              font.pixelSize: 16
                               Layout.fillWidth: true  
                               elide: Text.ElideRight
                               font.family: "JetBrainsMono Nerd Font"
@@ -1181,33 +1205,33 @@ PopupWindow {
                           width: dashPrev.width; height: dashPrev.height
                           cursorShape: Qt.PointingHandCursor
                           onClicked: MediaState.executePlayerctl("previous")
-                          Text { 
+                          SvgIcon { 
                             id: dashPrev; 
-                            text: "󰒮"; 
+                            source: Icons.url("skip-back")
                             color: Colors.text_variant2 
-                            font.pixelSize: 18 
+                            size: 16
                           }
                         }
                         MouseArea {
                           width: dashPlay.width; height: dashPlay.height
                           cursorShape: Qt.PointingHandCursor
                           onClicked: MediaState.executePlayerctl("play-pause")
-                          Text { 
+                          SvgIcon { 
                             id: dashPlay; 
-                            text: MediaState.mediaData.status === "Playing" ? "󰏤" : "󰐊"; 
+                            source: MediaState.mediaData.status === "Playing" ? Icons.url("pause") : Icons.url("play")
                             color: Colors.text_variant2      
-                            font.pixelSize: 18 
+                            size: 16
                           }
                         }
                         MouseArea {
                           width: dashNext.width; height: dashNext.height
                           cursorShape: Qt.PointingHandCursor
                           onClicked: MediaState.executePlayerctl("next")
-                          Text { 
+                          SvgIcon { 
                             id: dashNext; 
-                            text: "󰒭"; 
+                            source: Icons.url("skip-forward")
                             color: Colors.text_variant2  
-                            font.pixelSize: 18 
+                            size: 16
                           }
                         }
                       }
@@ -1449,7 +1473,6 @@ PopupWindow {
         anchors.top: mainRect.top
         anchors.right: mainRect.left
         anchors.rightMargin: -2
-        anchors.topMargin: 10
         z: 10
 
         Connections {
@@ -1484,7 +1507,6 @@ PopupWindow {
         anchors.top: mainRect.top
         anchors.right: mainRect.left
         anchors.rightMargin: -2
-        anchors.topMargin: 10
         z: 10
         onPaint: {
           var ctx = getContext("2d")
@@ -1508,7 +1530,6 @@ PopupWindow {
         anchors.top: mainRect.top
         anchors.left: mainRect.right
         anchors.leftMargin: -2
-        anchors.topMargin: 10
 
         Connections {
           target: Colors
@@ -1544,7 +1565,6 @@ PopupWindow {
         anchors.top: mainRect.top
         anchors.left: mainRect.right
         anchors.leftMargin: -2
-        anchors.topMargin: 10
 
         z: 10
         onPaint: {
@@ -1565,7 +1585,7 @@ PopupWindow {
 
       Rectangle {
         id: topPatch
-        height: 12
+        height: 10
         gradient: Gradient {
           orientation: Gradient.Horizontal
           GradientStop { position: 0.0;   color: mainRect.topbarColorAt(mainRect.wStart) }

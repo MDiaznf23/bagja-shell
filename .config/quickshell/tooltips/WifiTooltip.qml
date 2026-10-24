@@ -5,8 +5,18 @@ import "../services"
 import ".."
 
 Item {
-  implicitWidth: 190
+  readonly property int minWidth: 190
+  readonly property int maxWidth: 360
+  implicitWidth: Math.max(minWidth, Math.min(maxWidth, ssidMetrics.width + 24))
   implicitHeight: 80
+
+  TextMetrics {
+    id: ssidMetrics
+    font.family: "JetBrainsMono Nerd Font"
+    font.pixelSize: 12
+    font.bold: true
+    text: "Connected to " + StateGlobals.wifiSSID
+  }
 
   property string ssid: "..."
   property string signal: "..."
@@ -67,11 +77,10 @@ Item {
       Text {
         width: parent.width
         horizontalAlignment: Text.AlignHCenter
-        text: "Connected to " + StateGlobals.wifiSSID
+        text: ssidMetrics.text
         color: Colors.text
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 12
-        font.bold: true
+        font: ssidMetrics.font
+        elide: Text.ElideRight
       }
       Text {
         width: parent.width

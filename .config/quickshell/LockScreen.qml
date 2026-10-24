@@ -7,6 +7,7 @@ import QtMultimedia
 import Quickshell.Services.Pam
 
 import "./services"
+import "./components"
 
 Rectangle {
   id: root
@@ -82,30 +83,22 @@ Image {
     anchors.margins: 30
     spacing: 16
 
-    Text {
-      text: StateGlobals.wifiIcon
+    SvgIcon {
+      source: Icons.url("wifi")
+      size: 16
       color: Colors.lock_text
-      font.pixelSize: 14
-      font.family: "JetBrainsMono Nerd Font"
-      width: 14
-      horizontalAlignment: Text.AlignHCenter
     }
 
-    Text {
-      text: StateGlobals.batIcon
+    SvgIcon {
+      source: StateGlobals.batIconSource
+      size: 16
       color: Colors.lock_text
-      font.pixelSize: 14
-      font.family: "JetBrainsMono Nerd Font"
-      width: 14
-      horizontalAlignment: Text.AlignHCenter
     }
 
-    Text {
-      text: StateGlobals.volIcon
+    SvgIcon {
+      source: StateGlobals.volIconSource
+      size: 16
       color: Colors.lock_text
-      font.pixelSize: 14
-      font.family: "JetBrainsMono Nerd Font"
-      width: 14
     }
   }
 

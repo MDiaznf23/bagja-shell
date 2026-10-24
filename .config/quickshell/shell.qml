@@ -332,11 +332,20 @@ ShellRoot {
       if (isPanelVisible) {
         panelSettings.isShowing = false
         panelCloseTimer.start()   
-        notificationServer.clearAll()
       } else {
         closeSecondaryPanels()
         isNotificationPopupVisible = false
         isPanelVisible = true
+      }
+    }
+    onNotificationClicked: {
+      if (isNotificationPanelVisible) {
+        notificationPanel.isShowing = false
+        notificationPanelCloseTimer.start()
+      } else {
+        closeSecondaryPanels()
+        isNotificationPopupVisible = false
+        isNotificationPanelVisible = true
       }
     }
   }
@@ -383,6 +392,7 @@ ShellRoot {
       shellSettings.isShowing = false
       shellSettingsCloseTimer.start()
     }
+    onVisibleChanged: if (!visible) isShellSettingsVisible = false  
   }
 
   Timer {
@@ -394,15 +404,9 @@ ShellRoot {
   Dashboard {
     id: dashboard
     visible: isDashboardVisible
-    anchor {
-      window: topBar
-      edges: Edges.Bottom
-      rect: Qt.rect(
-        (topBar.width - implicitWidth) / 2 - ( implicitWidth / 2 ),
-        -2,
-        implicitWidth,
-        topBar.implicitHeight
-      )
+    onRequestClose: {
+      dashboard.isShowing = false
+      dashboardCloseTimer.start()
     }
   }
 
@@ -417,6 +421,10 @@ ShellRoot {
     visible: isPanelVisible
     dndActive: dndEnabled 
     onDndToggled: dndEnabled = !dndEnabled
+    onRequestClose: {
+      panelSettings.isShowing = false
+      panelCloseTimer.start()
+    }
     onOpenWifi: {
       isPanelVisible = false
       isWifiPanelVisible = true
@@ -429,11 +437,6 @@ ShellRoot {
       isPanelVisible = false
       isAudioPanelVisible = true
     }
-    onOpenNotifications: {
-      isPanelVisible = false
-      isNotificationPanelVisible = true
-    }
-    notifHistory: notificationServer.history
   }
 
   Timer {

@@ -15,13 +15,14 @@ PanelWindow {
   implicitHeight: 438
 
   anchors {
-    left: true
     top: true
+    bottom: true
+    left: true
+    right: true
   }
 
   margins {
     top: 28
-    left: 13
   }
 
   color: "transparent"
@@ -106,7 +107,6 @@ PanelWindow {
 
         if (!app || !app.name) continue
 
-        // Skip kalau id sudah pernah diproses
         var appId = app.id || app.name
         if (seenIds[appId]) continue
         seenIds[appId] = true
@@ -197,13 +197,11 @@ PanelWindow {
 
   MouseArea {
     anchors.fill: parent
-    propagateComposedEvents: true
-    onClicked: (mouse) => {
+    onClicked: {
       if (contextMenu.visible) {
         contextMenu.visible = false
-        mouse.accepted = true
       } else {
-        mouse.accepted = false
+        root.requestClose()
       }
     }
   }
@@ -214,6 +212,7 @@ PanelWindow {
     height: 350
     anchors.top: parent.top
     anchors.left: parent.left
+    anchors.leftMargin: 13
     gradient: Gradient {
       orientation: Gradient.Horizontal
       GradientStop { position: 0.1; color: Colors.topbar_gradient1  }
@@ -235,6 +234,13 @@ PanelWindow {
       Behavior on y {
         NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
       }
+    }
+
+    MouseArea {
+      anchors.fill: parent
+      anchors.rightMargin: -12
+      anchors.bottomMargin: -12
+      onClicked: contextMenu.visible = false
     }
 
     ColumnLayout {

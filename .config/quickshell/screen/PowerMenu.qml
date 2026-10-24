@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 
 import "../services"
+import "../components"
 import ".."
 
 PanelWindow {
@@ -29,11 +30,11 @@ PanelWindow {
   }
 
   property var actions: [
-    { label: "Lock",     icon: "󰌾", command: "qs ipc call lockscreen lock" },
-    { label: "Logout",   icon: "󰍃", command: "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'" },
-    { label: "Sleep",    icon: "󰤄", command: "systemctl suspend" },
-    { label: "Reboot",   icon: "󰑙", command: "systemctl reboot" },
-    { label: "Shutdown", icon: "󰐥", command: "systemctl poweroff" },
+    { label: "Lock",     icon: "lock", command: "qs ipc call lockscreen lock" },
+    { label: "Logout",   icon: "log-out", command: "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'" },
+    { label: "Sleep",    icon: "moon", command: "systemctl suspend" },
+    { label: "Reboot",   icon: "rotate-cw", command: "systemctl reboot" },
+    { label: "Shutdown", icon: "power", command: "systemctl poweroff" },
   ]
 
   Process { id: actionProc; running: false; command: [] }
@@ -120,11 +121,10 @@ PanelWindow {
             ? Colors.power_item_active_bg : Colors.power_item_inactive_bg
             Behavior on color { ColorAnimation { duration: 150 } }
 
-            Text {
+            SvgIcon {
               anchors.centerIn: parent
-              text: modelData.icon
-              font.pixelSize: 28
-              font.family: "JetBrainsMono Nerd Font"
+              source: Icons.url(modelData.icon)
+              size: 24
               color: (!keyboardFocusItem.keyboardActive && iconHover.containsMouse || parent.parent.isSelected) 
               ? Colors.power_item_active_icon : Colors.power_item_inactive_icon
               Behavior on color { ColorAnimation { duration: 150 } }

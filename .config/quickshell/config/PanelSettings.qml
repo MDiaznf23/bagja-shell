@@ -6,18 +6,18 @@ import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Bluetooth
 import ".."
+import "../components"
+import "../services"
 
 PanelWindow {
   id: root
 
   implicitWidth: 274
-  implicitHeight: Math.min(380, Math.max(baseHeight, baseHeight + (notifHistory.length - 1) * (notifItemHeight + 6)))
+  implicitHeight: 272  // tinggi tetap
 
-  property int baseHeight: 360
-  property int notifItemHeight: 50
   property int buttonHeight: 55
   property int fontsizeButton: 9
-  property int iconsizeButton: 20
+  property int iconsizeButton: 24
 
   property bool wifiEnabled: false
   property bool dndActive: false 
@@ -55,10 +55,12 @@ PanelWindow {
   signal openBluetooth()
   signal openWifi()
   signal openAudio()
-  signal openNotifications()
+  signal requestClose()
 
   anchors {
     top: true
+    bottom: true
+    left: true
     right: true
   }
 
@@ -72,7 +74,6 @@ PanelWindow {
   exclusionMode: ExclusionMode.Ignore
   WlrLayershell.layer: WlrLayer.Overlay
   WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-  property var notifHistory: []
   property bool isShowing: false
 
   Timer {
@@ -90,11 +91,17 @@ PanelWindow {
     }
   }
 
-  Item {
+  // Klik di area mana pun di luar panel -> minta tutup
+  MouseArea {
     anchors.fill: parent
-    anchors.bottomMargin: 12 
-    anchors.leftMargin: 12
+    onClicked: root.requestClose()
+  }
 
+  Item {
+    width: root.implicitWidth - 12
+    height: root.implicitHeight - 12
+    anchors.top: parent.top
+    anchors.right: parent.right
 
     Rectangle {
       id: mainRect
@@ -102,6 +109,11 @@ PanelWindow {
       color: "transparent"
 
       radius: 12
+
+      MouseArea {
+        anchors.fill: parent
+        onClicked: {}
+      }
 
       opacity: root.isShowing ? 1 : 0
       Behavior on opacity {
@@ -165,6 +177,7 @@ PanelWindow {
                   Layout.fillWidth: true
                   spacing: 6
 
+                  // Wifi
                   ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -177,18 +190,17 @@ PanelWindow {
                       color: root.wifiEnabled ? Colors.wifi_btn_active : Colors.wifi_btn_inactive
                       radius: 8
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: ""
+                        source: Icons.url("wifi")
+                        size: iconsizeButton
                         color: Colors.text_variant3
-                        font.pixelSize: iconsizeButton
                       }
 
                       MouseArea {
                         anchors.fill: parent
                         onClicked: root.openWifi()
                       }
-
                     }
                     Text {
                       Layout.alignment: Qt.AlignHCenter
@@ -198,6 +210,7 @@ PanelWindow {
                     }
                   }
 
+                  // Bluetooth
                   ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -212,11 +225,11 @@ PanelWindow {
                       : Colors.bt_btn_inactive
                       radius: 8
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: "󰂯"
+                        source: Icons.url("bluetooth")
+                        size: iconsizeButton
                         color: Colors.text_variant2
-                        font.pixelSize: iconsizeButton
                       }
 
                       MouseArea {
@@ -225,7 +238,6 @@ PanelWindow {
                           root.openBluetooth()
                         }
                       }
-
                     }
                     Text {
                       Layout.alignment: Qt.AlignHCenter
@@ -235,6 +247,7 @@ PanelWindow {
                     }
                   }
 
+                  // Night Mode
                   ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -249,11 +262,11 @@ PanelWindow {
 
                       property bool nightModeOn: false
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: ""
+                        source: Icons.url("moon")
+                        size: iconsizeButton
                         color: Colors.text_variant4
-                        font.pixelSize: iconsizeButton
                       }
 
                       MouseArea {
@@ -276,6 +289,8 @@ PanelWindow {
                 RowLayout {
                   Layout.fillWidth: true
                   spacing: 6
+
+                  // DND
                   ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -288,18 +303,17 @@ PanelWindow {
                       color: dndActive ? Colors.dnd_btn_active : Colors.dnd_btn_inactive
                       radius: 8
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: "󰂛"
+                        source: Icons.url("bell-off")
+                        size: iconsizeButton
                         color: Colors.text_variant7
-                        font.pixelSize: iconsizeButton
                       }
 
                       MouseArea {
                         anchors.fill: parent
                         onClicked: root.dndToggled()
                       }
-
                     }
                     Text {
                       Layout.alignment: Qt.AlignHCenter
@@ -308,6 +322,8 @@ PanelWindow {
                       font.pixelSize: fontsizeButton
                     }
                   }
+
+                  // Color Picker
                   ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -320,11 +336,11 @@ PanelWindow {
                       color: Colors.colorpicker_btn_bg
                       radius: 8
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: ""
+                        source: Icons.url("pipette")
+                        size: iconsizeButton
                         color: Colors.colorpicker_btn_icon
-                        font.pixelSize: iconsizeButton
                       }
 
                       MouseArea {
@@ -333,7 +349,6 @@ PanelWindow {
                           Quickshell.execDetached(["hyprpicker", "-a"]) 
                         }
                       }
-
                     }
                     Text {
                       Layout.alignment: Qt.AlignHCenter
@@ -343,6 +358,7 @@ PanelWindow {
                     }
                   }
 
+                  // Audio Devices
                   ColumnLayout {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
@@ -357,11 +373,11 @@ PanelWindow {
 
                       property bool bluetoothModeOn: false
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: "󰓃"
-                        color: Colors.audio_btn_icon                       
-                        font.pixelSize: iconsizeButton + 8
+                        source: Icons.url("speaker")
+                        size: iconsizeButton
+                        color: Colors.audio_btn_icon
                       }
 
                       MouseArea {
@@ -398,7 +414,7 @@ PanelWindow {
                   stdout: StdioCollector {
                     onStreamFinished: {
                       let vol = parseInt(text.trim())
-                      if (!isNaN(vol)) panelVolumeSlider.value = vol
+                      if (!isNaN(vol) && !panelVolumeSlider.pressed) panelVolumeSlider.value = vol
                     }
                   }
                 }
@@ -415,8 +431,17 @@ PanelWindow {
                   }
                 }
 
-                Process { id: panelSetVolume; running: false }
-                Process { id: panelSetBrightness; running: false }
+                Timer {
+                  id: volumeApplyTimer
+                  interval: 40
+                  onTriggered: Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", (panelVolumeSlider.value / 100.0).toFixed(2)])
+                }
+
+                Timer {
+                  id: brightnessApplyTimer
+                  interval: 40
+                  onTriggered: Quickshell.execDetached(["brightnessctl", "s", Math.round(panelBrightnessSlider.value) + "%"])
+                }
 
                 ColumnLayout {
                   anchors.fill: parent
@@ -428,29 +453,28 @@ PanelWindow {
                     Layout.fillWidth: true
                     spacing: 16 
 
-                    Rectangle {
+                    Item {
                       Layout.alignment: Qt.AlignVCenter
                       Layout.leftMargin: 5
-                      width: 18
-                      height: 22
-                      color: "transparent"
+                      Layout.preferredWidth: 24
+                      Layout.preferredHeight: 24
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        text: ""
-                        font.family: "JetBrainsMono Nerd Font" 
-                        font.pixelSize: 15
+                        source: Icons.url("sun")
+                        size: 20
                         color: Colors.text
                       }
                     }
                     Slider {
                       id: panelBrightnessSlider
-                      Layout.preferredWidth: 160
+                      Layout.preferredWidth: 130
+                      Layout.alignment: Qt.AlignVCenter
+                      implicitHeight: 36
                       from: 1; to: 100; value: 50
-                      onMoved: {
-                        panelSetBrightness.command = ["brightnessctl", "s", Math.round(value) + "%"]
-                        panelSetBrightness.running = true
-                      }
+                      stepSize: 1
+                      snapMode: Slider.SnapAlways
+                      onMoved: if (!brightnessApplyTimer.running) brightnessApplyTimer.start()
                       background: Rectangle {
                         x: panelBrightnessSlider.leftPadding
                         y: panelBrightnessSlider.topPadding + panelBrightnessSlider.availableHeight / 2 - height / 2
@@ -469,27 +493,26 @@ PanelWindow {
                       handle: Rectangle {
                         x: panelBrightnessSlider.leftPadding + panelBrightnessSlider.position * panelBrightnessSlider.availableWidth - width / 2
                         y: panelBrightnessSlider.topPadding + panelBrightnessSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20
-                        implicitHeight: 20
+                        implicitWidth: 16
+                        implicitHeight: 16
                         width: implicitWidth
                         height: implicitHeight
-                        radius: 10
+                        radius: 8
                         color: panelBrightnessSlider.pressed
                         ? Colors.brightness_slider_handle_pressed
                         : Colors.brightness_slider_handle
                         border.color: "transparent"
                         border.width: 2
-                        Text {
-                          x: (parent.width - width) / 2
-                          y: (parent.height - height) / 2
-                          text: Math.round(panelBrightnessSlider.value) + ""
-                          font.pixelSize: 10
-                          font.bold: true
-                          color: panelBrightnessSlider.pressed 
-                          ? Colors.text 
-                          : Colors.text_variant3 
-                        }
                       }
+                    }
+
+                    Text {
+                      text: Math.round(panelBrightnessSlider.value) + ""
+                      font.pixelSize: 12
+                      font.bold: true
+                      color: Colors.text_variant3
+                      Layout.preferredWidth: 20
+                      horizontalAlignment: Text.AlignRight
                     }
                   }
 
@@ -498,31 +521,28 @@ PanelWindow {
                     Layout.fillWidth: true
                     spacing: 16 
 
-                    Rectangle {
-                      Layout.alignment: Qt.AlignHCenter
+                    Item {
+                      Layout.alignment: Qt.AlignVCenter
                       Layout.leftMargin: 5
-                      width: 18
-                      height: 22
-                      color: "transparent"
+                      Layout.preferredWidth: 24
+                      Layout.preferredHeight: 24
 
-                      Text {
+                      SvgIcon {
                         anchors.centerIn: parent
-                        Layout.alignment: Qt.AlignHCenter
-                        text: " "
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 14
+                        source: Icons.volume(panelVolumeSlider.value, StateGlobals.volMuted)
+                        size: 18
                         color: Colors.text
                       }
                     }
                     Slider {
                       id: panelVolumeSlider
-                      Layout.preferredWidth: 160
+                      Layout.preferredWidth: 130
+                      Layout.alignment: Qt.AlignVCenter
+                      implicitHeight: 36
                       from: 0; to: 100; value: 50
-                      onMoved: {
-                        let vol = value / 100.0
-                        panelSetVolume.command = ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", vol.toFixed(2)]
-                        panelSetVolume.running = true
-                      }
+                      stepSize: 1
+                      snapMode: Slider.SnapAlways
+                      onMoved: if (!volumeApplyTimer.running) volumeApplyTimer.start()
 
                       background: Rectangle {
                         x: panelVolumeSlider.leftPadding
@@ -543,135 +563,31 @@ PanelWindow {
                       handle: Rectangle {
                         x: panelVolumeSlider.leftPadding + panelVolumeSlider.position * panelVolumeSlider.availableWidth - width / 2
                         y: panelVolumeSlider.topPadding + panelVolumeSlider.availableHeight / 2 - height / 2
-                        implicitWidth: 20
-                        implicitHeight: 20
+                        implicitWidth: 16
+                        implicitHeight: 16
                         width: implicitWidth
                         height: implicitHeight
-                        radius: 10
+                        radius: 8
                         color: panelVolumeSlider.pressed
                         ? Colors.volume_slider_handle_pressed
                         : Colors.volume_slider_handle                        
                         border.color: "transparent"
                         border.width: 2
-                        Text {
-                          x: (parent.width - width) / 2
-                          y: (parent.height - height) / 2
-                          text: Math.round(panelVolumeSlider.value) + ""
-                          font.pixelSize: 10
-                          font.bold: true
-                          color: panelVolumeSlider.pressed
-                          ? Colors.text
-                          : Colors.text_variant1
-                        }
                       }
                     }
-                  }
-                }
-              }
-
-              Rectangle {
-                Layout.fillWidth: true 
-                height: 2 
-                color: Colors.divider
-              }
-
-              Rectangle {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: "transparent"
-                radius: 8
-                
-                ColumnLayout {
-                  anchors.fill: parent
-                  anchors.margins: 0
-                  spacing: 6
-
-                  // Header
-                  RowLayout {
-                    Layout.fillWidth: true
-                    Text {
-                      text: "Notifications"
-                      color: Colors.text_variant4 
-                      font.pixelSize: 13
-                      font.bold: true
-                    }
-                    Item { Layout.fillWidth: true }
-                    Rectangle {
-                      width: 18; height: 18
-                      color: notifHeaderBtn.containsMouse ? Colors.notif_btn_hovered : "transparent"
-                      radius: 4
-
-                      Text {
-                        anchors.centerIn: parent
-                        text: ""
-                        color: Colors.notif_btn_icon
-                        font.pixelSize: 14
-                      }
-
-                      MouseArea {
-                        id: notifHeaderBtn
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: root.openNotifications()
-                      }
-                    }
-                  }
-
-                  // List
-                  ListView {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true  
-                    clip: true
-                    spacing: 6
-                    model: notifHistory
 
                     Text {
-                      anchors.centerIn: parent
-                      text: "No new notifications"
-                      color: Colors.text
+                      text: Math.round(panelVolumeSlider.value) + ""
                       font.pixelSize: 12
-                      visible: notifHistory.length === 0
-                    }
-
-                    delegate: Rectangle {
-                      width: ListView.view.width
-                      height: notifItemHeight
-                      color: Colors.notif_item_bg
-                      radius: 6
-
-                      Column {
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.leftMargin: 8
-                        anchors.rightMargin: 8
-                        spacing: 2
-                        RowLayout {
-                          width: parent.width
-                          Text { 
-                            text: modelData.appName
-                            color: Colors.notif_app_name
-                            font.pixelSize: 10
-                          }
-                          Item { Layout.fillWidth: true }
-                          Text { 
-                            text: modelData.time
-                            color: Colors.notif_time
-                            font.pixelSize: 10
-                          }
-                        }
-                        Text {
-                          text: modelData.summary
-                          color: Colors.notif_summary
-                          font.pixelSize: 11
-                          elide: Text.ElideRight
-                          width: parent.width
-                        }
-                      }
+                      font.bold: true
+                      color: Colors.text_variant1
+                      Layout.preferredWidth: 20
+                      horizontalAlignment: Text.AlignRight
                     }
                   }
                 }
               }
+
             }
           }
 
@@ -734,6 +650,7 @@ PanelWindow {
           }
         }
       }
+
       Canvas {
         id: leftWing
         width: 14; height: 14

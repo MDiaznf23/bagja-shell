@@ -393,7 +393,7 @@ PanelWindow {
         }
       }
 
-      // ── APPS MODE (your original list, unchanged) ──────
+      // ── APPS MODE ──────
       Rectangle {
         Layout.fillWidth: true
         Layout.fillHeight: true

@@ -7,6 +7,7 @@ import Quickshell.Wayland
 import Quickshell.Services.SystemTray
 import "../services"
 import "../tooltips"
+import "../components"
 import ".."
 
 PanelWindow {
@@ -14,6 +15,7 @@ PanelWindow {
   signal toggleClicked()
   signal menuClicked()
   signal panelClicked()
+  signal notificationClicked()
   signal weatherHovered()
   signal weatherUnhovered()
   signal clipboardClicked()
@@ -320,12 +322,12 @@ PanelWindow {
         spacing: 4
         Layout.alignment: Qt.AlignVCenter
 
-        Text {
+        SvgIcon {
           id: iconText
-          text: StateGlobals.weatherIcon
+          source: StateGlobals.weatherIconSource
+          size: 16
           color: Colors.icon_on_container
-          font.family: "JetBrainsMono Nerd Font"
-          font.pixelSize: 14
+          Layout.alignment: Qt.AlignVCenter
         }
 
         Text {
@@ -383,11 +385,11 @@ PanelWindow {
           height: 14
           clip: true
 
-          Text {
+          SvgIcon {
             anchors.centerIn: parent
-            text: "‹"
+            source: Icons.url("chevron-left")
+            size: 14
             color: trayRow.expanded ? Colors.text_variant2 : Colors.text
-            font.pixelSize: 16
           }
 
           MouseArea {
@@ -462,11 +464,11 @@ PanelWindow {
           height: 14
           clip: true
 
-          Text {
+          SvgIcon {
             anchors.centerIn: parent
-            text: "›"
+            source: Icons.url("chevron-right")
+            size: 14
             color: Colors.text
-            font.pixelSize: 16
           }
 
           MouseArea {
@@ -493,11 +495,13 @@ PanelWindow {
           RowLayout {
             id: wifiLayout
             anchors.centerIn: parent
-            Text {
-              text: StateGlobals.wifiIcon
+            spacing: 4
+
+            SvgIcon {
+              source: Icons.url("wifi")
+              size: 14
               color: Colors.text_variant1
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 11
+              Layout.alignment: Qt.AlignVCenter
             }
             Text {
               text: StateGlobals.wifiDesc
@@ -540,12 +544,13 @@ PanelWindow {
           RowLayout {
             id: batLayout
             anchors.centerIn: parent
+            spacing: 4
 
-            Text {
-              text: StateGlobals.batIcon
+            SvgIcon {
+              source: StateGlobals.batIconSource
+              size: 14
               color: Colors.text_variant1
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 11
+              Layout.alignment: Qt.AlignVCenter
             }
 
             Text {
@@ -588,11 +593,10 @@ PanelWindow {
             anchors.centerIn: parent
             spacing: 0
 
-            Text {
-              text: BluetoothService.icon
+            SvgIcon {
+              source: BluetoothService.iconSource
+              size: 13
               color: Colors.text_variant1
-              font.pixelSize: 12
-              font.family: "JetBrainsMono Nerd Font"
               Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
               HoverHandler {
                 onHoveredChanged: {
@@ -623,12 +627,11 @@ PanelWindow {
           radius: 15
           Layout.alignment: Qt.AlignVCenter
 
-          Text {
+          SvgIcon {
             anchors.centerIn: parent
-            text: "󰅍"
+            source: Icons.url("clipboard")
+            size: 14
             color: Colors.text_variant1
-            font.pixelSize: 12
-            font.family: "JetBrainsMono Nerd Font"
           }
 
           MouseArea {
@@ -637,6 +640,31 @@ PanelWindow {
             onClicked: {
               topBar.clipboardClicked()
             }
+          }
+        }
+
+        Rectangle {
+          id: bellRect
+          width: bellLayout.width + 15
+          height: 20
+          color: Colors.isDark ? Qt.alpha(Colors.container_level_1, 0.9) : Qt.alpha(Colors.container_level_1, 0.7)
+          radius: 15
+
+          RowLayout {
+            id: bellLayout
+            anchors.centerIn: parent
+
+            SvgIcon {
+              source: Icons.url("bell")
+              size: 13
+              color: Colors.text_variant1
+            }
+          }
+
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: topBar.notificationClicked()
           }
         }
 
@@ -654,32 +682,29 @@ PanelWindow {
 
             Row {
               spacing: 6
-              Text {
-                text: StateGlobals.brightIcon
+              SvgIcon {
+                source: Icons.url("sun")
+                size: 13
                 color: Colors.text_variant1
-                font.pixelSize: 10
-                font.family: "JetBrainsMono Nerd Font"
               }
-              Text {
-                text: StateGlobals.volIcon
+              SvgIcon {
+                source: StateGlobals.volIconSource
+                size: 13
                 color: Colors.text_variant1
-                font.pixelSize: 10
-                font.family: "JetBrainsMono Nerd Font"
               }
             }
           }
-        }
+        } 
       }
 
       Row {
         Layout.alignment: Qt.AlignVCenter
         spacing: 4
 
-        Text {
-          text: "󰃭"           
-          color: Colors.text 
-          font.family: "JetBrainsMono Nerd Font" 
-          font.pixelSize: 13
+        SvgIcon {
+          source: Icons.url("calendar")
+          size: 14
+          color: Colors.text
           anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -692,13 +717,12 @@ PanelWindow {
           text: Qt.formatTime(StateGlobals.clockDate, "hh:mm")
           anchors.verticalCenter: parent.verticalCenter
         }
-      }
+      } 
 
-      Text {
-        text: ""
+      SvgIcon {
+        source: Icons.url("menu")
+        size: 16
         color: Colors.text_variant1
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 14
         MouseArea {
           anchors.fill: parent
           cursorShape: Qt.PointingHandCursor
@@ -720,12 +744,11 @@ PanelWindow {
         anchors.centerIn: parent
         spacing: 5
 
-        Text {
+        SvgIcon {
           anchors.verticalCenter: parent.verticalCenter
-          font.family: "Iosevka Nerd Font"
-          text: " "
+          source: Icons.url("app-window")
+          size: 14
           color: Colors.text_variant3
-          font.pixelSize: 12
         }
 
         Text {
