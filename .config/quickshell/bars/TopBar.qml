@@ -656,8 +656,9 @@ PanelWindow {
 
             SvgIcon {
               source: Icons.url("bell")
-              size: 13
+              size: 14
               color: Colors.text_variant1
+              transform: Translate { y: 0.5 }
             }
           }
 
