@@ -1,54 +1,47 @@
 #!/bin/bash
+# m3wal-post.sh — versi cepat (aman untuk wallpaper video)
 
-# Generate rofi image
-magick ~/.config/m3-colors/current_wallpaper -resize 800x -quality 100 ~/.config/m3-colors/current-rofi.jpg &
+CFG="$HOME/.config/m3-colors"
+SCHEME=$(ls -t "$CFG"/output/*.json | head -1)
 
-kill -SIGUSR1 $(pidof kitty) 2>/dev/null
+STILL="$CFG/current_wallpaper_still"
+[ -e "$STILL" ] || STILL="$CFG/current_wallpaper"
 
-# Tambahkan ini di wallpaper generator script setelah generate custom.lua
-nvim --headless -c "lua require('base46').compile()" -c "qa"
+# ── Satu kali baca JSON: tulis colors.json + ambil MODE ─────────────────────
+MODE=$(python3 - "$SCHEME" "$HOME/.config/quickshell/colors/colors.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+out = dict(data["colors"]); out["mode"] = data["mode"]
+json.dump(out, open(sys.argv[2], "w"), indent=2)
+print(data["mode"])
+PY
+)
 
-SCHEME=$(ls -t ~/.config/m3-colors/output/*.json | head -1)
-python3 -c "
-import json
-data = json.load(open('$SCHEME'))
-out = dict(data['colors'])
-out['mode'] = data['mode']
-print(json.dumps(out, indent=2))
-" > ~/.config/quickshell/colors/colors.json
+# ── Rofi image (background, dari still → cepat) ─────────────────────────────
+magick "$STILL" -resize 800x -quality 90 "$CFG/current-rofi.jpg" &
 
-# ── GTK theme ────────────────────────────────────────────────────────────────
-MODE=$(python3 -c "import json; print(json.load(open('$SCHEME'))['mode'])")
-export M3_MODE="$MODE"
+# ── Kitty ───────────────────────────────────────────────────────────────────
+pids=$(pidof kitty) && kill -SIGUSR1 $pids 2>/dev/null
 
-# Apply gsettings
-gsettings set org.gnome.desktop.interface gtk-theme "FlatColor"
+# ── Neovim base46 (background supaya tidak blocking) ────────────────────────
+nvim --headless -c "lua require('base46').compile()" -c "qa" >/dev/null 2>&1 &
 
+# ── GTK: gsettings dijalankan sekali saja ───────────────────────────────────
 if [ "$MODE" = "dark" ]; then
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    gsettings set org.gnome.desktop.interface icon-theme "Tela-dark"
+    SCHEME_PREF="prefer-dark";  ICONS="Tela-dark"; OTHER="default"
 else
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
-    gsettings set org.gnome.desktop.interface icon-theme "Tela"
+    SCHEME_PREF="prefer-light"; ICONS="Tela";      OTHER="prefer-dark"
 fi
-
-if [ "$MODE" = "dark" ]; then
-    gsettings set org.gnome.desktop.interface color-scheme "default"
-    sleep 0.1
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-else
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    sleep 0.1
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
-fi
-
-# Force GTK refresh (same-mode different color scheme)
+gsettings set org.gnome.desktop.interface icon-theme "$ICONS"
+# toggle sekali supaya GTK reload warna
+gsettings set org.gnome.desktop.interface color-scheme "$OTHER"
 gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"
-sleep 0.1
+gsettings set org.gnome.desktop.interface color-scheme "$SCHEME_PREF"
 gsettings set org.gnome.desktop.interface gtk-theme "FlatColor"
+echo "[gtk] Applied: FlatColor | $ICONS | $SCHEME_PREF"
 
-echo "[gtk] Applied: FlatColor | Tela-${MODE} | prefer-${MODE}"
-
-# ── Dolphin color reload ──────────────────────────────────────────────────────
+# ── Dolphin ─────────────────────────────────────────────────────────────────
 pkill -x dolphin 2>/dev/null || true
-echo "[kde] Dolphin killed — New color will be applied"
+echo "[kde] Dolphin killed — warna baru diterapkan saat dibuka lagi"
+
+wait

@@ -48,7 +48,7 @@ PanelWindow {
 
   Process {
     id: getWorkspace
-    command: ["hyprctl", "activeworkspace", "-j"]
+    command: ["bash", Quickshell.shellDir + "/scripts/wm.sh", "active-workspace"]
     running: false
     stdout: StdioCollector {
         waitForEnd: true
@@ -87,11 +87,13 @@ PanelWindow {
   onVisibleChanged: {
     if (visible) {
         isShowing = true
-        currentMode = "select"
+        // Sessions need Hyprland; elsewhere skip the mode selector
+        currentMode = Compositor.hasSessions ? "select" : "apps"
         modeSelectIndex = 0
         sessionIndex = 0
         searchInput.text = ""
         updateFilteredApps()
+        if (!Compositor.hasSessions) Qt.callLater(function() { searchInput.forceActiveFocus() })
 
         getWorkspace.running = false  // reset dulu
         getWorkspace.running = true   // baru jalankan lagi
@@ -426,7 +428,7 @@ PanelWindow {
 
                 MouseArea {
                   anchors.fill: parent
-                  onClicked: { currentMode = "select" }
+                  onClicked: { if (Compositor.hasSessions) currentMode = "select"; else requestClose() }
                 }
               }
 
@@ -781,7 +783,8 @@ PanelWindow {
                 if (text !== "") {
                   text = ""           // first Esc clears search
                 } else {
-                  currentMode = "select"  // second Esc goes back to mode select
+                  if (Compositor.hasSessions) currentMode = "select"  // second Esc goes back to mode select
+                  else requestClose()
                 }
                 event.accepted = true
               } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {

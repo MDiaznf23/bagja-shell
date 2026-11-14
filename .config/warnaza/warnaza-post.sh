@@ -1,68 +1,69 @@
-# ~/.config/warnaza/warnaza-post.sh
+#!/bin/bash
+# ~/.config/warnaza/warnaza-post.sh — versi cepat (aman untuk wallpaper video)
 
-if file -bL ~/.config/warnaza/current_wallpaper | grep -q "GIF"; then
-    ffmpeg -y -i ~/.config/warnaza/current_wallpaper \
-        -vf "fps=15,scale=1920:-2:flags=lanczos" \
-        -c:v libx264 -pix_fmt yuv420p -an \
-        ~/.config/warnaza/current_wallpaper.mp4
-else
-    magick ~/.config/warnaza/current_wallpaper -resize 800x -quality 100 ~/.config/warnaza/current-rofi.jpg
-fi
+CFG="$HOME/.config/warnaza"
+SCHEME=$(ls -t "$CFG"/output/*.json | head -1)
 
-kill -SIGUSR1 $(pidof kitty) 2>/dev/null
+# Pakai gambar diam (frame video) kalau ada; jangan pernah kasih video ke magick
+STILL="$CFG/current_wallpaper_still"
+[ -e "$STILL" ] || STILL="$CFG/current_wallpaper"
 
-# neovim reload
-nvim --headless -c "lua require('base46').compile()" -c "qa"
-
-SCHEME=$(ls -t ~/.config/warnaza/output/*.json | head -1)
-
-python3 -c "
-import json
-data = json.load(open('$SCHEME'))
+# ── Satu kali baca JSON: tulis colors.json + ambil MODE ─────────────────────
+MODE=$(python3 - "$SCHEME" "$HOME/.config/quickshell/colors/colors.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
 
 out = {}
-for name, entry in data['colors'].items():
-    out[name]              = entry['hex']
-    out[f'{name}_rgb']     = entry['rgb']
-    out[f'{name}_hypr']    = entry['hypr']
+for name, entry in data["colors"].items():
+    out[name]          = entry["hex"]
+    out[f"{name}_rgb"]  = entry["rgb"]
+    out[f"{name}_hypr"] = entry["hypr"]
+out["mode"] = data["mode"]
 
-out['mode'] = data['mode']
-print(json.dumps(out, indent=2))
-" > ~/.config/quickshell/colors/colors.json
-
-# ── GTK theme ────────────────────────────────────────────────────────────────
-
-SCHEME=$(ls -t ~/.config/warnaza/output/*.json | head -1)
-MODE=$(python3 -c "import json; print(json.load(open('$SCHEME'))['mode'])")
+json.dump(out, open(sys.argv[2], "w"), indent=2)
+print(data["mode"])
+PY
+)
 export WARNAZA_MODE="$MODE"
 
-# Apply gsettings
-gsettings set org.gnome.desktop.interface gtk-theme "FlatColor"
-if [ "$MODE" = "dark" ]; then
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    gsettings set org.gnome.desktop.interface icon-theme "Tela-dark"
-else
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
-    gsettings set org.gnome.desktop.interface icon-theme "Tela"
+# ── Gambar rofi (dari frame diam; [0] = frame pertama untuk GIF) ────────────
+magick "${STILL}[0]" -resize 800x -quality 90 "$CFG/current-rofi.jpg" &
+
+# ── GIF -> mp4 (dipakai komponen lain). Hanya dikonversi kalau sumbernya ────
+#    berubah, bukan di setiap apply.
+SRC=$(readlink -f "$CFG/current_wallpaper")
+if file -bL "$SRC" | grep -q "GIF"; then
+    STAMP="$SRC|$(stat -c '%Y|%s' "$SRC")"
+    if [ ! -s "$CFG/current_wallpaper.mp4" ] || [ "$(cat "$CFG/current_wallpaper.mp4.src" 2>/dev/null)" != "$STAMP" ]; then
+        ffmpeg -nostdin -loglevel error -y -i "$SRC" \
+            -vf "fps=15,scale=1920:-2:flags=lanczos" \
+            -c:v libx264 -pix_fmt yuv420p -an \
+            "$CFG/current_wallpaper.mp4" && echo "$STAMP" > "$CFG/current_wallpaper.mp4.src"
+    fi
 fi
 
-# Force GTK refresh (same-mode different color scheme)
-gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"
-sleep 0.1
-gsettings set org.gnome.desktop.interface gtk-theme "FlatColor"
+# ── Kitty ───────────────────────────────────────────────────────────────────
+pids=$(pidof kitty) && kill -SIGUSR1 $pids 2>/dev/null
 
+# ── Neovim base46 (background supaya tidak blocking) ────────────────────────
+nvim --headless -c "lua require('base46').compile()" -c "qa" >/dev/null 2>&1 &
+
+# ── GTK: gsettings dijalankan sekali saja ───────────────────────────────────
 if [ "$MODE" = "dark" ]; then
-    gsettings set org.gnome.desktop.interface color-scheme "default"
-    sleep 0.1
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+    SCHEME_PREF="prefer-dark";  ICONS="Tela-dark"; OTHER="default"
 else
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    sleep 0.1
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
-fi 
+    SCHEME_PREF="prefer-light"; ICONS="Tela";      OTHER="prefer-dark"
+fi
+gsettings set org.gnome.desktop.interface icon-theme "$ICONS"
+# toggle sekali supaya GTK reload warna
+gsettings set org.gnome.desktop.interface color-scheme "$OTHER"
+gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"
+gsettings set org.gnome.desktop.interface color-scheme "$SCHEME_PREF"
+gsettings set org.gnome.desktop.interface gtk-theme "FlatColor"
+echo "[gtk] Applied: FlatColor | $ICONS | $SCHEME_PREF"
 
-echo "[gtk] Applied: FlatColor | Tela-${MODE} | prefer-${MODE}"
-
-# ── Dolphin color reload ──────────────────────────────────────────────────────
+# ── Dolphin ─────────────────────────────────────────────────────────────────
 pkill -x dolphin 2>/dev/null || true
-echo "[kde] Dolphin killed — New color will be applied"
+echo "[kde] Dolphin killed — warna baru diterapkan saat dibuka lagi"
+
+wait

@@ -4,7 +4,6 @@ import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Hyprland
 
 import "../services"
 import ".."
@@ -58,9 +57,21 @@ PanelWindow {
 
   signal requestClose()
 
+  // Perintah apply yang menunggu karena proses sebelumnya masih jalan
+  // (apply video bisa beberapa detik; tanpa antrian, klik/scroll cepat hilang).
+  property string pendingCmd: ""
+
   Process {
     id: setWallpaperProcess
     running: false
+    onExited: {
+      if (wallpaperPicker.pendingCmd !== "") {
+        var c = wallpaperPicker.pendingCmd
+        wallpaperPicker.pendingCmd = ""
+        setWallpaperProcess.command = ["bash", "-c", c]
+        setWallpaperProcess.running = true
+      }
+    }
   }
 
   Process {
@@ -90,7 +101,7 @@ PanelWindow {
   Process {
     id: watcherProcess
     command: ["bash", "-c",
-      "inotifywait -m -e create,moved_to,delete,moved_from '" +
+      "inotifywait -m -e create,moved_to,delete,moved_from,close_write '" +
       Quickshell.env("HOME") + "/Pictures/Wallpapers' --format '%e %f' 2>/dev/null"]
     running: true
     stdout: SplitParser {
@@ -108,7 +119,7 @@ PanelWindow {
               break
             }
           }
-        } else if (event === "CREATE" || event === "MOVED_TO") {
+        } else if (event === "CREATE" || event === "MOVED_TO" || event.indexOf("CLOSE_WRITE") === 0) {
           watcherDebounce.restart()
         }
       }
@@ -200,7 +211,7 @@ PanelWindow {
     id: scanProcess
     command: ["bash", "-c",
     "find " + Quickshell.env("HOME") + "/Pictures/Wallpapers -maxdepth 1 -type f " +
-    "\\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' \\) | sort | " +
+    "\\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' -o -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' -o -iname '*.mov' -o -iname '*.m4v' \\) | sort | " +
     "while read f; do " +
     "  base=$(basename \"$f\" | sed 's/\\.[^.]*$//'); " +
     "  thumb=\"/tmp/wallpaper-thumbs/$base.jpg\"; " +
@@ -302,9 +313,37 @@ PanelWindow {
               width: wallpaperList.width
               height: 90
               property bool pressed: false
-              property bool isGif: model.wallpath.toLowerCase().endsWith(".gif")
+              property string wpLower: model.wallpath.toLowerCase()
+              property bool isGif: wpLower.endsWith(".gif")
+              property bool isVideo: /\.(mp4|mkv|webm|mov|m4v)$/.test(wpLower)
               property bool isActive: wallpaperList.currentIndex === index
-              property bool useGif: isGif && isActive && gifImage.status === Image.Ready
+              // Video: preview GIF kecil (260x180, 3 detik) dibuat sekali lewat ffmpeg,
+              // lalu diputar AnimatedImage. Jauh lebih ringan daripada memutar video asli.
+              property bool previewReady: false
+              property string previewPath: model.thumbpath.split("?")[0].replace(/\.jpg$/, ".preview.gif")
+              property bool useGif: (isGif || (isVideo && previewReady)) && isActive && gifImage.status === Image.Ready
+
+              // Buat preview setelah item menyala 250ms (hindari kerja sia-sia saat scroll cepat)
+              Timer {
+                interval: 250
+                running: isVideo && isActive && !previewReady
+                onTriggered: previewProc.running = true
+              }
+
+              Process {
+                id: previewProc
+                command: ["bash", "-c",
+                  'v="$1"; p="$2"; ' +
+                  'if [ -s "$p" ] && [ "$p" -nt "$v" ]; then exit 0; fi; ' +
+                  'mkdir -p "$(dirname "$p")"; t="$p.tmp.gif"; ' +
+                  'vf="fps=10,scale=260:180:force_original_aspect_ratio=increase,crop=260:180,split[a][b];[a]palettegen=max_colors=96[pal];[b][pal]paletteuse=dither=bayer:bayer_scale=4"; ' +
+                  'ffmpeg -nostdin -loglevel error -y -ss 1 -t 3 -i "$v" -an -sn -vf "$vf" -loop 0 "$t" ' +
+                  '|| ffmpeg -nostdin -loglevel error -y -t 3 -i "$v" -an -sn -vf "$vf" -loop 0 "$t"; ' +
+                  '[ -s "$t" ] && mv -f "$t" "$p"',
+                  "preview", model.wallpath, previewPath]
+                running: false
+                onExited: (exitCode, exitStatus) => { previewReady = (exitCode === 0) }
+              }
 
               Rectangle {
                 id: delegateRect
@@ -342,12 +381,15 @@ PanelWindow {
                   id: gifImage
                   anchors.fill: parent
                   anchors.margins: 2
-                  source: (isGif && isActive) ? "file://" + model.wallpath : ""
+                  source: !isActive ? ""
+                        : isGif ? "file://" + model.wallpath
+                        : (isVideo && previewReady) ? "file://" + previewPath
+                        : ""
                   fillMode: Image.PreserveAspectCrop
                   smooth: true
                   asynchronous: true
                   visible: false
-                  playing: isGif && isActive
+                  playing: isActive && (isGif || (isVideo && previewReady))
                   cache: false
                   sourceSize: Qt.size(130, 90)
                   opacity: status === Image.Ready ? 1 : 0
@@ -417,8 +459,12 @@ PanelWindow {
               var item = wallpaperModel.get(currentIndex)
               if (item) {
                 var cmd = StateGlobals.colorEngine + " '" + item.wallpath + "'"
-                setWallpaperProcess.command = ["bash", "-c", cmd]
-                setWallpaperProcess.running = true
+                if (setWallpaperProcess.running) {
+                  wallpaperPicker.pendingCmd = cmd   // jalankan setelah yang sekarang selesai
+                } else {
+                  setWallpaperProcess.command = ["bash", "-c", cmd]
+                  setWallpaperProcess.running = true
+                }
               }
             }
 
@@ -507,7 +553,7 @@ PanelWindow {
 
             Text {
               anchors.horizontalCenter: parent.horizontalCenter
-              text: wallpaperModel.count + " pictures"
+              text: wallpaperModel.count + " wallpapers"
               color: Qt.rgba(1, 1, 1, 0.4)
               font.pixelSize: 10
             }

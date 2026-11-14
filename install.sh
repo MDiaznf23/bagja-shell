@@ -37,6 +37,9 @@ PACMAN_PKGS=(
     # Hyprland
     hyprland xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpolkitagent kitty
 
+    # niri (optional second compositor)
+    niri xwayland-satellite xdg-desktop-portal-gnome
+
     # Audio
     pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber libpulse
 
@@ -72,6 +75,7 @@ AUR_PKGS=(
     m3wal
     mpd-mpris
     warnaza
+    mpvpaper
 )
 
 yay -S --needed --noconfirm "${AUR_PKGS[@]}"
@@ -96,6 +100,9 @@ section "Setup Dotfiles"
 pkill -f "^qs$" >/dev/null 2>&1 || true
 sleep 0.3
 
+# If ~/.config/quickshell is already a symlink (re-run on a machine with the
+# theme switcher set up), remove only the symlink itself. Otherwise cp below
+# would merge this theme's files into whichever theme the symlink points to.
 if [ -L "$HOME/.config/quickshell" ]; then
     rm "$HOME/.config/quickshell"
 fi
@@ -132,6 +139,7 @@ STATE_FILE="$HOME/.cache/quickshell/current-theme"
 mkdir -p "$THEMES_DIR" "$HYPR_DIR" "$STAGING_DIR" "$(dirname "$STATE_FILE")"
 
 # Move the quickshell contents out of ~/.config into its final home,
+# then turn ~/.config/quickshell into a symlink pointing back to it.
 if [ -d "$HOME/.config/quickshell" ] && [ ! -L "$HOME/.config/quickshell" ]; then
     rm -rf "$THEMES_DIR/$THEME_NAME"
     mv "$HOME/.config/quickshell" "$THEMES_DIR/$THEME_NAME"
@@ -141,7 +149,9 @@ else
     info "~/.config/quickshell is already a symlink, skipping"
 fi
 
-# Move hyprland.lua into a per-theme file (<name>.lua)
+# Move hyprland.lua into a per-theme file (<name>.lua), point
+# active-ricing.lua at it, and create the hyprland.lua loader
+# (just require("active-ricing")).
 if [ -f "$HYPR_DIR/hyprland.lua" ] && [ ! -L "$HYPR_DIR/hyprland.lua" ]; then
     mv "$HYPR_DIR/hyprland.lua" "$HYPR_DIR/$THEME_NAME.lua"
     ln -sfn "$HYPR_DIR/$THEME_NAME.lua" "$HYPR_DIR/active-ricing.lua"
@@ -153,7 +163,24 @@ else
     info "~/.config/hypr/hyprland.lua is already a loader/symlink, skipping"
 fi
 
-# Sync the staging git checkout 
+# Same pattern for niri: move config.kdl into a per-theme file (<name>.kdl),
+# point active-ricing.kdl at it, and create the config.kdl loader
+# (just include "active-ricing.kdl"). colors_niri.kdl stays next to them.
+NIRI_DIR="$HOME/.config/niri"
+if [ -f "$NIRI_DIR/config.kdl" ] && [ ! -L "$NIRI_DIR/config.kdl" ] \
+   && ! grep -q 'include "active-ricing.kdl"' "$NIRI_DIR/config.kdl"; then
+    mv "$NIRI_DIR/config.kdl" "$NIRI_DIR/$THEME_NAME.kdl"
+    ln -sfn "$NIRI_DIR/$THEME_NAME.kdl" "$NIRI_DIR/active-ricing.kdl"
+    cat > "$NIRI_DIR/config.kdl" << 'EOF'
+include "active-ricing.kdl"
+EOF
+    success "niri config.kdl moved to $NIRI_DIR/$THEME_NAME.kdl (loader + symlink created)"
+else
+    info "No niri config to set up (or it is already a loader), skipping"
+fi
+
+# Sync the staging git checkout (this repo already has .git) so the
+# Themes tab immediately reports "installed" without a fresh clone.
 rm -rf "$STAGING_DIR/$THEME_NAME"
 cp -r "$DOTFILES_DIR" "$STAGING_DIR/$THEME_NAME"
 success "Staging git checkout synced for update detection"
@@ -166,6 +193,9 @@ success "Marked as active theme ($THEME_NAME)"
 section "Set Executable Permissions"
 
 find "$DOTFILES_DIR" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} \;
+for d in "$HOME/.config/warnaza/hooks" "$HOME/.config/m3-colors/hooks" "$HOME/.local/share/quickshell-themes"; do
+    [ -d "$d" ] && find "$d" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} \;
+done
 success "Permissions set"
 
 # ─── 7. Setup m3wal ───────────────────────────────────────────

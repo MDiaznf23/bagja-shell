@@ -10,6 +10,7 @@ get_wm() {
     elif pgrep -x "awesome" > /dev/null; then echo "awesome";
     elif pgrep -x "dwm" > /dev/null; then echo "dwm";
     elif pgrep -x "hyprland" > /dev/null; then echo "hyprland";
+    elif pgrep -x "niri" > /dev/null; then echo "niri";
     elif [ "$XDG_CURRENT_DESKTOP" ]; then echo "$XDG_CURRENT_DESKTOP";
     else echo "Unknown"; fi
 }

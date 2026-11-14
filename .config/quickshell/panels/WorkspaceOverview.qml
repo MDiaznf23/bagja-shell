@@ -45,9 +45,6 @@ PanelWindow {
     }
   }
 
-  Process { id: moveProc; running: false; command: [] }
-  Process { id: killProc; running: false; command: [] }
-  Process { id: switchProc; running: false; command: [] }
 
   onVisibleChanged: {
     if (visible) {
@@ -82,8 +79,7 @@ PanelWindow {
       } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Space) {
         if (workspaceOverview.workspaceList.length > 0) {
           var wsId = workspaceOverview.workspaceList[selectedWorkspace].id
-          switchProc.command = ["hyprctl", "dispatch", `hl.dsp.focus({ workspace = "${wsId}" })`]
-          switchProc.running = true
+          Compositor.focusWorkspace(wsId)
           workspaceOverview.requestClose()
         }
       }
@@ -194,8 +190,7 @@ PanelWindow {
               enabled: !workspaceOverview.draggingWindow
               propagateComposedEvents: true
               onClicked: {
-                switchProc.command = ["hyprctl", "dispatch", `hl.dsp.focus({ workspace = "${wsData.id}" })`]
-                switchProc.running = true
+                Compositor.focusWorkspace(wsData.id)
                 workspaceOverview.requestClose()
               }
             }
@@ -214,8 +209,7 @@ PanelWindow {
                 if (workspaceOverview.draggingWindow &&
                     workspaceOverview.draggingFromWs !== wsData.id &&
                     workspaceOverview.draggingClass !== "") {
-                  moveProc.command = ["hyprctl", "dispatch", `hl.dsp.window.move({ workspace = ${wsData.id}, silent = true, window = "address:${workspaceOverview.draggingAddress}" })`]
-                  moveProc.running = true
+                  Compositor.moveWindow(workspaceOverview.draggingAddress, wsData.id)
                 }
                 workspaceOverview.draggingWindow = false
                 workspaceOverview.dropTargetWorkspace = -1
@@ -339,8 +333,7 @@ PanelWindow {
                               anchors.fill: parent
                               cursorShape: Qt.PointingHandCursor
                               onClicked: {
-                                killProc.command = ["hyprctl", "dispatch", `hl.dsp.window.close({ window = "address:${appData.address}" })`]
-                                killProc.running = true
+                                Compositor.closeWindow(appData.address)
                               }
                             }
                           }

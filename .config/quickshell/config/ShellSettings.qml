@@ -1040,7 +1040,7 @@ FloatingWindow {
           }
         }
 
-        // About 
+        // About
         ColumnLayout {
           visible: root.activeTab === "About"
           Layout.fillWidth: true
@@ -1086,26 +1086,35 @@ FloatingWindow {
             }
 
             Text {
-              text: `The philosophy behind this is simple. "Bagja" means happy in my language so the user can be happy about their desktop.`
+              text: `In Sundanese, "bagja" means happy. The idea is simple: your desktop should make you happy, and it should feel like yours.`
               color: Colors.text_variant1
               font.pixelSize: 11
               Layout.fillWidth: true
-              wrapMode: Text.WordWrap  
+              wrapMode: Text.WordWrap
             }
 
             Text {
-              text: `I built Bagja because my ADHD makes sticking to a strict, single workflow frustrating. I needed a shell that adapts to my fluctuating energy and memory, so I merged the best parts of different desktop paradigms into one:`
+              text: `Bagja is one shell that hosts many complete desktop ricings. Each ricing has its own look, layout and compositor setup, and you can switch between them, or download new ones, from the Themes tab.`
               color: Colors.text_variant1
               font.pixelSize: 11
               Layout.fillWidth: true
-              wrapMode: Text.WordWrap  
+              wrapMode: Text.WordWrap
+            }
+
+            Text {
+              text: `It is built around one belief: the best workflow is the one that fits you today. Some days that is fast keyboard navigation, other days a fully clickable interface, and energy and memory change from day to day. Bagja supports both.`
+              color: Colors.text_variant1
+              font.pixelSize: 11
+              Layout.fillWidth: true
+              wrapMode: Text.WordWrap
             }
 
             Repeater {
               model: [
-                "The Keybind Problem: Keyboard navigation is fast, but forgetting shortcuts is a daily struggle. Bagja includes a bottom dock for quick visual reference.",
-                "The Memory Problem: Docks have limits, and I often forget what packages I have installed over time. To fix this, I integrated a full visual start menu linked to the dock.",
-                "Adaptive Energy: Some days I want the hyper-efficiency of a keyboard-only workflow. Other days, I am tired and just want a fully clickable GUI panel. Bagja seamlessly switches between both."
+                "Many ricings, one hub: Switch the whole desktop (shell, compositor config and colors) in one click, and pick up new ricings from the online catalog.",
+                "Your compositor, your choice: Runs on Hyprland and niri, and adapts to whichever one you log in to.",
+                "Nothing to memorize: Forgot a shortcut? The launcher, menus and panels give a clickable way to do everything the keybinds do.",
+                "Made to be extended: Every ricing is a plain repository listed in the catalog, so adding a new one is a one-line change."
               ]
 
               RowLayout {
@@ -1138,6 +1147,12 @@ FloatingWindow {
             Layout.fillWidth: true
             Text { text: "Version"; color: Colors.text_variant1; font.pixelSize: 11; Layout.fillWidth: true }
             Text { text: "1.0.0"; color: Colors.text; font.pixelSize: 11 }
+          }
+
+          RowLayout {
+            Layout.fillWidth: true
+            Text { text: "Compositor"; color: Colors.text_variant1; font.pixelSize: 11; Layout.fillWidth: true }
+            Text { text: Compositor.name; color: Colors.text; font.pixelSize: 11 }
           }
 
           RowLayout {

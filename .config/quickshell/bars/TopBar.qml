@@ -127,12 +127,6 @@ PanelWindow {
           property var workspaceList: []
 
           Process {
-            id: hyprDispatch
-            running: false 
-            command: []    
-          }
-
-          Process {
             id: workProc
             running: true
             command: ["bash", Quickshell.shellDir + "/scripts/get-workspaces.sh"]
@@ -289,8 +283,7 @@ PanelWindow {
                   anchors.fill: parent
                   hoverEnabled: true
                   onClicked: {
-                    hyprDispatch.command = ["hyprctl", "dispatch", "hl.dsp.focus({ workspace = " + modelData.id.toString() + " })"]
-                    hyprDispatch.running = true
+                    Compositor.focusWorkspace(modelData.id)
                   }
                 }
               } 
