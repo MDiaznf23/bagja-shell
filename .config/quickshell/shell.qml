@@ -294,71 +294,103 @@ ShellRoot {
     onTriggered: isNotificationPopupVisible = false
   }
   
-  TopBar {
-    id: topBar
-    isOpen: isDashboardVisible
-    isMenuOpen: isMenuVisible
-    anyPanelOpen: isPanelVisible || isWifiPanelVisible || isBluetoothPanelVisible || isAudioPanelVisible || isNotificationPanelVisible || isClipboardPanelVisible
-    onToggleClicked: {
-      if (isDashboardVisible) {
-        dashboard.isShowing = false        
-        dashboardCloseTimer.start()       
-      } 
-      else {
-        closeAllPanels()
-        isDashboardVisible = true          
+  Variants {
+    model: Quickshell.screens
+    TopBar {
+      id: topBar
+      required property var modelData
+      screen: modelData
+      isOpen: isDashboardVisible
+      isMenuOpen: isMenuVisible
+      anyPanelOpen: isPanelVisible || isWifiPanelVisible || isBluetoothPanelVisible || isAudioPanelVisible || isNotificationPanelVisible || isClipboardPanelVisible
+      onToggleClicked: {
+        if (isDashboardVisible) {
+          dashboard.isShowing = false        
+          dashboardCloseTimer.start()       
+        } 
+        else {
+          closeAllPanels()
+          isDashboardVisible = true          
+        }
       }
-    }
-    onMenuClicked: {
-      if (isMenuVisible) {
-        appMenu.isShowing = false
-        menuCloseTimer.start()
-      } 
-      else {
-        closeAllPanels()
-        isMenuVisible = true
+      onMenuClicked: {
+        if (isMenuVisible) {
+          appMenu.isShowing = false
+          menuCloseTimer.start()
+        } 
+        else {
+          closeAllPanels()
+          isMenuVisible = true
+        }
       }
-    }
 
-    onClipboardClicked: {
-      if (isClipboardPanelVisible) {
-        clipboardPanel.isShowing = false
-        clipboardCloseTimer.start()
-      } else {
-        closeSecondaryPanels()
-        isClipboardPanelVisible = true
+      onClipboardClicked: {
+        if (isClipboardPanelVisible) {
+          clipboardPanel.isShowing = false
+          clipboardCloseTimer.start()
+        } else {
+          closeSecondaryPanels()
+          isClipboardPanelVisible = true
+        }
+      }
+      onPanelClicked: {
+        if (isPanelVisible) {
+          panelSettings.isShowing = false
+          panelCloseTimer.start()   
+        } else {
+          closeSecondaryPanels()
+          isNotificationPopupVisible = false
+          isPanelVisible = true
+        }
+      }
+      onNotificationClicked: {
+        if (isNotificationPanelVisible) {
+          notificationPanel.isShowing = false
+          notificationPanelCloseTimer.start()
+        } else {
+          closeSecondaryPanels()
+          isNotificationPopupVisible = false
+          isNotificationPanelVisible = true
+        }
       }
     }
-    onPanelClicked: {
-      if (isPanelVisible) {
-        panelSettings.isShowing = false
-        panelCloseTimer.start()   
-      } else {
-        closeSecondaryPanels()
-        isNotificationPopupVisible = false
-        isPanelVisible = true
-      }
-    }
-    onNotificationClicked: {
-      if (isNotificationPanelVisible) {
-        notificationPanel.isShowing = false
-        notificationPanelCloseTimer.start()
-      } else {
-        closeSecondaryPanels()
-        isNotificationPopupVisible = false
-        isNotificationPanelVisible = true
-      }
-    }
-  }
   
-  LeftBar {
-    id: leftBar
-    menuVisible: isMenuVisible
-    launcherVisible: isAppLauncherVisible
   }
-  RightBar { id: rightBar }
-  BottomBar { id: bottomBar }
-  CornerConnector { id: connector }
+
+  // Semua bar dibuat satu per monitor (Variants), supaya monitor kedua
+  // tidak kosong. Panel pop-up (dashboard, launcher, dll) tetap satu.
+  Variants {
+    model: Quickshell.screens
+    LeftBar {
+      id: leftBar
+      required property var modelData
+      screen: modelData
+      menuVisible: isMenuVisible
+      launcherVisible: isAppLauncherVisible
+    }
+  }
+  Variants {
+    model: Quickshell.screens
+    RightBar {
+      required property var modelData
+      screen: modelData
+    }
+  }
+  Variants {
+    model: Quickshell.screens
+    BottomBar {
+      id: bottomBar
+      required property var modelData
+      screen: modelData
+    }
+  }
+  Variants {
+    model: Quickshell.screens
+    CornerConnector {
+      required property var modelData
+      targetScreen: modelData
+    }
+  }
 
   Timer {
     id: menuCloseTimer

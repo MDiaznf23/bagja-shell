@@ -7,8 +7,11 @@ import ".."
 
 
 QtObject {
+  id: root
+  property var targetScreen: null
 
   property var topLeft: PanelWindow {
+    screen: root.targetScreen
     anchors { top: true; left: true }
     margins { top: -2; left: -2 }
     implicitWidth: 15; implicitHeight: 15
@@ -47,6 +50,7 @@ QtObject {
   }
 
   property var topRight: PanelWindow {
+    screen: root.targetScreen
     anchors { top: true; right: true } 
     margins { top: -2; right: -2 }
     implicitWidth: 15; implicitHeight: 15
@@ -87,6 +91,7 @@ QtObject {
   }
 
   property var bottomLeft: PanelWindow {
+    screen: root.targetScreen
     anchors { bottom: true; left: true }
     margins { bottom: -2; left: -2 }
     implicitWidth: 15; implicitHeight: 15
@@ -120,6 +125,7 @@ QtObject {
   }
 
   property var bottomRight: PanelWindow {
+    screen: root.targetScreen
     anchors { bottom: true; right: true }
     margins { bottom: -2; right: -2 }
     implicitWidth: 15; implicitHeight: 15

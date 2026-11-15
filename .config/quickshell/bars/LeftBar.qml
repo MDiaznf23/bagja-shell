@@ -147,7 +147,7 @@ PanelWindow {
       }
     }
 
-    property real screenHeight: Quickshell.screens[0].height
+    property real screenHeight: leftBar.screen ? leftBar.screen.height : Quickshell.screens[0].height
     property real popupY: (screenHeight - mediaPopup.implicitHeight) / 2
     property real wStart: Math.max(0, popupY / screenHeight)
     property real wEnd: Math.min(1, (popupY + mediaPopup.implicitHeight) / screenHeight)
